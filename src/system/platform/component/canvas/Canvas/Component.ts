@@ -1,17 +1,26 @@
-import applyStyle from '../../../../../client/applyStyle'
-import { _replaceChild } from '../../../../../client/context'
-import { Element } from '../../../../../client/element'
-import { userSelect } from '../../../../../client/style/userSelect'
-import NOOP from '../../../../../NOOP'
+import { draw } from '../../../../../client/canvas/draw'
+import { getSize } from '../../../../../client/getSize'
+import HTMLElement_ from '../../../../../client/html'
+import { parseRelativeUnit } from '../../../../../client/parseRelativeUnit'
+import { applyStyle, reactToFrameSize } from '../../../../../client/style'
+import { COLOR_WHITE, defaultThemeColor } from '../../../../../client/theme'
+import { APINotSupportedError } from '../../../../../exception/APINotImplementedError'
+import { isRelativeValue } from '../../../../../isRelative'
 import { System } from '../../../../../system'
 import { Dict } from '../../../../../types/Dict'
-import IMedia from '../../../../../client/IMedia'
+import { Unlisten } from '../../../../../types/Unlisten'
+import { CA } from '../../../../../types/interface/CA'
 
-export function clearCanvas(context: CanvasRenderingContext2D) {
+export function clearCanvas(
+  context: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D
+) {
   const transform = context.getTransform()
+
   context.setTransform(1, 0, 0, 1, 0, 0)
+
   const width = context.canvas.width
   const height = context.canvas.height
+
   context.clearRect(0, 0, width, height)
   context.setTransform(transform)
   context.beginPath()
@@ -20,114 +29,235 @@ export function clearCanvas(context: CanvasRenderingContext2D) {
 export interface Props {
   className?: string
   style?: Dict<string>
-  width?: number
-  height?: number
+  attr?: Dict<string>
+  width?: number | string
+  height?: number | string
+  sx?: number
+  sy?: number
   d?: any[]
 }
 
-export const DEFAULT_STYLE: Dict<string> = {
-  background: 'none',
-  width: 'fit-content',
-  height: 'fit-content',
-  touchAction: 'none',
-  display: 'block',
-  imageResizing: 'pixelated',
-  '-webkit-touch-callout': 'none',
-  ...userSelect('none'),
-}
-
-declare global {
-  interface HTMLCanvasElement {
-    captureStream(frameRate?: number): MediaStream
-  }
-}
-
-export default class Canvas extends Element<HTMLCanvasElement, Props> {
-  private _context: CanvasRenderingContext2D
-  private _canvas_el: HTMLCanvasElement
-
+export default class Canvas_
+  extends HTMLElement_<HTMLCanvasElement, Props>
+  implements CA
+{
+  private _ctx: CanvasRenderingContext2D
   private _d: any[][] = []
 
   constructor($props: Props, $system: System) {
-    super($props, $system)
+    super(
+      $props,
+      $system,
+      $system.api.document.createElement('canvas'),
+      $system.style['canvas'],
+      {
+        draggable: false,
+      },
+      {
+        style: (current) => {
+          const final_style = { ...this.$defaultStyle, ...current }
 
-    const {} = $props
+          const color = this._get_fill_style().toLowerCase()
+
+          applyStyle(this.$element, final_style)
+
+          if (
+            this._ctx.fillStyle !== color ||
+            this._ctx.strokeStyle !== color
+          ) {
+            this._ctx.fillStyle = color
+            this._ctx.strokeStyle = color
+
+            clearCanvas(this._ctx)
+
+            this._redraw()
+          }
+        },
+        width: (width: number) => {
+          this._unlisten_frame_width()
+
+          if (typeof width === 'string') {
+            if (isRelativeValue(width)) {
+              this._width_frame_unlisten = reactToFrameSize(
+                width,
+                // @ts-ignore
+                this,
+                this._set_width
+              )
+            } else {
+              width = Number.parseInt(width)
+
+              if (Number.isNaN(width)) {
+                //
+              } else {
+                this._set_width(width)
+              }
+            }
+          } else {
+            this._set_width(width)
+          }
+        },
+        height: (height: string | number) => {
+          this._unlisten_frame_height()
+
+          if (typeof height === 'string') {
+            if (isRelativeValue(height)) {
+              this._height_frame_unlisten = reactToFrameSize(
+                height,
+                // @ts-ignore
+                this,
+                this._set_height
+              )
+            } else {
+              height = Number.parseInt(height)
+
+              if (Number.isNaN(height)) {
+                //
+              } else {
+                this._set_height(height)
+              }
+            }
+          } else {
+            this._set_height(height)
+          }
+        },
+        d: (d: any[]) => {
+          this.clear()
+
+          this._d = d || []
+
+          this._draw_steps(this._d)
+        },
+        lineWidth: (lineWidth: number | undefined = 3) => {
+          this._ctx.lineWidth = lineWidth
+        },
+        sx: (sx) => {
+          const { a, b, c, d, e, f } = this._ctx.getTransform()
+
+          this._ctx.setTransform(sx ?? 1, b, c, d, e, f)
+        },
+        sy: (xy) => {
+          const { a, b, c, d, e, f } = this._ctx.getTransform()
+
+          this._ctx.setTransform(a, b, c, xy ?? 1, e, f)
+        },
+      }
+    )
+
+    const { width = 200, height = 200, d } = this.$props
+
+    this.$element.width = parseRelativeUnit(
+      width,
+      this._get_parent_width,
+      this._get_frame_width
+    )
+    this.$element.height = parseRelativeUnit(
+      height,
+      this._get_parent_height,
+      this._get_frame_height
+    )
+
+    const ctx = this.$element.getContext('2d', { willReadFrequently: true })
+
+    this._ctx = ctx
 
     this._reset()
 
-    this.$element = this._canvas_el
+    if (d) {
+      this._draw_steps(d)
+    }
+  }
+
+  public reset() {
+    super.reset()
+
+    this._reset()
+    this._clear()
+  }
+
+  private _setup = () => {}
+
+  private _get_parent_width = (): number => {
+    if (this.$slotParent) {
+      return getSize(this.$slotParent.$element).width
+    }
+
+    return 0
+  }
+
+  private _get_parent_height = (): number => {
+    if (this.$slotParent) {
+      return getSize(this.$slotParent.$element).width
+    }
+
+    return 0
+  }
+
+  private _get_frame_width = (): number => {
+    const { $width } = this.$context
+
+    return $width
+  }
+
+  private _get_frame_height = (): number => {
+    const { $height } = this.$context
+
+    return $height
   }
 
   private _reset = () => {
-    const { className, style } = this.$props
+    this._reset_context()
+  }
 
-    const old_canvas_el = this._canvas_el
+  private _reset_redraw = () => {
+    this._reset()
+    this._redraw()
+  }
 
-    const canvas_el = this._create_canvas()
-    if (className !== undefined) {
-      canvas_el.className = className
+  private _set_width = (width: number): void => {
+    this.$element.setAttribute('width', `${width - 1}`)
+
+    this._reset_redraw()
+  }
+
+  private _set_height = (height: number): void => {
+    this.$element.setAttribute('height', `${height - 1}`)
+
+    this._reset_redraw()
+  }
+
+  private _width_frame_unlisten: Unlisten
+  private _height_frame_unlisten: Unlisten
+
+  private _get_fill_style = (): string => {
+    const { $theme } = this.$context ?? { $color: COLOR_WHITE, $theme: 'dark' }
+
+    const final_style = { ...this.$defaultStyle, ...this.$props.style }
+
+    const fallbackColor =
+      final_style.strokeStyle ?? final_style.color ?? defaultThemeColor($theme)
+
+    return fallbackColor
+  }
+
+  private _unlisten_frame_width() {
+    if (this._width_frame_unlisten) {
+      this._width_frame_unlisten()
+      this._width_frame_unlisten = undefined
     }
-
-    applyStyle(this._canvas_el, { ...DEFAULT_STYLE, ...style })
-
-    canvas_el.draggable = false
-
-    this._canvas_el = canvas_el
-    const context = canvas_el.getContext('2d')!
-    this._context = context
-
-    if (old_canvas_el) {
-      _replaceChild(old_canvas_el, canvas_el)
-    }
   }
 
-  private _create_canvas = () => {
-    const { style, width = 200, height = 200 } = this.$props
-
-    const canvas_el = document.createElement('canvas')
-    canvas_el.classList.add('canvas')
-    canvas_el.width = width
-    canvas_el.height = height
-    applyStyle(canvas_el, { ...DEFAULT_STYLE, ...style })
-    this._canvas_el = canvas_el
-    return canvas_el
-  }
-
-  private _setup = () => {
-    // this._setup_canvas()
-    this._setup_context()
-  }
-
-  onPropChanged(prop: string, current: any): void {
-    if (prop === 'style') {
-      applyStyle(this._canvas_el, { ...DEFAULT_STYLE, ...current })
-    } else if (prop === 'width') {
-      this._canvas_el.setAttribute('width', `${current - 1}`)
-      this._setup_context()
-      this._redraw()
-    } else if (prop === 'height') {
-      this._canvas_el.setAttribute('height', `${current - 1}`)
-      this._setup_context()
-      this._redraw()
-    } else if (prop === 'd') {
-      this.clear()
-      this._d = current
-      this._draw_steps(current || [])
+  private _unlisten_frame_height() {
+    if (this._height_frame_unlisten) {
+      this._height_frame_unlisten()
+      this._height_frame_unlisten = undefined
     }
   }
 
   private _draw(step: any[]) {
-    const method = step[0]
-    const args = step.slice(1, step.length)
-    if (method === 'clear') {
-      this.clear()
-    } else if (method === 'fillStyle') {
-      this._context.fillStyle = args[0]
-    } else if (method === 'strokeStyle') {
-      this._context.strokeStyle = args[0]
-    } else {
-      this._context[method](...args)
-    }
+    // console.log('Canvas', '_draw')
+
+    draw(this._ctx, step)
   }
 
   private _draw_steps(steps: any[][]) {
@@ -137,50 +267,130 @@ export default class Canvas extends Element<HTMLCanvasElement, Props> {
   }
 
   private _redraw = (): void => {
-    // console.log('Graph', '_redraw')
+    // console.log('Graph', '_redraw', this._d)
+
     this._draw_steps(this._d)
   }
 
-  private _setup_canvas = (): void => {
-    const { width = 200, height = 200 } = this.$props
-    this._context.setTransform(1, 0, 0, 1, 0, 0)
-    const dpr = window.devicePixelRatio || 1
-    this._canvas_el.width = width * dpr
-    this._canvas_el.height = height * dpr
-    this._context.scale(1 / dpr, 1 / dpr)
-  }
+  private _reset_context = (): void => {
+    // console.log('Canvas', '_reset_context')
 
-  private _setup_context = (): void => {
-    // console.log('Canvas', '_setup_context')
-    const { $color } = this.$context
-    const context = this._canvas_el.getContext('2d')
-    this._context = context
-    this._context.strokeStyle = $color
-    this._context.fillStyle = $color
-    this._context.lineJoin = 'round'
-    this._context.lineWidth = 3
+    const { sx = 1, sy = 1 } = this.$props
+
+    const color = this._get_fill_style()
+
+    const context = this.$element.getContext('2d')
+
+    this._ctx = context
+
+    this._ctx.strokeStyle = color
+    this._ctx.fillStyle = color
+    this._ctx.lineJoin = 'round'
+    this._ctx.lineCap = 'round'
+    this._ctx.lineWidth = 3
+
+    this._ctx.scale(sx, sy)
   }
 
   onMount() {
-    this._setup()
+    this._reset()
   }
 
-  draw(step: any[]) {
+  async draw(step: any[]) {
     // console.log('draw', step)
     this._d.push(step)
+
     this._draw(step)
   }
 
-  clear(_?: undefined) {
-    clearCanvas(this._context)
+  async clear() {
+    this._clear()
+  }
+
+  private _clear() {
+    clearCanvas(this._ctx)
+
     this._d = []
   }
 
-  toBlob(
-    { type, quality }: { type: string; quality: string },
-    callback: (data: Blob | null) => void = NOOP
+  async drawImage(
+    image: CanvasImageSource,
+    x: number,
+    y: number,
+    width: number,
+    height: number
   ) {
-    this._canvas_el.toBlob(callback, type, quality)
+    if (image instanceof ImageBitmap) {
+      this._ctx.drawImage(
+        image,
+        0,
+        0,
+        image.width,
+        image.height,
+        x,
+        y,
+        width,
+        height
+      )
+    } else {
+      this._ctx.drawImage(image, x, y, width, height)
+    }
+  }
+
+  strokePath(d: string) {
+    // console.log('Canvas', 'strokePath', d)
+
+    this._d.push(['strokePath', d])
+
+    this._strokePath(d)
+  }
+
+  private _strokePath(d: string) {
+    // console.log('Canvas', '_strokePath', d)
+
+    this._ctx.stroke(new Path2D(d))
+  }
+
+  fillPath(d: string, fillRule: CanvasFillRule) {
+    // console.log('Canvas', 'fillPath', d)
+
+    this._d.push(['fillPath', d, fillRule])
+
+    this._fillPath(d, fillRule)
+  }
+
+  private _fillPath(d: string, fillRule: CanvasFillRule) {
+    // console.log('Canvas', '_fillPath', d)
+
+    this._ctx.fill(new Path2D(d), fillRule)
+  }
+
+  translate(x: number, y: number) {
+    // console.log('Canvas', 'translate', x, y)
+
+    this._ctx.translate(x, y)
+  }
+
+  scale(sx: number, sy: number) {
+    // console.log('Canvas', 'scale', sx, sy)
+
+    this._ctx.scale(sx, sy)
+  }
+
+  async toBlob(type: string, quality: number): Promise<Blob> {
+    return new Promise((resolve, reject) => {
+      this.$element.toBlob(
+        (blob: Blob) => {
+          resolve(blob)
+        },
+        type,
+        quality
+      )
+    })
+  }
+
+  async toDataUrl(type: string, quality: number) {
+    return this.$element.toDataURL()
   }
 
   async captureStream({
@@ -188,10 +398,32 @@ export default class Canvas extends Element<HTMLCanvasElement, Props> {
   }: {
     frameRate: number
   }): Promise<MediaStream> {
-    if (this._canvas_el.captureStream) {
-      return this._canvas_el.captureStream(frameRate)
+    if (this.$element.captureStream) {
+      return this.$element.captureStream(frameRate)
     } else {
-      throw new Error('Capture Stream API not supported')
+      throw new APINotSupportedError('Capture Stream')
     }
+  }
+
+  async getImageData(
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    opt: ImageDataSettings
+  ): Promise<ImageData> {
+    return this._ctx.getImageData(x, y, width, height, opt)
+  }
+
+  async putImageData(
+    image: ImageData,
+    dx: number,
+    dy: number,
+    x: number,
+    y: number,
+    width: number,
+    height: number
+  ): Promise<void> {
+    this._ctx.putImageData(image, dx, dy, x, y, width, height)
   }
 }

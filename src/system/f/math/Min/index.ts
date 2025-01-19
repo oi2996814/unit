@@ -1,4 +1,6 @@
 import { Functional } from '../../../../Class/Functional'
+import { System } from '../../../../system'
+import { ID_MIN } from '../../../_ids'
 
 export interface I<T> {
   a: number
@@ -10,11 +12,16 @@ export interface O<T> {
 }
 
 export default class Min<T> extends Functional<I<T>, O<T>> {
-  constructor() {
-    super({
-      i: ['a', 'b'],
-      o: ['min'],
-    })
+  constructor(system: System) {
+    super(
+      {
+        i: ['a', 'b'],
+        o: ['min'],
+      },
+      {},
+      system,
+      ID_MIN
+    )
   }
 
   f({ a, b }: I<T>, done): void {

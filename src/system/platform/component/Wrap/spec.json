@@ -5,14 +5,8 @@
       "type": "`C`",
       "optional": true,
       "metadata": {
-        "examples": [
-          "f27cae4e-fea8-11ea-b91e-db41e114c426"
-        ]
+        "examples": ["${unit:{id:\"f27cae4e-fea8-11ea-b91e-db41e114c426\"}}"]
       }
-    },
-    "style": {
-      "type": "object",
-      "optional": true
     }
   },
   "outputs": {
@@ -24,12 +18,8 @@
   },
   "metadata": {
     "icon": "square",
-    "description": "wrap all children with `wrapper`",
-    "complexity": 6.764783277430832,
-    "tags": [
-      "platform",
-      "component"
-    ]
+    "description": "wrap all children with `component`",
+    "tags": ["platform", "component"]
   },
   "id": "454aaff2-cd74-4f6e-baf2-631bb32e7a6b",
   "base": true,
@@ -37,7 +27,6 @@
     "defaultWidth": 240,
     "defaultHeight": 240
   },
-  "type": "`U`&`C`",
-  "system": true,
+  "type": "`U`&`C`&`V`&`J`&`WP`",
   "render": true
 }

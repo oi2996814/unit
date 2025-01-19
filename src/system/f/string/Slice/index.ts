@@ -1,4 +1,6 @@
 import { Functional } from '../../../../Class/Functional'
+import { System } from '../../../../system'
+import { ID_SLICE } from '../../../_ids'
 import slice from './f'
 
 export interface I<T> {
@@ -12,11 +14,16 @@ export interface O<T> {
 }
 
 export default class Slice<T> extends Functional<I<T>, O<T>> {
-  constructor() {
-    super({
-      i: ['a', 'begin', 'end'],
-      o: ['a'],
-    })
+  constructor(system: System) {
+    super(
+      {
+        i: ['a', 'begin', 'end'],
+        o: ['a'],
+      },
+      {},
+      system,
+      ID_SLICE
+    )
   }
 
   f(i: I<T>, done): void {

@@ -1,10 +1,10 @@
 {
   "name": "random CIE xy color",
   "units": {
-    "fvtftajg": {
+    "hextoxy": {
       "id": "f2043fd6-04d4-4523-939b-f631af07f70e"
     },
-    "zhnwkxx": {
+    "randomhexcolor": {
       "id": "2f48e431-9338-44dd-9f20-b8b14e710a1f",
       "input": {
         "any": {
@@ -14,13 +14,13 @@
     }
   },
   "merges": {
-    "dhwuxecob": {
-      "fvtftajg": {
+    "0": {
+      "hextoxy": {
         "input": {
           "hex": true
         }
       },
-      "zhnwkxx": {
+      "randomhexcolor": {
         "output": {
           "hex": true
         }
@@ -30,36 +30,28 @@
   "metadata": {
     "icon": "palette",
     "description": "generate a random CIE xy color string",
-    "complexity": 24,
-    "tags": [
-      "platform",
-      "core",
-      "color"
-    ]
+    "tags": ["platform", "core", "color"]
   },
   "inputs": {
-    "yxoeodrn": {
-      "pin": {
+    "any": {
+      "plug": {
         "0": {
-          "unitId": "zhnwkxx",
+          "unitId": "randomhexcolor",
           "pinId": "any"
         }
-      },
-      "type": "any"
+      }
     }
   },
   "outputs": {
-    "equlg": {
-      "pin": {
+    "xy": {
+      "plug": {
         "0": {
-          "unitId": "fvtftajg",
+          "unitId": "hextoxy",
           "pinId": "xy"
         }
-      },
-      "type": "number[]"
+      }
     }
   },
   "id": "09856cbd-2676-4930-8241-08c5bbde0474",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

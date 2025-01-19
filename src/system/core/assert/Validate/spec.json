@@ -12,7 +12,7 @@
     }
   },
   "merges": {
-    "butqpzbvl": {
+    "0": {
       "if": {
         "input": {
           "b": true
@@ -24,7 +24,7 @@
         }
       }
     },
-    "vjwuigye": {
+    "1": {
       "ifnot": {
         "output": {
           "a if not b": true
@@ -40,55 +40,46 @@
   "metadata": {
     "icon": "alert-circle",
     "description": "pass if `test`, error `message` otherwise",
-    "complexity": 5,
-    "tags": [
-      "core",
-      "assert"
-    ]
+    "tags": ["core", "assert"]
   },
   "inputs": {
     "a": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "if",
           "pinId": "a"
         }
       },
-      "type": "<A>"
+      "functional": true
     },
     "message": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "ifnot",
           "pinId": "a"
         }
       },
-      "type": "string"
+      "functional": true
     },
     "test": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
-          "mergeId": "butqpzbvl"
+          "mergeId": "0"
         }
       },
-      "type": "boolean"
+      "functional": true
     }
   },
   "outputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "if",
           "pinId": "a if b"
         }
-      },
-      "type": "<A>"
+      }
     }
   },
   "id": "ea515441-7284-49ab-9bac-a0978f25e2c3",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

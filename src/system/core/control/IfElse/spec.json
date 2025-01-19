@@ -10,7 +10,7 @@
     }
   },
   "merges": {
-    "merge0": {
+    "0": {
       "if": {
         "input": {
           "a": true
@@ -22,7 +22,7 @@
         }
       }
     },
-    "merge1": {
+    "1": {
       "if": {
         "input": {
           "b": true
@@ -37,53 +37,44 @@
   },
   "inputs": {
     "a": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
-          "mergeId": "merge0"
+          "mergeId": "0"
         }
       },
-      "type": "<A>"
+      "functional": true
     },
     "b": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
-          "mergeId": "merge1"
+          "mergeId": "1"
         }
       },
-      "type": "boolean"
+      "functional": true
     }
   },
   "outputs": {
     "if": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "if",
           "pinId": "a if b"
         }
-      },
-      "type": "<A>"
+      }
     },
     "else": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "ifnot",
           "pinId": "a if not b"
         }
-      },
-      "type": "<A>"
+      }
     }
   },
   "metadata": {
     "icon": "map-signs",
     "description": "send `a` to `if` if `b` is false or `else` otherwise",
-    "complexity": 4,
-    "tags": [
-      "core",
-      "control"
-    ]
+    "tags": ["core", "control"]
   },
-  "id": "92760dd2-ecd9-46db-851f-70950a5b6bc3",
-  "system": true
+  "id": "92760dd2-ecd9-46db-851f-70950a5b6bc3"
 }

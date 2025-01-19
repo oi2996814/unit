@@ -9,7 +9,7 @@
     }
   },
   "merges": {
-    "merge0": {
+    "0": {
       "keys": {
         "output": {
           "keys": true
@@ -23,46 +23,38 @@
     }
   },
   "inputs": {
-    "a": {
-      "pin": {
+    "obj": {
+      "plug": {
         "0": {
           "unitId": "keys",
           "pinId": "obj"
         }
-      },
-      "type": "object"
+      }
     },
     "keys": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "equals",
           "pinId": "a"
         }
-      },
-      "type": "string[]"
+      }
     }
   },
   "outputs": {
     "equals": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "equals",
           "pinId": "a = b"
         }
-      },
-      "type": "boolean"
+      }
     }
   },
   "metadata": {
     "icon": "equal",
-    "description": "does the object have the following keys?",
-    "complexity": 5.658636473139003,
-    "tags": [
-      "core",
-      "common"
-    ]
+    "description": "check whether `obj` has all `keys`",
+    "tags": ["core", "common"]
   },
   "id": "7a7468e3-c6e4-4c0b-b561-967914250d9b",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

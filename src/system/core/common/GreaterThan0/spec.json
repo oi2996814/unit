@@ -15,35 +15,28 @@
   "metadata": {
     "icon": "greater-than",
     "description": "output whether `a` is greater than 0",
-    "complexity": 3,
-    "tags": [
-      "core",
-      "common"
-    ]
+    "tags": ["core", "common"]
   },
   "inputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "greaterthan",
           "pinId": "a"
         }
-      },
-      "type": "number"
+      }
     }
   },
   "outputs": {
     "a > 0": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "greaterthan",
           "pinId": "a > b"
         }
-      },
-      "type": "boolean"
+      }
     }
   },
   "id": "6f4ac2fa-e9bd-4c0e-8bda-75976f3e4e58",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

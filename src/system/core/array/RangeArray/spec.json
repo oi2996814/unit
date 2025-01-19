@@ -22,7 +22,7 @@
     }
   },
   "merges": {
-    "lmuhl": {
+    "0": {
       "narraybuilder": {
         "input": {
           "a": true
@@ -34,7 +34,7 @@
         }
       }
     },
-    "uzlnv": {
+    "1": {
       "narraybuilder": {
         "input": {
           "n": true
@@ -49,39 +49,32 @@
   },
   "inputs": {
     "n": {
-      "metadata": {
-        "description": "number of elements"
-      },
-      "pin": {
+      "plug": {
         "0": {
-          "mergeId": "uzlnv"
+          "mergeId": "1"
         }
       },
-      "type": "number"
+      "metadata": {
+        "description": "number of elements"
+      }
     }
   },
   "outputs": {
     "a": {
-      "metadata": "array",
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "narraybuilder",
           "pinId": "a[]"
         }
       },
-      "type": "number[]"
+      "metadata": "array"
     }
   },
   "metadata": {
     "icon": "brackets",
     "description": "build an array from 0 to `n`",
-    "complexity": 8,
-    "tags": [
-      "core",
-      "array"
-    ]
+    "tags": ["core", "array"]
   },
   "id": "a0b5c3d9-7ee8-4c41-a299-1d32e707c673",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

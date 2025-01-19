@@ -5,7 +5,8 @@
       "id": "367241d8-ad12-11ea-beed-9777f31699a8",
       "input": {
         "event": {
-          "data": "'pointerenter'"
+          "data": "'pointerenter'",
+          "constant": true
         },
         "remove": {
           "ignored": false
@@ -16,11 +17,10 @@
   "merges": {},
   "inputs": {
     "element": {
-      "type": "`U`",
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "listen",
-          "pinId": "unit"
+          "pinId": "emitter"
         }
       },
       "ref": true
@@ -28,8 +28,7 @@
   },
   "outputs": {
     "event": {
-      "type": "{clientX:number,clientY:number,offsetX:number,offsetY:number,pointerId:number,pointerType:string}",
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "listen",
           "pinId": "data"
@@ -40,15 +39,8 @@
   "metadata": {
     "icon": "square",
     "description": "listen to `element` pointerenter event",
-    "complexity": 3,
-    "tags": [
-      "platform",
-      "core",
-      "api",
-      "event"
-    ]
+    "tags": ["platform", "core", "api", "event"]
   },
   "id": "c0bb493a-af78-11ea-b6fa-3b893b757a39",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

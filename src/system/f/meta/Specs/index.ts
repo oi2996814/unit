@@ -1,6 +1,8 @@
 import { Functional } from '../../../../Class/Functional'
 import { Done } from '../../../../Class/Functional/Done'
+import { System } from '../../../../system'
 import { Specs } from '../../../../types'
+import { ID_SPECS } from '../../../_ids'
 
 export interface I<T> {
   any: any
@@ -11,11 +13,16 @@ export interface O<T> {
 }
 
 export default class _Specs<T> extends Functional<I<T>, O<T>> {
-  constructor() {
-    super({
-      i: ['any'],
-      o: ['specs'],
-    })
+  constructor(system: System) {
+    super(
+      {
+        i: ['any'],
+        o: ['specs'],
+      },
+      {},
+      system,
+      ID_SPECS
+    )
   }
 
   f({ any }: I<T>, done: Done<O<T>>): void {

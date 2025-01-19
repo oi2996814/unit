@@ -1,0 +1,71 @@
+{
+  "name": "flex row center",
+  "units": {
+    "flexrow": {
+      "id": "7d6383c6-9791-4f2a-8f9a-e80415551f15",
+      "metadata": {
+        "component": {
+          "width": 240,
+          "height": 240
+        }
+      }
+    },
+    "mergedefault": {
+      "id": "304e98ac-bda1-11ea-b416-9746f024148c",
+      "input": {
+        "a": {},
+        "default": {
+          "constant": true,
+          "data": "{flexWrap:'wrap',alignContent:'center',justifyContent:'center'}"
+        }
+      },
+      "output": {
+        "a": {}
+      }
+    }
+  },
+  "merges": {
+    "0": {
+      "mergedefault": {
+        "output": {
+          "a": true
+        }
+      },
+      "flexrow": {
+        "input": {
+          "style": true
+        }
+      }
+    }
+  },
+  "inputs": {
+    "style": {
+      "plug": {
+        "0": {
+          "unitId": "mergedefault",
+          "pinId": "a"
+        }
+      }
+    }
+  },
+  "outputs": {},
+  "metadata": {
+    "icon": "square",
+    "description": "centered flexbox",
+    "tags": ["platform", "core", "component"]
+  },
+  "component": {
+    "slots": [["flexrow", "default"]],
+    "defaultWidth": 240,
+    "defaultHeight": 240,
+    "subComponents": {
+      "flexrow": {
+        "children": []
+      }
+    },
+    "children": ["flexrow"]
+  },
+  "id": "af731047-6d74-4dfd-93bd-0daa4d649d4d",
+  "type": "`U`&`C`&`G`",
+  "render": true
+}

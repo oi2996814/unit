@@ -30,36 +30,29 @@
   },
   "metadata": {
     "icon": "question",
-    "description": "no description",
-    "complexity": 4,
-    "tags": [
-      "core",
-      "string"
-    ]
+    "description": "check whether array `a` is empty",
+    "tags": ["core", "string"]
   },
   "inputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "length",
           "pinId": "a"
         }
-      },
-      "type": "string"
+      }
     }
   },
   "outputs": {
     "empty": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "equals",
           "pinId": "a = b"
         }
-      },
-      "type": "boolean"
+      }
     }
   },
   "id": "5b497ef5-eff7-45e4-854b-d02da5b89e90",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

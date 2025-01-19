@@ -14,28 +14,22 @@
   "merges": {},
   "metadata": {
     "icon": "check-circle",
-    "description": "no description",
-    "complexity": 3,
-    "tags": [
-      "core",
-      "value"
-    ]
+    "description": "output true",
+    "tags": ["core", "value"]
   },
   "inputs": {
     "any": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "wait",
           "pinId": "b"
         }
-      },
-      "type": "any"
+      }
     }
   },
   "outputs": {
     "true": {
-      "type": "boolean",
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "wait",
           "pinId": "a"
@@ -44,6 +38,5 @@
     }
   },
   "id": "984c4a44-86c7-464c-ad48-4759598c3be3",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

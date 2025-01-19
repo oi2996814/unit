@@ -11,16 +11,11 @@
     }
   },
   "metadata": {
-    "icon": "unit",
+    "icon": "circle",
     "description": "output `a`",
-    "complexity": 2.6557085410373773,
-    "tags": [
-      "f",
-      "control"
-    ]
+    "tags": ["f", "control"]
   },
   "id": "260d774e-bc89-4027-aa92-cb1985fb312b",
   "base": true,
-  "type": "`U`",
-  "system": true
+  "type": "`U`"
 }

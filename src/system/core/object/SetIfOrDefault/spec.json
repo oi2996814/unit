@@ -39,86 +39,74 @@
   },
   "inputs": {
     "testdefault": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "default",
           "pinId": "d"
         }
-      },
-      "type": "boolean"
+      }
     },
     "default": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "default0",
           "pinId": "d"
         }
-      },
-      "type": "<A>"
+      }
     },
     "test": {
-      "name": "test",
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "default",
           "pinId": "a"
         }
       },
-      "type": "boolean"
+      "name": "test"
     },
     "value": {
-      "name": "value",
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "default0",
           "pinId": "a"
         }
       },
-      "type": "<A>"
+      "name": "value"
     },
     "key": {
-      "name": "key",
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "setif",
           "pinId": "key"
         }
       },
-      "type": "number|string"
+      "name": "key"
     },
     "obj": {
-      "name": "obj",
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "setif",
           "pinId": "obj"
         }
       },
-      "type": "object"
+      "name": "obj"
     }
   },
   "outputs": {
     "obj": {
-      "name": "obj",
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "setif",
           "pinId": "obj"
         }
       },
-      "type": "object"
+      "name": "obj"
     }
   },
   "metadata": {
-    "icon": "brackets-curly",
+    "icon": "object-set",
     "description": "set value at `key` to `value` if `test` is defined and true or to `default` otherwise",
-    "complexity": 8,
-    "tags": [
-      "core",
-      "object"
-    ]
+    "tags": ["core", "object"]
   },
   "id": "c0b85780-7e99-11ea-9a99-879f3f411ebd",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

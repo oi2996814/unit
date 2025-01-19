@@ -1,21 +1,17 @@
-import assocPath from '../system/core/object/AssocPath/f'
-import { GraphMergeSpec, GraphSpec, Specs } from '../types'
+import { deepSet } from '../deepSet'
+import { Specs } from '../types'
 import { Dict } from '../types/Dict'
+import { GraphMergeSpec } from '../types/GraphMergeSpec'
+import { GraphSpec } from '../types/GraphSpec'
+import { IO } from '../types/IO'
+import { IOOf } from '../types/IOOf'
+import { emptyIO } from './emptyIO'
 
 export type GraphSpecSelection = {
   units?: string[]
-  unitInputs?: Dict<string[]>
-  unitOutputs?: Dict<string[]>
+  links?: IOOf<Dict<string[]>>
   merges?: string[]
-  datas?: string[]
-  inputs?: {
-    pinId: string
-    subPinId: string
-  }[]
-  outputs?: {
-    pinId: string
-    subPinId: string
-  }[]
+  plugs?: IOOf<{ pinId: string; subPinId: string }[]>
 }
 
 export function extractSubSpec(
@@ -28,15 +24,7 @@ export function extractSubSpec(
   let parentSpec: GraphSpec = {}
   let newSpec: GraphSpec = {}
 
-  const {
-    units = [],
-    unitInputs = {},
-    unitOutputs = {},
-    merges = [],
-    datas = [],
-    inputs = [],
-    outputs = [],
-  } = selection
+  const { units = [], links, merges = [] } = selection
 
   const subUnitSet = new Set(units)
   const subMergeSet = new Set(merges)
@@ -62,13 +50,13 @@ export function extractSubSpec(
   const subUnitInputSets: Dict<Set<string>> = {}
   const subUnitOutputSets: Dict<Set<string>> = {}
 
-  for (const unitId in unitInputs) {
-    const unitInput = unitInputs[unitId]
+  for (const unitId in links.input) {
+    const unitInput = links.input[unitId]
     subUnitInputSets[unitId] = new Set(unitInput)
   }
 
-  for (const unitId in unitOutputs) {
-    const unitOutput = unitOutputs[unitId]
+  for (const unitId in links.output) {
+    const unitOutput = links.output[unitId]
     subUnitOutputSets[unitId] = new Set(unitOutput)
   }
 
@@ -106,13 +94,13 @@ export function extractSubSpec(
   for (const unitId in spec.units) {
     const unit = spec.units[unitId]
     if (subUnitSet.has(unitId)) {
-      newSpec = assocPath(newSpec, ['units', unitId], unit)
+      newSpec = deepSet(newSpec, ['units', unitId], unit)
     } else {
-      parentSpec = assocPath(parentSpec, ['units', unitId], unit)
+      parentSpec = deepSet(parentSpec, ['units', unitId], unit)
     }
   }
 
-  let newSpecSubPinId: { input: Dict<number>; output: Dict<number> } = {
+  const newSpecSubPinId: { input: Dict<number>; output: Dict<number> } = {
     input: {},
     output: {},
   }
@@ -127,10 +115,7 @@ export function extractSubSpec(
     return id
   }
 
-  const unitMergePinRename: Dict<{
-    input: Dict<string>
-    output: Dict<string>
-  }> = {}
+  const unitMergePinRename: Dict<IOOf<Dict<string>>> = {}
 
   for (const unitId in spec.units) {
     const unit = spec.units[unitId]
@@ -144,19 +129,15 @@ export function extractSubSpec(
     const subUnitOutputToMerge = subUnitOutputToMerges[unitId] || {}
     const { inputs = {}, outputs = {} } = unitSpec
 
-    unitMergePinRename[unitId] = { input: {}, output: {} }
+    unitMergePinRename[unitId] = emptyIO({}, {})
 
-    function addNewSpecPin(
-      type: 'input' | 'output',
-      unitId: string,
-      pinId: string
-    ): string {
+    function addNewSpecPin(type: IO, unitId: string, pinId: string): string {
       const _pinId = suffixId(pinId, newSpec[`${type}s`] || {})
       const newSpecTypeSubPinId = newSpecSubPinId[type]
       const subPinId = (newSpecTypeSubPinId[_pinId] ?? -1) + 1
       newSpecTypeSubPinId[_pinId] = subPinId
-      newSpec = assocPath(newSpec, [`${type}s`, _pinId], {
-        pin: { [subPinId]: { unitId, pinId } },
+      newSpec = deepSet(newSpec, [`${type}s`, _pinId], {
+        plug: { [subPinId]: { unitId, pinId } },
       })
       unitMergePinRename[unitId][type][pinId] = _pinId
       return _pinId
@@ -253,8 +234,8 @@ export function extractSubSpec(
       const mergeTotalCount = mergeTotalCounts[mergeId]
       const mergeTotalSelectedCount = mergeTotalSelectedCounts[mergeId]
 
-      let newMerge: GraphMergeSpec = {}
-      let parentMerge: GraphMergeSpec = {}
+      const newMerge: GraphMergeSpec = {}
+      const parentMerge: GraphMergeSpec = {}
 
       for (const unitId in merge) {
         if (subUnitSet.has(unitId)) {
@@ -264,15 +245,15 @@ export function extractSubSpec(
         }
       }
       if (mergeTotalSelectedCount > 1) {
-        newSpec = assocPath(newSpec, ['merges', mergeId], newMerge)
+        newSpec = deepSet(newSpec, ['merges', mergeId], newMerge)
 
         if (mergeTotalSelectedCount < mergeTotalCount) {
-          parentSpec = assocPath(newSpec, ['merges', mergeId], parentMerge)
+          parentSpec = deepSet(newSpec, ['merges', mergeId], parentMerge)
         }
       }
 
       if (mergeTotalSelectedCount === mergeTotalCount) {
-        newSpec = assocPath(newSpec, ['merges', mergeId], newMerge)
+        newSpec = deepSet(newSpec, ['merges', mergeId], newMerge)
       }
     } else {
       const _merge: GraphMergeSpec = {}
@@ -293,7 +274,7 @@ export function extractSubSpec(
         }
       }
 
-      parentSpec = assocPath(parentSpec, ['merges', mergeId], _merge)
+      parentSpec = deepSet(parentSpec, ['merges', mergeId], _merge)
     }
   }
 

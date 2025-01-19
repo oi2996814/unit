@@ -82,7 +82,7 @@
       },
       "plan": {
         "output": {
-          "first": true
+          "0": true
         }
       }
     },
@@ -106,7 +106,7 @@
       },
       "plan": {
         "output": {
-          "second": true
+          "1": true
         }
       }
     },
@@ -126,41 +126,33 @@
   "metadata": {
     "icon": "list-ordered",
     "description": "count from `a` to `b`, not inclusive",
-    "complexity": 15,
-    "tags": [
-      "core",
-      "loop"
-    ]
+    "tags": ["core", "loop"]
   },
   "inputs": {
     "b": {
-      "pin": {
+      "plug": {
         "0": {
           "mergeId": "1"
         }
-      },
-      "type": "number"
+      }
     },
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "mergeId": "0"
         }
-      },
-      "type": "number"
+      }
     }
   },
   "outputs": {
     "i": {
-      "pin": {
+      "plug": {
         "0": {
           "mergeId": "4"
         }
-      },
-      "type": "number"
+      }
     }
   },
   "id": "cc816c77-3ee5-4a84-8f75-c319b53985c3",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

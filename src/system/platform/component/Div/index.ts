@@ -1,21 +1,25 @@
-import { Element } from '../../../../Class/Element/Element'
+import { Element_ } from '../../../../Class/Element'
 import { System } from '../../../../system'
+import { Dict } from '../../../../types/Dict'
+import { ID_DIV } from '../../../_ids'
 
 export interface I {
   style: object
+  attr: Dict<string>
 }
 
 export interface O {}
 
-export default class Div extends Element<I, O> {
+export default class Div extends Element_<I, O> {
   constructor(system: System) {
     super(
       {
-        i: ['style'],
+        i: ['style', 'attr'],
         o: [],
       },
       {},
-      system
+      system,
+      ID_DIV
     )
   }
 }

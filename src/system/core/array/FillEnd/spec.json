@@ -27,7 +27,7 @@
         }
       }
     },
-    "nqijmihi": {
+    "1": {
       "length": {
         "input": {
           "a": true
@@ -39,7 +39,7 @@
         }
       }
     },
-    "atejrzzx": {
+    "2": {
       "subtract": {
         "output": {
           "a - b": true
@@ -51,7 +51,7 @@
         }
       }
     },
-    "mtjhxp": {
+    "3": {
       "concat": {
         "input": {
           "b": true
@@ -67,52 +67,43 @@
   "metadata": {
     "icon": "brackets",
     "description": "fill `from` array with `a` until size `n`",
-    "complexity": 6,
-    "tags": [
-      "core",
-      "array"
-    ]
+    "tags": ["core", "array"]
   },
   "inputs": {
     "a[]": {
-      "pin": {
+      "plug": {
         "0": {
-          "mergeId": "nqijmihi"
+          "mergeId": "1"
         }
-      },
-      "type": "<A>[]"
+      }
     },
     "n": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "subtract",
           "pinId": "a"
         }
-      },
-      "type": "number"
+      }
     },
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "init",
           "pinId": "a"
         }
-      },
-      "type": "<A>"
+      }
     }
   },
   "outputs": {
     "a[]": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "concat",
           "pinId": "ab"
         }
-      },
-      "type": "<A>[]"
+      }
     }
   },
   "id": "b0995ebb-08d5-4740-9bf3-272d44f09595",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

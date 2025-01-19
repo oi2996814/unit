@@ -1,6 +1,7 @@
 import { Functional } from '../../../../Class/Functional'
 import { Done } from '../../../../Class/Functional/Done'
 import { System } from '../../../../system'
+import { ID_DIVIDE } from '../../../_ids'
 
 export interface I {
   a: number
@@ -19,7 +20,8 @@ export default class Divide extends Functional<I, O> {
         o: ['a ÷ b'],
       },
       {},
-      system
+      system,
+      ID_DIVIDE
     )
   }
 

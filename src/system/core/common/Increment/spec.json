@@ -15,36 +15,29 @@
   "merges": {},
   "inputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "add",
           "pinId": "a"
         }
-      },
-      "type": "number"
+      }
     }
   },
   "outputs": {
     "a + 1": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "add",
           "pinId": "a + b"
         }
-      },
-      "type": "number"
+      }
     }
   },
   "metadata": {
     "icon": "plus",
     "description": "increment `a`",
-    "complexity": 3,
-    "tags": [
-      "core",
-      "common"
-    ]
+    "tags": ["core", "common"]
   },
   "id": "fafeadd7-06a8-4bb0-9fa5-2149d1b5208e",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

@@ -1,40 +1,83 @@
-import { U } from '../interface/U'
+import { Unit } from '../Class/Unit'
 import { System } from '../system'
-import forEachKeyValue from '../system/core/object/ForEachKeyValue/f'
-import { GraphUnitSpec } from '../types'
+import forEachValueKey from '../system/core/object/ForEachKeyValue/f'
+import { Specs } from '../types'
 import { Dict } from '../types/Dict'
-import { fromId } from './fromId'
+import { IO } from '../types/IO'
+import { io } from '../types/IOOf'
+import { UnitBundleSpec } from '../types/UnitBundleSpec'
+import { clone } from '../util/clone'
+import { weakMerge } from '../weakMerge'
+import { evaluateDataValue } from './evaluateDataValue'
+import { unitFromId } from './fromId'
+import { applyUnitDefaultIgnored } from './fromSpec'
+import { remapSpecs } from './remapBundle'
+import { resolveDataRef } from './resolveDataValue'
 
-export function unitFromSpec(
-  unitSpec: GraphUnitSpec,
-  branch: Dict<true> = {},
-  system: System
-): U {
-  const { id, input, output } = unitSpec
+export function unitFromBundleSpec<I, O>(
+  system: System,
+  bundle: UnitBundleSpec,
+  specs: Specs,
+  push: boolean,
+  branch: Dict<true>
+): Unit<I, O> {
+  const specs_ = weakMerge(specs, bundle.specs ?? {})
 
-  const { specs, classes } = system || { specs: {}, classes: {} }
+  applyUnitDefaultIgnored(bundle.unit, specs_)
 
-  const Class = fromId(id, specs, classes, branch)
+  const {
+    unit: { id, input },
+  } = bundle
 
-  const unit = new Class(system)
+  const { classes } = system
 
-  forEachKeyValue(input || {}, ({ constant, data }, pinId: string) => {
-    if (constant !== undefined && constant !== null) {
-      unit.setInputConstant(pinId, constant)
-    }
+  const spec_map_id = system.injectSpecs(bundle.specs ?? {})
+
+  remapSpecs(bundle, spec_map_id)
+
+  const unit = unitFromId<I, O>(system, id, specs_, classes, branch, push)
+
+  io((type: IO) => {
+    const pins = bundle.unit[type as IO] ?? {}
+
+    forEachValueKey(pins, (pinSpec = {}, pinId: string) => {
+      const { constant, ignored } = pinSpec
+
+      if (typeof constant === 'boolean') {
+        unit.setPinConstant(type, pinId as keyof I | keyof O, constant)
+      }
+
+      if (typeof ignored === 'boolean') {
+        unit.setPinIgnored(type, pinId as keyof I | keyof O, ignored)
+      }
+    })
   })
 
-  forEachKeyValue(input || {}, ({ ignored }, pinId: string) => {
-    if (typeof ignored === 'boolean') {
-      unit.setInputIgnored(pinId, ignored)
-    }
-  })
+  const {
+    unit: { memory },
+  } = bundle
 
-  forEachKeyValue(output || {}, ({ ignored }, pinId: string) => {
-    if (typeof ignored === 'boolean') {
-      unit.setOutputIgnored(pinId, ignored)
-    }
-  })
+  if (memory) {
+    const memory_ = clone(memory)
+
+    unit.restore(memory_)
+  }
+
+  if (push) {
+    forEachValueKey(input || {}, (unitPinSpec, pinId) => {
+      const { data } = unitPinSpec ?? {}
+
+      const dataRef = evaluateDataValue(data, specs, classes)
+
+      if (dataRef.data !== undefined) {
+        const input = unit.getInput(pinId as any)
+
+        const data_ = resolveDataRef(dataRef, specs, classes)
+
+        input.push(data_)
+      }
+    })
+  }
 
   return unit
 }

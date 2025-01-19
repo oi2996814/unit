@@ -2,13 +2,12 @@
   "name": "root",
   "inputs": {
     "disabled": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "io",
           "pinId": "disabled"
         }
       },
-      "type": "boolean",
       "metadata": {
         "position": {
           "0": {
@@ -20,13 +19,12 @@
       "defaultIgnored": true
     },
     "fullwindow": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "io",
           "pinId": "fullwindow"
         }
       },
-      "type": "boolean",
       "metadata": {
         "position": {
           "0": {
@@ -38,13 +36,12 @@
       "defaultIgnored": true
     },
     "style": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "io",
           "pinId": "style"
         }
       },
-      "type": "object",
       "metadata": {
         "position": {
           "0": {
@@ -54,14 +51,14 @@
         }
       }
     },
-    "spec": {
-      "pin": {
+    "graph": {
+      "plug": {
         "0": {
-          "unitId": "pod",
-          "pinId": "spec"
+          "unitId": "graph",
+          "pinId": "graph"
         }
       },
-      "type": "any",
+      "type": "`G`",
       "metadata": {
         "position": {
           "0": {
@@ -74,14 +71,23 @@
   },
   "outputs": {
     "graph": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "io",
           "pinId": "graph"
         }
       },
       "ref": true,
-      "type": "`U`&`G`",
+      "defaultIgnored": true
+    },
+    "state": {
+      "plug": {
+        "0": {
+          "unitId": "io",
+          "pinId": "state"
+        }
+      },
+      "ref": true,
       "defaultIgnored": true
     }
   },
@@ -106,7 +112,7 @@
             }
           }
         },
-        "pod": {},
+        "graph": {},
         "fullwindow": {
           "metadata": {
             "position": {
@@ -136,10 +142,10 @@
         }
       }
     },
-    "pod": {
+    "graph": {
       "id": "324b9c5e-5810-11eb-bf7c-634b3bb07f8c",
       "input": {
-        "spec": {
+        "graph": {
           "metadata": {
             "position": {
               "x": -286,
@@ -156,7 +162,7 @@
         }
       }
     },
-    "iounappkeyboard": {
+    "guikeyboard": {
       "id": "96d5d60e-85eb-11eb-ba90-7fc42ab0a641",
       "input": {},
       "output": {},
@@ -166,38 +172,16 @@
           "y": -280
         }
       }
-    },
-    "iounappcloud": {
-      "id": "6f1111f0-82b3-11eb-9271-07ffc15d08c6",
-      "input": {},
-      "output": {},
-      "metadata": {
-        "position": {
-          "x": 681,
-          "y": -8
-        }
-      }
-    },
-    "iounappuser": {
-      "id": "5be27ad8-9a3c-11eb-8108-375092ceb015",
-      "metadata": {
-        "position": {
-          "x": 578,
-          "y": 292
-        }
-      },
-      "input": {},
-      "output": {}
     }
   },
   "merges": {
     "0": {
       "io": {
         "input": {
-          "pod": true
+          "graph": true
         }
       },
-      "pod": {
+      "graph": {
         "output": {
           "graph": true
         }
@@ -205,52 +189,28 @@
     }
   },
   "component": {
-    "slots": [
-      [
-        "io",
-        "default"
-      ]
-    ],
+    "slots": [["io", "default"]],
     "subComponents": {
       "io": {
-        "children": [
-          "iounappcloud",
-          "iounappuser",
-          "iounappkeyboard"
-        ],
+        "children": ["guikeyboard"],
         "childSlot": {
-          "iounappcloud": "2",
-          "iounappuser": "2",
-          "iounappkeyboard": "2"
+          "guikeyboard": "2"
         }
       },
-      "iounappkeyboard": {
-        "children": []
-      },
-      "iounappcloud": {
-        "children": []
-      },
-      "iounappuser": {
+      "guikeyboard": {
         "children": []
       }
     },
-    "children": [
-      "io"
-    ],
+    "children": ["io"],
     "defaultWidth": 420,
     "defaultHeight": 420
   },
   "metadata": {
     "icon": "chalkboard",
-    "description": "app.ioun.it inside an iframe",
-    "complexity": 61.65570854103738,
-    "tags": [
-      "platform",
-      "core",
-      "component"
-    ]
+    "description": "io + cloud",
+    "tags": ["platform", "core", "component"]
   },
   "id": "9aba266d-5200-4281-b477-749c9b3c5815",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`C`&`G`",
+  "render": true
 }

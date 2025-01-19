@@ -1,172 +1,193 @@
-import { $tabStorage } from '../api/storage/tab'
-import { Gamepad } from '../client/gamepad'
-import { Keyboard } from '../client/keyboard'
-import { J } from '../interface/J'
-import {
-  BootOpt,
-  HTTPServer,
-  IOStorage,
-  LocalChannel,
-  LocalPod,
-  SpeechGrammarList,
-  SpeechRecognition,
-  System,
-} from '../system'
-import { Storage_ } from '../system/platform/api/storage/Storage_'
-import _specs from '../system/_specs'
+import { API, InterceptOpt, ServerHandler, ServerInterceptor } from '../API'
+import { Graph } from '../Class/Graph'
+import { EventEmitter_ } from '../EventEmitter'
+import { Object_ } from '../Object'
+import { Registry } from '../Registry'
+import { Component } from '../client/component'
+import { icons } from '../client/icons'
+import { themeColor } from '../client/theme'
+import { start } from '../start'
+import { BootOpt, System } from '../system'
+import { BundleSpec } from '../types/BundleSpec'
+import { Dict } from '../types/Dict'
+import { Unlisten } from '../types/Unlisten'
+import { KeyboardState } from '../types/global/KeyboardState'
+import { PointerState } from '../types/global/PointerState'
+import { ASYNC } from '../types/interface/async/wrapper'
+import { remove } from '../util/array'
+import { weakMerge } from '../weakMerge'
+import { style } from './style'
 
-export function boot(opt: BootOpt = {}): System {
-  let { specs, components, classes, host = {} } = opt
+export function boot(
+  parent: System | null = null,
+  api: API,
+  opt: BootOpt
+): System {
+  const { specs = {}, classes = {}, components = {}, flags = {} } = opt
 
-  const { tabStorage, localStorage, sessionStorage, cloudStorage, location } =
-    host
+  const path = opt.path || '/'
 
-  specs = { ...specs, ..._specs }
-
-  const keyboard: Keyboard = {
-    $pressed: [],
-    $repeat: false,
+  const keyboard: KeyboardState = {
+    pressed: [],
+    repeat: false,
   }
-
-  const gamepad: Gamepad[] = []
+  const gamepads: Gamepad[] = []
+  const pointers: Dict<PointerState> = {}
 
   const customEvent = new Set<string>()
   const context = []
   const input = {
     keyboard,
-    gamepad,
+    gamepads,
+    pointers,
   }
 
-  const flag = {
+  const cache: System['cache'] = {
     dragAndDrop: {},
     pointerCapture: {},
-    spriteSheetMap: {},
+    servers: {},
+    events: {},
+    requests: {},
+    responses: {},
+    ws: {},
+    wss: {},
+    interceptors: [],
   }
 
   const feature = {}
 
-  const speech = {
-    SpeechRecognition,
-    SpeechGrammarList,
+  const specs__ = weakMerge(specs, {})
+
+  const registry = new Registry(specs__)
+
+  const { specs_ } = registry
+
+  const {
+    specsCount,
+    lock: specsLock,
+    newSpecId,
+    hasSpec,
+    emptySpec,
+    newSpec,
+    getSpec,
+    setSpec,
+    forkSpec,
+    injectSpecs,
+    deleteSpec,
+    registerUnit,
+    unregisterUnit,
+    shouldFork,
+    lockSpec,
+    unlockSpec,
+  } = registry
+
+  for (const specId in specs) {
+    specsLock[specId] = true
   }
 
-  // setup storage
-  let tab_storage: J
-  let session_storage: J
-  let local_storage: J
-  let cloud_storage: J
+  const emitter = parent ? parent.emitter : new EventEmitter_()
 
-  const storage: IOStorage = {
-    tab: function (opt?: undefined): J | null {
-      if (tab_storage) {
-        return tab_storage
-      }
+  const componentRemoteToLocal: Dict<Component[]> = {}
 
-      return $tabStorage
-    },
-    session: function (opt?: undefined): J {
-      if (session_storage) {
-        return session_storage
-      }
-      if (sessionStorage) {
-        session_storage = new Storage_(localStorage)
-        return session_storage
-      } else {
-        return null
-      }
-    },
-    local: function (opt?: undefined): J {
-      if (local_storage !== undefined) {
-        return local_storage
-      }
-      if (localStorage) {
-        session_storage = new Storage_(localStorage)
-        return session_storage
-      } else {
-        return null
-      }
-    },
-    cloud: function (opt?: undefined): J {
-      if (cloud_storage) {
-        return session_storage
-      }
-      if (localStorage) {
-        cloud_storage = new Storage_(cloudStorage)
-        return session_storage
-      } else {
-        return null
-      }
-    },
-  }
+  const theme = 'dark'
+  const color = themeColor(theme)
 
-  const http = {
-    tab: HTTPServer,
-    session: HTTPServer,
-    local: HTTPServer,
-    cloud: HTTPServer,
-  }
-
-  const channel = {
-    tab: LocalChannel,
-    session: LocalChannel,
-    local: LocalChannel,
-    cloud: LocalChannel,
-  }
-
-  const pod = {
-    tab: LocalPod,
-    session: LocalPod,
-    local: LocalPod,
-    cloud: LocalPod,
-  }
-
-  let hostname = ''
-
-  if (location) {
-    hostname = location.hostname
-  }
-
-  const $system: System = {
-    hostname,
-    mounted: false,
-    root: null,
+  const system: System = {
+    path,
+    parent,
+    emitter,
+    root: (parent && parent.root) || null,
+    color,
+    theme,
     customEvent,
+    async: ASYNC,
     input,
     context,
-    specs,
+    specs_,
+    specs: specs__,
     classes,
     components,
-    cache: flag,
+    icons,
+    specsCount,
+    lock: specsLock,
+    cache,
     feature,
     foreground: {
       svg: undefined,
-      canvas: undefined,
       app: undefined,
     },
-    method: {
-      showLongPress: undefined,
-      captureGesture: undefined,
+    style,
+    showLongPress: undefined,
+    captureGesture: undefined,
+    global: parent
+      ? parent.global
+      : {
+          ref: {},
+          graph: {},
+          data: new Object_({}),
+          scope: {},
+        },
+    api,
+    flags: {
+      defaultInputModeNone: false,
+      ...flags,
     },
-    global: {
-      ref: {},
-      component: {},
+    boot: (opt_: BootOpt = {}) => {
+      return boot(system, api, weakMerge(opt, opt_))
     },
-    id: {
-      pbkey: {
-        tab: {},
-        session: {},
-        local: {},
-        cloud: {},
-      },
+    start: (bundle: BundleSpec): Graph => {
+      return start(system, bundle)
     },
-    api: {
-      storage,
-      http,
-      channel,
-      pod,
-      speech,
+    getSpec: getSpec.bind(registry),
+    hasSpec: hasSpec.bind(registry),
+    newSpecId: newSpecId.bind(registry),
+    emptySpec: emptySpec.bind(registry),
+    forkSpec: forkSpec.bind(registry),
+    newSpec: newSpec.bind(registry),
+    setSpec: setSpec.bind(registry),
+    injectSpecs: injectSpecs.bind(registry),
+    deleteSpec: deleteSpec.bind(registry),
+    registerUnit: registerUnit.bind(registry),
+    unregisterUnit: unregisterUnit.bind(registry),
+    shouldFork: shouldFork.bind(registry),
+    lockSpec: lockSpec.bind(registry),
+    unlockSpec: unlockSpec.bind(registry),
+    getLocalComponents: function (remoteGlobalId: string): Component[] {
+      const components = componentRemoteToLocal[remoteGlobalId]
+
+      return components ?? []
+    },
+    registerLocalComponent: function (
+      component: Component,
+      remoteGlobalId: string
+    ): void {
+      componentRemoteToLocal[remoteGlobalId] =
+        componentRemoteToLocal[remoteGlobalId] ?? []
+      componentRemoteToLocal[remoteGlobalId].push(component)
+
+      emitter.emit(remoteGlobalId, component)
+    },
+    unregisterLocalComponent: function (
+      component: Component,
+      remoteGlobalId: string
+    ): void {
+      const components = componentRemoteToLocal[remoteGlobalId]
+
+      remove(components, component)
+    },
+    intercept: function (opt: InterceptOpt, handler: ServerHandler): Unlisten {
+      const interceptor: ServerInterceptor = {
+        opt,
+        handler,
+      }
+
+      cache.interceptors.push(interceptor)
+
+      return () => {
+        remove(cache.interceptors, interceptor)
+      }
     },
   }
 
-  return $system
+  return system
 }

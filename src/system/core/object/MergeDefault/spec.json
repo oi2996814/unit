@@ -2,13 +2,12 @@
   "name": "merge default",
   "inputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "merge",
           "pinId": "b"
         }
       },
-      "type": "object",
       "metadata": {
         "position": {
           "0": {
@@ -19,12 +18,11 @@
       }
     },
     "default": {
-      "pin": {
+      "plug": {
         "0": {
           "mergeId": "0"
         }
       },
-      "type": "object",
       "metadata": {
         "position": {
           "0": {
@@ -37,13 +35,12 @@
   },
   "outputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "default",
           "pinId": "a"
         }
       },
-      "type": "object",
       "metadata": {
         "position": {
           "0": {
@@ -131,11 +128,7 @@
   "metadata": {
     "icon": "brackets-curly",
     "description": "merge `a` and `default` if `a` is present, `default` otherwise",
-    "complexity": 5.583547986583399,
-    "tags": [
-      "core",
-      "object"
-    ],
+    "tags": ["core", "object"],
     "position": {
       "merge": {
         "0": {
@@ -150,6 +143,5 @@
     }
   },
   "id": "304e98ac-bda1-11ea-b416-9746f024148c",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

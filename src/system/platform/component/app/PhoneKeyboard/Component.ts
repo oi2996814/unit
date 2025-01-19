@@ -1,8 +1,9 @@
-import mergePropStyle from '../../../../../client/component/mergeStyle'
+import { mergePropStyle } from '../../../../../client/component/mergeStyle'
 import { Element } from '../../../../../client/element'
+import { makeCustomListener } from '../../../../../client/event/custom'
 import { makeClickListener } from '../../../../../client/event/pointer/click'
 import { makePointerUpListener } from '../../../../../client/event/pointer/pointerup'
-import parentElement from '../../../../../client/parentElement'
+import { parentElement } from '../../../../../client/platform/web/parentElement'
 import { System } from '../../../../../system'
 import { Dict } from '../../../../../types/Dict'
 import Div from '../../../component/Div/Component'
@@ -15,8 +16,8 @@ export interface Props {
 
 export const DEFAULT_STYLE = {
   boxSizing: 'border-box',
-  // minHeight: '210px',
-  // minWidth: '300px',
+  width: '100%',
+  height: '100%',
 }
 
 const KEY_HEIGHT: number = 30
@@ -27,9 +28,11 @@ export default class PhoneKeyboard extends Element<HTMLDivElement, Props> {
 
   private _shift_key: PhoneKeyboardKey
   private _shift: boolean = false
+  private _shift_lock: boolean = false
 
   private _alt_key: PhoneKeyboardKey
   private _alt: boolean = false
+  private _alt_lock: boolean = false
 
   private _backspace_key: PhoneKeyboardKey
   private _backspace_interval: NodeJS.Timeout | null = null
@@ -125,16 +128,15 @@ export default class PhoneKeyboard extends Element<HTMLDivElement, Props> {
     ][0] as PhoneKeyboardKey
     this._shift_key.addEventListener(
       makeClickListener({
+        onLongPress: () => {
+          this._shift_lock = true
+
+          this._toggle_shift()
+        },
         onClick: () => {
-          this._shift = !this._shift
-          if (this._shift) {
-            this._activate_shift()
-          } else {
-            this._deactivate_shift()
-          }
-          for (let key_component of this._keys) {
-            key_component.setProp('shiftKey', this._shift)
-          }
+          this._shift_lock = false
+
+          this._toggle_shift()
         },
       })
     )
@@ -177,16 +179,15 @@ export default class PhoneKeyboard extends Element<HTMLDivElement, Props> {
     this._alt_key = key_AltLeft.$slotChildren['default'][0] as PhoneKeyboardKey
     this._alt_key.addEventListener(
       makeClickListener({
+        onLongPress: () => {
+          this._alt_lock = true
+
+          this._toggle_alt()
+        },
         onClick: () => {
-          this._alt = !this._alt
-          if (this._alt) {
-            this._activate_alt()
-          } else {
-            this._deactivate_alt()
-          }
-          for (let key_component of this._keys) {
-            key_component.setProp('altKey', this._alt)
-          }
+          this._alt_lock = false
+
+          this._toggle_alt()
         },
       })
     )
@@ -223,14 +224,16 @@ export default class PhoneKeyboard extends Element<HTMLDivElement, Props> {
     keyboard.setChildren([line_0, line_1, line_2, line_3, line_4])
     this._keyboard = keyboard
 
-    const $element = parentElement()
+    const $element = parentElement($system)
 
     this.$element = $element
     this.$slot = keyboard.$slot
-    this.$subComponent = {
-      keyboard,
-    }
     this.$unbundled = false
+    this.$primitive = true
+
+    this.setSubComponents({
+      keyboard,
+    })
 
     this.registerRoot(keyboard)
   }
@@ -245,32 +248,64 @@ export default class PhoneKeyboard extends Element<HTMLDivElement, Props> {
     }
   }
 
+  private _toggle_shift = () => {
+    if (this._shift) {
+      this._deactivate_shift()
+    } else {
+      this._activate_shift()
+    }
+  }
+
+  private _refresh_keys_shift = () => {
+    for (let key_component of this._keys) {
+      key_component.setProp('shiftKey', this._shift)
+    }
+  }
+
+  private _refresh_keys_alt = () => {
+    for (let key_component of this._keys) {
+      key_component.setProp('altKey', this._alt)
+    }
+  }
+
+  private _toggle_alt = () => {
+    if (this._alt) {
+      this._deactivate_alt()
+    } else {
+      this._activate_alt()
+    }
+  }
+
   private _activate_shift = (): void => {
-    mergePropStyle(this._shift_key, {
-      backgroundImage: `radial-gradient(currentColor 20%, transparent 20%)`,
-      backgroundSize: '3px 3px',
-    })
+    this._shift = true
+
+    this._shift_key.setProp('active', true)
+
+    this._refresh_keys_shift()
   }
 
   private _deactivate_shift = (): void => {
-    mergePropStyle(this._shift_key, {
-      backgroundImage: 'none',
-      backgroundSize: 'none',
-    })
+    this._shift = false
+
+    this._shift_key.setProp('active', false)
+
+    this._refresh_keys_shift()
   }
 
   private _activate_alt = (): void => {
-    mergePropStyle(this._alt_key, {
-      backgroundImage: `radial-gradient(currentColor 20%, transparent 20%)`,
-      backgroundSize: '3px 3px',
-    })
+    this._alt = true
+
+    this._alt_key.setProp('active', true)
+
+    this._refresh_keys_alt()
   }
 
   private _deactivate_alt = (): void => {
-    mergePropStyle(this._alt_key, {
-      backgroundImage: 'none',
-      backgroundSize: 'none',
-    })
+    this._alt = false
+
+    this._alt_key.setProp('active', false)
+
+    this._refresh_keys_alt()
   }
 
   private _line = (children: Element[]): Div => {
@@ -314,6 +349,17 @@ export default class PhoneKeyboard extends Element<HTMLDivElement, Props> {
       this.$system
     )
 
+    key_component.addEventListener(
+      makeCustomListener('key', (key) => {
+        if (!this._shift_lock && key !== 'Shift') {
+          this._deactivate_shift()
+        }
+        if (!this._alt_lock && key !== 'AltLeft') {
+          this._deactivate_alt()
+        }
+      })
+    )
+
     const key_component_container = new Div(
       {
         style: {
@@ -336,14 +382,29 @@ export default class PhoneKeyboard extends Element<HTMLDivElement, Props> {
   }
 
   private _on_backspace_long_press = (): void => {
+    const {
+      api: {
+        device: { vibrate },
+        window: { setInterval },
+      },
+    } = this.$system
+
     // log('PhoneKeyboard', '_on_backspace_long_press')
     this._backspace_interval = setInterval(() => {
       // log('backspace')
-      emitPhoneKey('Backspace', this._shift, this._alt)
+      emitPhoneKey(this.$system, 'Backspace', this._shift, this._alt)
+
+      vibrate([10])
     }, 30)
   }
 
   private _on_backspace_pointer_up = (): void => {
+    const {
+      api: {
+        window: { clearInterval },
+      },
+    } = this.$system
+
     if (this._backspace_interval) {
       clearInterval(this._backspace_interval)
     }

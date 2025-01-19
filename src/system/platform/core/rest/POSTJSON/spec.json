@@ -1,102 +1,156 @@
 {
-  "name": "POST JSON",
-  "units": {
-    "cpqoubsy": {
-      "id": "ee184ea6-3c80-4119-919e-290620aafab0",
-      "input": {
-        "json": {}
-      }
-    },
-    "elhvggatf": {
-      "id": "c5856fdc-5154-46ab-a414-47f37af39da1",
-      "input": {
-        "url": {
-          "constant": false
+  "name": "post JSON",
+  "inputs": {
+    "json": {
+      "plug": {
+        "0": {
+          "unitId": "stringify",
+          "pinId": "json"
         }
       }
     },
-    "plrdswoeo": {
-      "id": "c4784b05-1f50-44ad-b812-545b3ed77614",
-      "input": {
-        "obj": {
-          "constant": true,
-          "data": "{method:'POST',headers:{\"Content-Type\":'application/json'}}"
-        },
-        "key": {
-          "constant": true,
-          "data": "'body'"
+    "url": {
+      "plug": {
+        "0": {
+          "unitId": "fetch",
+          "pinId": "url"
+        }
+      }
+    },
+    "opt": {
+      "plug": {
+        "0": {
+          "unitId": "deepmerge",
+          "pinId": "b"
         }
       }
     }
   },
+  "outputs": {
+    "response": {
+      "plug": {
+        "0": {
+          "unitId": "fetch",
+          "pinId": "response"
+        }
+      }
+    }
+  },
+  "units": {
+    "stringify": {
+      "id": "ee184ea6-3c80-4119-919e-290620aafab0",
+      "input": {
+        "json": {}
+      },
+      "output": {
+        "string": {}
+      },
+      "metadata": {
+        "position": {
+          "x": -76,
+          "y": 54
+        }
+      }
+    },
+    "fetch": {
+      "id": "c5856fdc-5154-46ab-a414-47f37af39da1",
+      "input": {
+        "url": {
+          "constant": false
+        },
+        "opt": {}
+      },
+      "output": {
+        "response": {}
+      },
+      "metadata": {
+        "position": {
+          "x": 124,
+          "y": 22
+        }
+      }
+    },
+    "set": {
+      "id": "c4784b05-1f50-44ad-b812-545b3ed77614",
+      "input": {
+        "obj": {
+          "constant": false
+        },
+        "key": {
+          "constant": true,
+          "data": "\"body\""
+        },
+        "value": {}
+      },
+      "output": {
+        "obj": {}
+      },
+      "metadata": {
+        "position": {
+          "x": 14,
+          "y": -1
+        }
+      }
+    },
+    "deepmerge": {
+      "id": "2af12780-698c-40ca-baa9-5f3260377e0f",
+      "input": {
+        "a": {
+          "constant": true,
+          "data": "{method:\"POST\",headers:{\"Content-Type\":\"application/json\"}}"
+        },
+        "b": {}
+      },
+      "output": {
+        "ab": {}
+      }
+    }
+  },
   "merges": {
-    "dimeu": {
-      "plrdswoeo": {
+    "0": {
+      "set": {
         "input": {
           "value": true
         }
       },
-      "cpqoubsy": {
+      "stringify": {
         "output": {
           "string": true
         }
       }
     },
-    "krissnnyb": {
-      "elhvggatf": {
+    "1": {
+      "fetch": {
         "input": {
-          "options": true
+          "opt": true
         }
       },
-      "plrdswoeo": {
+      "set": {
         "output": {
+          "obj": true
+        }
+      }
+    },
+    "2": {
+      "deepmerge": {
+        "output": {
+          "ab": true
+        }
+      },
+      "set": {
+        "input": {
           "obj": true
         }
       }
     }
   },
-  "inputs": {
-    "mvrbmatr": {
-      "pin": {
-        "0": {
-          "unitId": "cpqoubsy",
-          "pinId": "json"
-        }
-      },
-      "type": "<A>"
-    },
-    "bccuxmrt": {
-      "pin": {
-        "0": {
-          "unitId": "elhvggatf",
-          "pinId": "url"
-        }
-      },
-      "type": "string"
-    }
-  },
-  "outputs": {
-    "stpyrbnqj": {
-      "pin": {
-        "0": {
-          "unitId": "elhvggatf",
-          "pinId": "response"
-        }
-      },
-      "type": "{status:number,body:string}"
-    }
-  },
+  "render": false,
+  "component": {},
   "metadata": {
     "icon": "send",
-    "description": "...",
-    "complexity": 5,
-    "tags": [
-      "platform",
-      "core",
-      "rest"
-    ]
+    "description": "POST JSON body",
+    "tags": ["platform", "core", "rest"]
   },
   "id": "6fcb6d82-4d64-438e-8a30-82f8b89c524b",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

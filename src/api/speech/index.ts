@@ -1,28 +1,11 @@
-import { EventEmitter2 } from 'eventemitter2'
-import callAll from '../../callAll'
-import { APINotImplementedError } from '../../exception/APINotImplementedError'
-import { EE } from '../../interface/EE'
+import { EventEmitter_, EventEmitter_EE } from '../../EventEmitter'
 import { System } from '../../system'
-import { Unlisten } from '../../Unlisten'
-
-export interface ISpeechGrammarList {
-  addFromString(str: string, weight: number)
-}
-
-export interface ISpeechGrammarListOpt {}
-
-export interface ISpeechRecognition extends EE {
-  start(): void
-  stop(): void
-}
-
-export interface ISpeechRecognitionOpt {
-  grammars?: ISpeechGrammarList
-  lang?: string
-  interimResults?: boolean
-  maxAlternatives?: number
-  continuous?: boolean
-}
+import {
+  SpeechRecognition,
+  SpeechRecognitionOpt,
+} from '../../types/global/SpeechRecognition'
+import { Unlisten } from '../../types/Unlisten'
+import { callAll } from '../../util/call/callAll'
 
 export type SpeechOpt = {
   grammar?: string
@@ -31,42 +14,21 @@ export type SpeechOpt = {
   interim?: boolean
 }
 
-export const JSGFStrFrom = (tokens: string[]): string => {
-  const rule = tokens.join(' | ')
-  const grammar = `#JSGF V1.0; grammar tokens; public <token> = ${rule} ;`
-  return grammar
+export type SpeechRecorder_EE = {
+  transcript: [string]
+  err: [string]
+  end: []
 }
 
-export const grammarsFrom = (
-  system: System,
-  tokens: string[]
-): ISpeechGrammarList => {
-  const {
-    api: {
-      speech: { SpeechGrammarList },
-    },
-  } = system
+export type SpeechRecorderEvents = EventEmitter_EE<SpeechRecorder_EE> &
+  SpeechRecorder_EE
 
-  if (!SpeechGrammarList) {
-    throw new APINotImplementedError('Speech Grammar List')
-  }
-
-  const grammarsStr = JSGFStrFrom(tokens)
-
-  const grammars = SpeechGrammarList({})
-
-  grammars.addFromString(grammarsStr, 1)
-
-  return grammars
-}
-
-export class SpeechRecorder extends EventEmitter2 {
-  private _grammars: ISpeechGrammarList
-  private _recognition: ISpeechRecognition
+export class SpeechRecorder extends EventEmitter_<SpeechRecorderEvents> {
+  private _recognition: SpeechRecognition
 
   private _unlisten: Unlisten
 
-  constructor(__system: System, opt: ISpeechRecognitionOpt) {
+  constructor(__system: System, opt: SpeechRecognitionOpt) {
     super()
 
     const {
@@ -75,49 +37,51 @@ export class SpeechRecorder extends EventEmitter2 {
       },
     } = __system
 
-    if (SpeechRecognition && SpeechGrammarList) {
+    if (SpeechRecognition) {
       const {
         grammars,
         lang = 'en-US',
         continuous = false,
-        interimResults = true,
+        interimResults = false,
         maxAlternatives = 1,
       } = opt
 
-      const recognition = SpeechRecognition({
-        grammars,
-        lang,
-        interimResults,
-        maxAlternatives,
-        continuous,
-      })
+      let recognition: any
+
+      try {
+        recognition = new SpeechRecognition({
+          grammars,
+          lang,
+          interimResults,
+          maxAlternatives,
+          continuous,
+        })
+      } catch (err) {
+        throw err
+      }
 
       this._unlisten = callAll([
-        recognition.addListener('error', (event) => {
-          if (event.error === 'no-speech') {
+        recognition.addEventListener('error', ({ error }) => {
+          if (error === 'no-speech') {
             return
           }
         }),
-        recognition.addListener('end', () => {
+        recognition.addEventListener('end', () => {
           if (this._recording) {
             recognition.start()
+          } else {
+            this.emit('end')
           }
         }),
-        recognition.addListener('result', (event) => {
-          const results = event.results
+        recognition.addEventListener('result', (event) => {
+          const { results } = event
+
           const firstResult = results[0]
           const firstAlternative = firstResult[0]
+
           const { transcript, confidence } = firstAlternative
+
           this.emit('transcript', transcript)
-        }),
-        recognition.addListener('audioend', () => {
-          // alert('audioend')
-        }),
-        recognition.addListener('speechend', () => {
-          // alert('speechend')
-        }),
-        recognition.addListener('soundend', () => {
-          // alert('soundend')
         }),
       ])
 

@@ -9,7 +9,7 @@
     }
   },
   "merges": {
-    "sxqrd": {
+    "0": {
       "ifelse": {
         "input": {
           "b": true
@@ -21,7 +21,7 @@
         }
       }
     },
-    "diljw": {
+    "1": {
       "ifelse": {
         "input": {
           "a": true
@@ -36,53 +36,44 @@
   },
   "inputs": {
     "b": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "lengthequals",
           "pinId": "b"
         }
-      },
-      "type": "number"
+      }
     },
     "a": {
-      "pin": {
+      "plug": {
         "0": {
-          "mergeId": "diljw"
+          "mergeId": "1"
         }
-      },
-      "type": "<A>[]"
+      }
     }
   },
   "outputs": {
     "false": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "ifelse",
           "pinId": "else"
         }
-      },
-      "type": "<A>[]"
+      }
     },
     "true": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "ifelse",
           "pinId": "if"
         }
-      },
-      "type": "<A>[]"
+      }
     }
   },
   "metadata": {
     "icon": "ruler",
     "description": "output based on whether `a` size is equal to `b`",
-    "complexity": 4,
-    "tags": [
-      "core",
-      "common"
-    ]
+    "tags": ["core", "common"]
   },
   "id": "f317e5cd-63d0-4036-b958-09dfd04ab480",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

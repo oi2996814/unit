@@ -1,17 +1,22 @@
 import { IOElement } from './IOElement'
-import { Size } from './util/geometry'
+import { Size } from './util/geometry/types'
 
 export function getSize(element: IOElement): Size {
-  // RETURN
-  // AD HOC
   if (!(element instanceof HTMLElement)) {
-    return { width: 0, height: 0 }
+    const range = document.createRange()
+
+    range.selectNodeContents(element)
+
+    const rects = range.getClientRects()
+
+    const rect = rects[0] || { width: 0, height: 0 }
+
+    return rect
   }
 
   const bb = element.getBoundingClientRect()
-  const { width, height } = bb
-  return { width, height }
-  // const { offsetWidth, offsetHeight } = element
 
-  // return { width: offsetWidth, height: offsetHeight }
+  const { width, height } = bb
+
+  return { width, height }
 }

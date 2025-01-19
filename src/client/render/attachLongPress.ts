@@ -1,22 +1,27 @@
 import { System } from '../../system'
-import namespaceURI from '../component/namespaceURI'
-import { IOPointerEvent } from '../event/pointer'
+import { namespaceURI } from '../component/namespaceURI'
+import { getPosition } from '../util/style/getPosition'
 
 const LONG_PRESS_DURATION = 0.2
 const LONG_PRESS_TRANSITION = `r ${LONG_PRESS_DURATION}s linear, opacity ${LONG_PRESS_DURATION}s linear`
 const LONG_PRESS_RADIUS = 90
 
-export function attachLongPress($system: System): void {
-  const { foreground: $foreground } = $system
+export function attachLongPress(system: System): void {
+  const {
+    root,
+    foreground: { svg },
+    api: {
+      document: { createElementNS },
+      window: { setTimeout },
+    },
+  } = system
 
-  const { svg: $svg } = $foreground
+  const { offsetWidth, offsetHeight } = root
 
-  const { innerWidth, innerHeight } = window
+  const cx = offsetWidth / 2
+  const cy = offsetHeight / 2
 
-  const cx = innerWidth / 2
-  const cy = innerHeight / 2
-
-  const long_press = document.createElementNS(namespaceURI, 'circle')
+  const long_press = createElementNS(namespaceURI, 'circle')
 
   long_press.style.display = 'block'
   long_press.style.strokeWidth = '2px'
@@ -28,7 +33,7 @@ export function attachLongPress($system: System): void {
   long_press.setAttribute('cy', `${cy}`)
   long_press.setAttribute('r', `${LONG_PRESS_RADIUS}`)
 
-  $svg.appendChild(long_press)
+  svg.appendChild(long_press)
 
   const showLongPress = (
     screenX: number,
@@ -38,13 +43,13 @@ export function attachLongPress($system: System): void {
       direction?: 'in' | 'out'
     } = {}
   ) => {
-    // console.log('showLongPress', screenX, screenY, opt)
+    const { x, y } = getPosition(root)
 
     const { stroke = 'currentColor', direction = 'in' } = opt
 
     long_press.style.stroke = stroke
-    long_press.setAttribute('cx', `${screenX}`)
-    long_press.setAttribute('cy', `${screenY}`)
+    long_press.setAttribute('cx', `${screenX - x}`)
+    long_press.setAttribute('cy', `${screenY - y}`)
     long_press.style.transition = ''
 
     if (direction === 'in') {
@@ -68,5 +73,5 @@ export function attachLongPress($system: System): void {
     }
   }
 
-  $system.method.showLongPress = showLongPress
+  system.showLongPress = showLongPress
 }

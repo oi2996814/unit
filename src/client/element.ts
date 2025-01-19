@@ -1,10 +1,11 @@
 import { Moment } from '../debug/Moment'
-import { PinDataMoment } from '../debug/PinDataMoment'
-import { $Element } from '../interface/async/$Element'
-import NOOP from '../NOOP'
-import { Unlisten } from '../Unlisten'
+import { NOOP } from '../NOOP'
+import { evaluate } from '../spec/evaluate'
+import { stringify } from '../spec/stringify'
+import { Dict } from '../types/Dict'
+import { $Element } from '../types/interface/async/$Element'
+import { Unlisten } from '../types/Unlisten'
 import { Component } from './component'
-import { IOElement } from './IOElement'
 import { makeChangeListener } from './event/change'
 import { makeCustomListener } from './event/custom'
 import { makeInputListener } from './event/input'
@@ -20,95 +21,97 @@ import { makePointerEnterListener } from './event/pointer/pointerenter'
 import { makePointerLeaveListener } from './event/pointer/pointerleave'
 import { makePointerMoveListener } from './event/pointer/pointermove'
 import { makePointerUpListener } from './event/pointer/pointerup'
+import { IOElement } from './IOElement'
 import { Listener } from './Listener'
-import { GlobalRefSpec } from '../types/GlobalRefSpec'
-
-export function findRef(component: Component, name: string): Component | null {
-  let c: Component | null = component
-  while (c) {
-    if (c.$ref[name]) {
-      return c.$ref[name]
-    }
-    c = c.$parent
-  }
-  return null
-}
 
 export class Element<
   E extends IOElement = any,
-  P extends object = {},
-  U extends $Element = $Element
+  P extends Dict<any> = Dict<any>,
+  U extends $Element = $Element,
 > extends Component<E, P, U> {
   private _element_unlisten: Unlisten
 
+  public $preventLoad: boolean = false
+  public $input: Dict<string[]>
+
   onConnected($unit: $Element) {
-    const setRef = (name: string, { __global_id, __ }: GlobalRefSpec): void => {
-      __ = __.map((i) => {
-        if (i.startsWith('$')) {
-          return i
-        } else {
-          return `$${i}`
-        }
-      })
-
-      const ref = $unit.$refGlobalObj({ __global_id, __ })
-
-      this.setProp(name, ref)
-    }
-
-    const dropRef = (name: string): void => {
-      this.setProp(name, undefined)
-    }
-
     const handler = {
       unit: (moment: Moment) => {
+        const { specs, classes } = this.$system
+
         const { event: event_event, data: event_data } = moment
+
         if (event_event === 'set') {
           const { name, data } = event_data
-          this.setProp(name, data)
-        }
-      },
-      ref_input: (moment: PinDataMoment) => {
-        const {
-          event,
-          data: { pinId, data },
-        } = moment
-        if (event === 'data') {
-          setRef(pinId, data)
-        } else {
-          dropRef(pinId)
+
+          if (data !== undefined) {
+            const _data = evaluate(data, specs, classes, (url) => {
+              const globalId = url.slice(7)
+
+              const _ = this.$input[name] ?? []
+
+              return this.$unit.$refGlobalObj({ globalId, _ })
+            })
+
+            this.setProp(name, _data)
+          } else {
+            this.setProp(name, undefined)
+          }
         }
       },
     }
 
     const element_listener = (moment: Moment): void => {
       const { type } = moment
+
       handler[type] && handler[type](moment)
     }
 
     const element_unlisten = this.$unit.$watch(
-      { events: ['set', 'call', 'ref_input'] },
+      { events: ['set', 'call'] },
       element_listener
     )
 
     this._element_unlisten = element_unlisten
 
-    $unit.$read({}, (state) => {
-      for (let name in state) {
-        const data = state[name]
-        this.setProp(name, data)
-      }
-    })
+    if (!this.$preventLoad) {
+      $unit.$read({}, (state) => {
+        const { specs, classes } = this.$system
+
+        state = evaluate(state, specs, classes, (url) => {
+          return url
+        })
+
+        for (const name in this.$input) {
+          const url = state[name]
+
+          if (url) {
+            const globalId = url.slice(7)
+
+            const _ = this.$input[name]
+
+            state[name] = this.$unit.$refGlobalObj({ globalId, _ })
+          }
+        }
+
+        for (const name in state) {
+          const data = state[name]
+
+          this.setProp(name as keyof P, data)
+        }
+      })
+    }
   }
 
   onDisconnected() {
-    console.log('Element', 'onDisconnected')
     this._element_unlisten()
   }
 
   set(name: string, data: any): void {
     if (this.$connected) {
-      this.$unit.$set({ name, data }, NOOP)
+      const value = stringify(data)
+
+      this.$unit.$set({ name, data: value }, NOOP)
     }
   }
 }

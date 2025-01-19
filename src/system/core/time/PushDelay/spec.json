@@ -37,45 +37,37 @@
   },
   "inputs": {
     "ms": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "delay",
           "pinId": "ms"
         }
-      },
-      "type": "number"
+      }
     },
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "memory",
           "pinId": "a"
         }
-      },
-      "type": "<A>"
+      }
     }
   },
   "outputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "delay",
           "pinId": "a"
         }
-      },
-      "type": "<A>"
+      }
     }
   },
   "metadata": {
     "icon": "alarm-clock",
-    "description": "",
-    "complexity": 4,
-    "tags": [
-      "core",
-      "time"
-    ]
+    "description": "memory + delay",
+    "tags": ["core", "time"]
   },
   "id": "66037c2f-d194-478b-866b-b2efb3027de1",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

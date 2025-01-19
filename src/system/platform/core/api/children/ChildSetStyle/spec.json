@@ -2,7 +2,7 @@
   "name": "child set style",
   "inputs": {
     "style": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "childset",
           "pinId": "data"
@@ -15,11 +15,10 @@
             "y": -43
           }
         }
-      },
-      "type": "any"
+      }
     },
     "at": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "childset",
           "pinId": "at"
@@ -32,11 +31,10 @@
             "y": 28
           }
         }
-      },
-      "type": "number"
+      }
     },
     "parent": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "childset",
           "pinId": "parent"
@@ -50,8 +48,7 @@
             "y": 28
           }
         }
-      },
-      "type": "<A>"
+      }
     }
   },
   "outputs": {},
@@ -92,24 +89,6 @@
               "y": -26
             }
           }
-        },
-        "b": {
-          "ignored": true,
-          "metadata": {
-            "position": {
-              "x": 29,
-              "y": 31
-            }
-          }
-        },
-        "a": {
-          "ignored": true,
-          "metadata": {
-            "position": {
-              "x": -26,
-              "y": 31
-            }
-          }
         }
       },
       "output": {},
@@ -126,15 +105,8 @@
   "metadata": {
     "icon": "object-set",
     "description": "set `element` child `at` style to `style`",
-    "complexity": 6,
-    "tags": [
-      "platform",
-      "core",
-      "api",
-      "children"
-    ]
+    "tags": ["platform", "core", "api", "children"]
   },
   "id": "d7d77ad6-91db-4da7-a3c6-c37157574b17",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

@@ -73,44 +73,36 @@
   "metadata": {
     "icon": "sort-desc",
     "description": "iteratively increment `count` starting from `init`",
-    "complexity": 5,
-    "tags": [
-      "core",
-      "iterate"
-    ]
+    "tags": ["core", "iterate"]
   },
   "inputs": {
     "any": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "wait",
           "pinId": "b"
         }
-      },
-      "type": "any"
+      }
     },
     "init": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "iterate",
           "pinId": "init"
         }
-      },
-      "type": "number"
+      }
     }
   },
   "outputs": {
     "current": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "iterate",
           "pinId": "current"
         }
-      },
-      "type": "number"
+      }
     }
   },
   "id": "9fa0c25b-0675-48dc-80e7-eab1829656bd",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

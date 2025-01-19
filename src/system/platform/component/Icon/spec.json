@@ -5,23 +5,30 @@
       "type": "object",
       "optional": true,
       "metadata": {
-        "description": ""
+        "examples": ["{}"]
+      }
+    },
+    "attr": {
+      "type": "object",
+      "optional": true,
+      "defaultIgnored": true,
+      "metadata": {
+        "examples": ["{}"]
       }
     },
     "icon": {
       "type": "string",
-      "optional": true
+      "optional": true,
+      "metadata": {
+        "examples": ["\"unit\"", "\"circle\"", "\"square\""]
+      }
     }
   },
   "outputs": {},
   "metadata": {
     "icon": "square",
-    "description": "click me!",
-    "complexity": 8.988677427125994,
-    "tags": [
-      "platform",
-      "component"
-    ]
+    "description": "icon from the system",
+    "tags": ["platform", "component"]
   },
   "id": "63a417e5-d354-4b39-9ebd-05f55e70de7b",
   "base": true,
@@ -29,7 +36,6 @@
     "defaultWidth": 45,
     "defaultHeight": 45
   },
-  "type": "`U`&`C`",
-  "system": true,
+  "type": "`U`&`C`&`V`&`J`",
   "render": true
 }

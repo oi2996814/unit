@@ -2,22 +2,17 @@ import * as assert from 'assert'
 import { watchGraphAndLog, watchUnitAndLog } from '../../../debug'
 import { fromSpec } from '../../../spec/fromSpec'
 import _specs from '../../../system/_specs'
-import { GraphSpec } from '../../../types'
+import { GraphSpec } from '../../../types/GraphSpec'
+import { system } from '../../util/system'
 const spec =
   require('../../../system/core/common/Increment/spec.json') as GraphSpec
 
-const Increment = fromSpec<{ a: number }, { 'a + 1': number }>(
-  spec,
-  _specs
-)
-
-import { system } from '../../util/system'
+const Increment = fromSpec<{ a: number }, { 'a + 1': number }>(spec, _specs, {})
 
 const increment = new Increment(system)
 
 false && watchUnitAndLog(increment)
 false && watchGraphAndLog(increment)
-
 
 increment.play()
 

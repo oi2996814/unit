@@ -36,7 +36,7 @@
       },
       "lengthgreaterthan": {
         "output": {
-          "true": true
+          "test": true
         }
       }
     },
@@ -103,54 +103,45 @@
   },
   "metadata": {
     "icon": "brackets",
-    "description": "no description",
-    "complexity": 13.316235198191354,
-    "tags": [
-      "core",
-      "array"
-    ]
+    "description": "get array `a` element at position `at` or `d` if not present",
+    "tags": ["core", "array"]
   },
   "inputs": {
     "i": {
-      "pin": {
+      "plug": {
         "0": {
           "mergeId": "1"
         }
       },
-      "functional": true,
-      "type": "number"
+      "functional": true
     },
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "mergeId": "2"
         }
       },
-      "functional": true,
-      "type": "<A>[]"
+      "functional": true
     },
     "d": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "ifnot",
           "pinId": "a"
         }
       },
-      "functional": true,
-      "type": "<A>"
+      "functional": true
     }
   },
   "outputs": {
     "a[i] || d": {
-      "pin": {
+      "plug": {
         "0": {
           "mergeId": "jgunro"
         }
-      },
-      "type": "<A>"
+      }
     }
   },
   "id": "f962de3a-b87c-4018-bcb6-71921f93ce1d",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

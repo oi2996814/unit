@@ -1,0 +1,48 @@
+{
+  "name": "text",
+  "inputs": {
+    "style": {
+      "type": "object",
+      "optional": true
+    },
+    "value": {
+      "type": "string",
+      "optional": true
+    },
+    "x": {
+      "type": "string",
+      "optional": true
+    },
+    "y": {
+      "type": "string",
+      "optional": true
+    },
+    "dx": {
+      "type": "string",
+      "optional": true
+    },
+    "dy": {
+      "type": "string",
+      "optional": true
+    },
+    "attr": {
+      "type": "object",
+      "optional": true,
+      "defaultIgnored": true
+    }
+  },
+  "outputs": {},
+  "metadata": {
+    "icon": "square",
+    "description": "SVG text",
+    "tags": ["platform", "component", "svg"]
+  },
+  "id": "49ef122e-b4d1-11ea-b45e-b73d8ee2aae8",
+  "base": true,
+  "component": {
+    "defaultWidth": 150,
+    "defaultHeight": 60
+  },
+  "type": "`U`&`C`&`V`&`J`",
+  "render": true
+}

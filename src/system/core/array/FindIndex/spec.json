@@ -124,82 +124,70 @@
   },
   "inputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "mergeId": "3"
         }
-      },
-      "type": "any"
+      }
     },
     "test": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "andnot",
           "pinId": "a"
         }
-      },
-      "type": "boolean"
+      }
     }
   },
   "outputs": {
     "i": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "findlastindex",
           "pinId": "i"
         }
       },
-      "defaultIgnored": true,
-      "type": "number"
+      "defaultIgnored": true
     },
     "test": {
-      "pin": {
+      "plug": {
         "0": {
           "mergeId": "0"
         }
       },
-      "defaultIgnored": true,
-      "type": "boolean"
+      "defaultIgnored": true
     },
     "a[i]": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "findlastindex",
           "pinId": "a[i]"
         }
-      },
-      "type": "<A>"
+      }
     },
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "findlastindex",
           "pinId": "a"
         }
       },
-      "defaultIgnored": true,
-      "type": "<A>[]"
+      "defaultIgnored": true
     },
     "result": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "findlastindex",
           "pinId": "result"
         }
-      },
-      "type": "number"
+      }
     }
   },
   "metadata": {
     "icon": "brackets",
-    "description": "...",
-    "complexity": 23.655374979152384,
-    "tags": [
-      "core",
-      "array"
-    ]
+    "description": "find index `i` of first element in array `a` for which `test` is true",
+    "tags": ["core", "array"]
   },
   "id": "7ca98fbb-6e84-4133-b658-46329a8e45cf",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

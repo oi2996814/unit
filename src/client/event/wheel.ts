@@ -1,9 +1,11 @@
-import Listenable from '../Listenable'
+import { Listenable } from '../Listenable'
 import { Listener } from '../Listener'
 
 export interface IOWheelEvent {
   clientX: number
   clientY: number
+  screenX: number
+  screenY: number
   offsetX: number
   offsetY: number
   deltaX: number
@@ -26,10 +28,17 @@ export function listenWheel(
   component: Listenable,
   onWheel: (event: IOWheelEvent, _event: WheelEvent) => void
 ): () => void {
-  const { $element } = component
+  const {
+    $system: {
+      api: {
+        document: { elementFromPoint },
+      },
+    },
+    $element,
+  } = component
 
   const wheelListener = (_event: WheelEvent) => {
-    const { $context } = component
+    const { $context, $element } = component
 
     const { $x, $y, $sx, $sy } = $context
 
@@ -44,6 +53,10 @@ export function listenWheel(
       offsetY,
     } = _event
 
+    if (ctrlKey) {
+      return
+    }
+
     onWheel(
       {
         deltaY,
@@ -54,6 +67,8 @@ export function listenWheel(
         clientY: (clientY - $y) / $sy,
         offsetX,
         offsetY,
+        screenX: clientX,
+        screenY: clientY,
       },
       _event
     )

@@ -1,0 +1,24 @@
+{
+  "name": "from unit bundle",
+  "inputs": {
+    "bundle": {
+      "type": "{spec?:object,specs?:object}",
+      "metadata": {
+        "examples": ["{spec:{},specs:{}}"]
+      }
+    }
+  },
+  "outputs": {
+    "unit": {
+      "type": "`U`"
+    }
+  },
+  "metadata": {
+    "icon": "server",
+    "description": "create `unit` class from unit `bundle` spec",
+    "tags": ["platform", "method", "process"]
+  },
+  "id": "23acb820-8820-4c4f-8e28-ee4daa4cc056",
+  "base": true,
+  "type": "`U`"
+}

@@ -1,35 +1,32 @@
 import * as assert from 'assert'
 import { Graph } from '../../../Class/Graph'
 import { watchGraphAndLog, watchUnitAndLog } from '../../../debug'
-import { fromSpec } from '../../../spec/fromSpec'
+import { fromBundle } from '../../../spec/fromBundle'
 import _specs from '../../../system/_specs'
-import { GraphSpec } from '../../../types'
-
-const spec =
-  require('../../../system/core/common/PriorityMerge/spec.json') as GraphSpec
-
-const PriorityMerge = fromSpec<{ a: number[]; b: number[] }, { ab: number[] }>(
-  spec,
-  _specs
-)
-
+import { BundleSpec } from '../../../types/BundleSpec'
 import { system } from '../../util/system'
+
+const bundle = require('./PriorityMerge.json') as BundleSpec
+
+const PriorityMerge = fromBundle<
+  { a: number[]; b: number[] },
+  { ab: number[] }
+>(bundle, _specs, {})
 
 const priorityMerge = new PriorityMerge(system)
 
 false && watchUnitAndLog(priorityMerge)
 false && watchGraphAndLog(priorityMerge)
-false && watchGraphAndLog(priorityMerge.refUnit('prioritymergefrom') as Graph)
-
+false && watchGraphAndLog(priorityMerge.getUnit('prioritymergefrom') as Graph)
 
 priorityMerge.play()
 
-// priorityMerge.push('a', [])
-// priorityMerge.push('b', [])
-// assert.deepEqual(priorityMerge.take('ab'), [])
-// assert.deepEqual(priorityMerge.take('ab'), undefined)
-// assert.deepEqual(priorityMerge.peakInput('a'), undefined)
-// assert.deepEqual(priorityMerge.peakInput('b'), undefined)
+priorityMerge.push('a', [])
+priorityMerge.push('b', [])
+assert.deepEqual(priorityMerge.take('ab'), [])
+assert.deepEqual(priorityMerge.take('ab'), undefined)
+assert.deepEqual(priorityMerge.peakInput('a'), undefined)
+assert.deepEqual(priorityMerge.peakInput('b'), undefined)
 
 priorityMerge.push('a', [1, 2, 4])
 priorityMerge.push('b', [3, 5])

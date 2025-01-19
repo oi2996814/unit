@@ -1,23 +1,27 @@
 import { Functional } from '../../../../Class/Functional'
 import { Done } from '../../../../Class/Functional/Done'
-import { Graph } from '../../../../Class/Graph'
-import { getSpec } from '../../../../client/spec'
-import { GraphUnitSpec } from '../../../../types'
-import { UnitClass } from '../../../../types/UnitClass'
+import { applyUnitDefaultIgnored } from '../../../../spec/fromSpec'
+import { System } from '../../../../system'
+import { $G } from '../../../../types/interface/async/$G'
+import { Async } from '../../../../types/interface/async/Async'
+import { UnitBundle } from '../../../../types/UnitBundle'
+import { clone } from '../../../../util/clone'
+import { weakMerge } from '../../../../weakMerge'
+import { ID_ADD_UNIT } from '../../../_ids'
 
 export interface I<T> {
   id: string
-  Class: UnitClass<any>
-  graph: Graph
+  class: UnitBundle<any>
+  graph: $G
 }
 
 export interface O<T> {}
 
 export default class AddUnit<T> extends Functional<I<T>, O<T>> {
-  constructor() {
+  constructor(system: System) {
     super(
       {
-        i: ['id', 'Class', 'graph'],
+        i: ['id', 'class', 'graph'],
         o: [],
       },
       {
@@ -26,54 +30,32 @@ export default class AddUnit<T> extends Functional<I<T>, O<T>> {
             ref: true,
           },
         },
-      }
+      },
+      system,
+      ID_ADD_UNIT
     )
   }
 
-  f(
-    {
-      id,
-      Class,
-      graph,
-    }: {
-      id: string
-      Class: UnitClass<any>
-      graph: Graph
-    },
-    done: Done<O<T>>
-  ): void {
-    if (this.__system) {
-      done(undefined, 'unplugged')
+  f({ id, class: Class, graph }: I<T>, done: Done<O<T>>): void {
+    graph = Async(graph, ['G'], this.__system.async)
+
+    try {
+      const { __bundle } = Class
+      const { id: __id, input: __inputs = {} } = __bundle.unit
+
+      const specs = weakMerge(__bundle.specs, this.__system.specs)
+
+      const bundle = clone(__bundle)
+
+      applyUnitDefaultIgnored(bundle.unit, specs)
+
+      graph.$addUnit({ unitId: id, bundle })
+    } catch (err) {
+      done(undefined, err.message)
+
       return
     }
 
-    const { specs } = this.__system
-
-    try {
-      const id = Class.__id
-      const spec = getSpec(specs, id)
-      const unit_spec: GraphUnitSpec = { id, input: {}, output: {} }
-      const { inputs = {}, outputs = {} } = spec
-      for (const inputId in inputs) {
-        const input = inputs[inputId]
-        const { defaultIgnored } = input
-        if (defaultIgnored) {
-          unit_spec.input[inputId] = unit_spec.input[inputId] || {}
-          unit_spec.input[inputId].ignored = defaultIgnored
-        }
-      }
-      for (const outputId in outputs) {
-        const output = outputs[outputId]
-        const { defaultIgnored } = output
-        if (defaultIgnored) {
-          unit_spec.output[outputId] = unit_spec.output[outputId] || {}
-          unit_spec.output[outputId].ignored = defaultIgnored
-        }
-      }
-      graph.addUnit(unit_spec, id)
-      done({})
-    } catch (err) {
-      done(undefined, err.message)
-    }
+    done()
   }
 }

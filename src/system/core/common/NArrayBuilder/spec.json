@@ -9,14 +9,20 @@
           "data": "[]"
         }
       },
-      "output": {}
+      "output": {
+        "acc": {
+          "ignored": false
+        },
+        "test": {
+          "ignored": false
+        }
+      }
     }
   },
   "merges": {},
   "inputs": {
     "n": {
-      "type": "number",
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "buildarrayfrom",
           "pinId": "n"
@@ -24,36 +30,47 @@
       }
     },
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "buildarrayfrom",
           "pinId": "a"
         }
-      },
-      "type": "<A>"
+      }
     }
   },
   "outputs": {
     "a[]": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "buildarrayfrom",
           "pinId": "a[]"
         }
+      }
+    },
+    "test": {
+      "plug": {
+        "0": {
+          "unitId": "buildarrayfrom",
+          "pinId": "test"
+        }
       },
-      "type": "<A>[]"
+      "defaultIgnored": true
+    },
+    "acc": {
+      "plug": {
+        "0": {
+          "unitId": "buildarrayfrom",
+          "pinId": "acc"
+        }
+      },
+      "defaultIgnored": true
     }
   },
   "metadata": {
     "icon": "array",
     "description": "build a list of size n",
-    "complexity": 3,
-    "tags": [
-      "core",
-      "common"
-    ]
+    "tags": ["core", "common"]
   },
   "id": "38033fcc-aa28-4df3-abc8-d4ece231028b",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

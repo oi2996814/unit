@@ -1,19 +1,17 @@
 import * as assert from 'assert'
 import { watchGraphAndLog, watchUnitAndLog } from '../../../debug'
-import { fromSpec } from '../../../spec/fromSpec'
+import { fromBundle } from '../../../spec/fromBundle'
 import _specs from '../../../system/_specs'
-
-const spec = require('../../../system/core/common/PriorityHead/spec.json')
-
-const PriorityHead = fromSpec(spec, _specs)
-
 import { system } from '../../util/system'
+
+const bundle = require('./PriorityHead.json')
+
+const PriorityHead = fromBundle(bundle, _specs, {})
 
 const priorityHead = new PriorityHead(system)
 
 false && watchUnitAndLog(priorityHead)
 false && watchGraphAndLog(priorityHead)
-
 
 priorityHead.play()
 
@@ -23,7 +21,7 @@ assert.deepEqual(priorityHead.peakInput('a'), [])
 assert.deepEqual(priorityHead.peakInput('b'), [])
 assert.deepEqual(priorityHead.take('a'), [])
 assert.deepEqual(priorityHead.take('b'), [])
-assert.deepEqual(priorityHead.take('head'), 1000)
+assert.deepEqual(priorityHead.take('head'), Infinity)
 assert.deepEqual(priorityHead.peakInput('a'), undefined)
 assert.deepEqual(priorityHead.peakInput('b'), undefined)
 

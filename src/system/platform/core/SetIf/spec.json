@@ -1,5 +1,4 @@
 {
-  "artifact": "spec",
   "name": "set if",
   "units": {
     "set": {
@@ -37,66 +36,56 @@
   },
   "inputs": {
     "test": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "pick",
           "pinId": "c"
         }
       },
-      "type": "boolean"
+      "functional": true
     },
     "obj": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "mergeId": "1"
         }
       },
-      "type": "object"
+      "functional": true
     },
     "key": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "set",
           "pinId": "key"
         }
       },
-      "type": "number|string"
+      "functional": true
     },
     "value": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "set",
           "pinId": "value"
         }
       },
-      "type": "any"
+      "functional": true
     }
   },
   "outputs": {
     "obj": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "pick",
           "pinId": "a"
         }
-      },
-      "type": "object"
+      }
     }
   },
   "metadata": {
-    "icon": "brackets-curly",
+    "icon": "object-set",
     "description": "set value at `key` to `value` if `test` is true",
-    "complexity": 4,
-    "tags": [
-      "platform",
-      "core"
-    ]
+    "tags": ["platform", "core"]
   },
   "id": "946701f6-7dd4-11ea-a1aa-67938c0c6214",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

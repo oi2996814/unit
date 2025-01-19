@@ -2,7 +2,7 @@
   "name": "charcode",
   "inputs": {
     "code": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "fromcharcode",
           "pinId": "code"
@@ -11,7 +11,7 @@
       "ref": false
     },
     "style": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "mergedefault",
           "pinId": "a"
@@ -97,20 +97,16 @@
         "children": []
       }
     },
-    "children": [
-      "textspan"
-    ],
+    "children": ["textspan"],
     "defaultWidth": 90,
     "defaultHeight": 90
   },
   "metadata": {
-    "complexity": 15.146452198728758,
-    "tags": [
-      "platform",
-      "core",
-      "component"
-    ]
+    "icon": "square",
+    "description": "render a unicode char from its code",
+    "tags": ["platform", "core", "component"]
   },
   "id": "d0c59812-a8ec-4c53-81a9-c9725dda987e",
-  "type": "`U`&`G`&`C`"
+  "type": "`U`&`C`&`G`",
+  "render": true
 }

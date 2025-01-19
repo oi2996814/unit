@@ -30,7 +30,7 @@
     }
   },
   "merges": {
-    "xsdjz": {
+    "0": {
       "splitat": {
         "input": {
           "i": true
@@ -42,7 +42,7 @@
         }
       }
     },
-    "lqzpx": {
+    "1": {
       "length": {
         "output": {
           "length": true
@@ -54,7 +54,7 @@
         }
       }
     },
-    "nhyud": {
+    "2": {
       "splitat": {
         "input": {
           "a": true
@@ -69,45 +69,37 @@
   },
   "inputs": {
     "a": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
-          "mergeId": "nhyud"
+          "mergeId": "2"
         }
       },
-      "type": "<A>[]"
+      "functional": true
     }
   },
   "outputs": {
     "first": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "splitat",
           "pinId": "first"
         }
-      },
-      "type": "<A>[]"
+      }
     },
     "second": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "splitat",
           "pinId": "second"
         }
-      },
-      "type": "<A>[]"
+      }
     }
   },
   "metadata": {
     "icon": "split-half",
-    "description": "...",
-    "complexity": 11.659600096362322,
-    "tags": [
-      "core",
-      "array"
-    ]
+    "description": "split array `a` in half",
+    "tags": ["core", "array"]
   },
   "id": "8babf4fa-e95e-449e-80b9-62e03ba0aae4",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

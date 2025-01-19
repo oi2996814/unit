@@ -1,4 +1,7 @@
 import { Primitive } from '../../../../Primitive'
+import { System } from '../../../../system'
+import { Dict } from '../../../../types/Dict'
+import { ID_DEFAULT } from '../../../_ids'
 
 export interface I<T> {
   a: T
@@ -12,12 +15,14 @@ export interface O<T> {
 export default class Default<T> extends Primitive<I<T>, O<T>> {
   private _current: T | undefined = undefined
 
-  constructor() {
-    super({ i: ['a', 'd'], o: ['a'] })
+  constructor(system: System) {
+    super({ i: ['a', 'd'], o: ['a'] }, {}, system, ID_DEFAULT)
 
-    this.addListener('reset', () => {
-      this._current = undefined
-    })
+    this.addListener('reset', this._reset)
+  }
+
+  private _reset = () => {
+    this._current = undefined
   }
 
   onDataInputData(name: string, data: I<T>[keyof I<T>]) {
@@ -38,7 +43,7 @@ export default class Default<T> extends Primitive<I<T>, O<T>> {
     while (
       !this._forwarding &&
       !this._backwarding &&
-      this._active_o_count - this._o_invalid_count === 0 &&
+      this._o_active.size - this._o_invalid.size === 0 &&
       this._current !== undefined
     ) {
       this._forward('a', this._current)
@@ -87,5 +92,20 @@ export default class Default<T> extends Primitive<I<T>, O<T>> {
 
   public onDataInputInvalid(name: string) {
     this._invalidate()
+  }
+
+  public snapshotSelf(): Dict<any> {
+    return {
+      ...super.snapshotSelf(),
+      ...(this._current !== undefined ? { _current: this._current } : {}),
+    }
+  }
+
+  public restoreSelf(state: Dict<any>): void {
+    const { _current, ...rest } = state
+
+    super.restoreSelf(rest)
+
+    this._current = _current
   }
 }

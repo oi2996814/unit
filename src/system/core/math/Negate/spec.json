@@ -15,36 +15,29 @@
   "metadata": {
     "icon": "minus",
     "description": "turn `a` into `-a`",
-    "complexity": 3,
-    "tags": [
-      "core",
-      "math"
-    ]
+    "tags": ["core", "math"]
   },
   "inputs": {
     "a": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "multiply",
           "pinId": "a"
         }
       },
-      "type": "number"
+      "functional": true
     }
   },
   "outputs": {
     "-a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "multiply",
           "pinId": "a × b"
         }
-      },
-      "type": "number"
+      }
     }
   },
   "id": "13cbadb7-bbe5-4c6d-a81e-fc6fe5949e30",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

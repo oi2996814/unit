@@ -1,0 +1,46 @@
+{
+  "name": "infinity",
+  "units": {
+    "wait": {
+      "id": "ba38b0af-80c0-49e4-9e39-864396964ccc",
+      "input": {
+        "a": {
+          "constant": true,
+          "data": "Infinity"
+        },
+        "b": {}
+      },
+      "output": {
+        "a": {}
+      }
+    }
+  },
+  "merges": {},
+  "inputs": {
+    "any": {
+      "plug": {
+        "0": {
+          "unitId": "wait",
+          "pinId": "b"
+        }
+      }
+    }
+  },
+  "outputs": {
+    "inf": {
+      "plug": {
+        "0": {
+          "unitId": "wait",
+          "pinId": "a"
+        }
+      }
+    }
+  },
+  "metadata": {
+    "icon": "infinity",
+    "description": "output Infinity",
+    "tags": ["core", "common"]
+  },
+  "id": "6ee7bbe1-3c5c-4e36-820e-4a9a923ad736",
+  "type": "`U`&`G`"
+}

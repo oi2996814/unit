@@ -1,21 +1,21 @@
 {
   "name": "not and",
   "units": {
-    "iczar": {
+    "and": {
       "id": "407640f7-f1c3-4297-a5ce-baff357a6d31"
     },
-    "qxdjs": {
+    "not": {
       "id": "7d02d638-a311-4ea8-a0c0-d45baf739e0d"
     }
   },
   "merges": {
-    "krvv": {
-      "iczar": {
+    "0": {
+      "and": {
         "input": {
           "b": true
         }
       },
-      "qxdjs": {
+      "not": {
         "output": {
           "!a": true
         }
@@ -24,45 +24,37 @@
   },
   "inputs": {
     "b": {
-      "pin": {
+      "plug": {
         "0": {
-          "unitId": "qxdjs",
+          "unitId": "not",
           "pinId": "a"
         }
-      },
-      "type": "boolean"
+      }
     },
     "a": {
-      "pin": {
+      "plug": {
         "0": {
-          "unitId": "iczar",
+          "unitId": "and",
           "pinId": "a"
         }
-      },
-      "type": "boolean"
+      }
     }
   },
   "outputs": {
-    "hgllh": {
-      "pin": {
+    "!a && b": {
+      "plug": {
         "0": {
-          "unitId": "iczar",
+          "unitId": "and",
           "pinId": "a and b"
         }
-      },
-      "type": "boolean"
+      }
     }
   },
   "metadata": {
-    "icon": null,
-    "description": "...",
-    "complexity": 4,
-    "tags": [
-      "core",
-      "common"
-    ]
+    "icon": "ampersand",
+    "description": "NOT AND logic operator",
+    "tags": ["core", "common"]
   },
   "id": "a4515f52-889c-4409-b710-59e2ebea265c",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

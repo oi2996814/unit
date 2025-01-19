@@ -1,14 +1,26 @@
-import { Element } from '../../../../../Class/Element/Element'
+import { Style } from 'util'
+import { Element_ } from '../../../../../Class/Element'
+import { System } from '../../../../../system'
+import { Dict } from '../../../../../types/Dict'
+import { ID_FOREIGN_OBJECT } from '../../../../_ids'
 
-export interface I {}
+export interface I {
+  style: Style
+  attr: Dict<string>
+}
 
 export interface O {}
 
-export default class ForeignObject extends Element<I, O> {
-  constructor() {
-    super({
-      i: ['class', 'style'],
-      o: [],
-    })
+export default class SVGForeignObject extends Element_<I, O> {
+  constructor(system: System) {
+    super(
+      {
+        i: ['style', 'attr'],
+        o: [],
+      },
+      {},
+      system,
+      ID_FOREIGN_OBJECT
+    )
   }
 }

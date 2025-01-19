@@ -50,45 +50,36 @@
   "metadata": {
     "icon": "edit-3",
     "description": "draw a circle to the canvas",
-    "complexity": 5,
-    "tags": [
-      "platform",
-      "core",
-      "canvas"
-    ]
+    "tags": ["platform", "core", "canvas"]
   },
   "inputs": {
     "arc": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "addarc",
           "pinId": "arc"
         }
-      },
-      "type": "{x:number,y:number,r:number,start:number,end:number,anticlockwise?:boolean}"
+      }
     },
     "d": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "beginpath",
           "pinId": "d"
         }
-      },
-      "type": "any[][]"
+      }
     }
   },
   "outputs": {
     "d": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "stroke",
           "pinId": "d"
         }
-      },
-      "type": "any[][]"
+      }
     }
   },
   "id": "790d5128-7fd6-48f9-b5cf-9edecedb1043",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

@@ -40,7 +40,7 @@ export default class Resize extends Element<HTMLDivElement, Props> {
 
     const { disabled, l = 15 } = $props
 
-    const resize = document.createElement('div')
+    const resize = this.$system.api.document.createElement('div')
     resize.classList.add('resize')
     resize.style.top = '0'
     resize.style.position = 'initial'
@@ -50,7 +50,7 @@ export default class Resize extends Element<HTMLDivElement, Props> {
     // resize.style.opacity = '0.5'
     resize.style.pointerEvents = disabled ? 'none' : 'all'
 
-    const top = document.createElement('div')
+    const top = this.$system.api.document.createElement('div')
     top.classList.add('resize-top')
     top.style.position = 'absolute'
     top.style.width = '100%'
@@ -63,7 +63,7 @@ export default class Resize extends Element<HTMLDivElement, Props> {
     this._add_pointer_listener(top, 0, -1, 'n')
     resize.appendChild(top)
 
-    const right = document.createElement('div')
+    const right = this.$system.api.document.createElement('div')
     right.classList.add('resize-right')
     right.style.position = 'absolute'
     right.style.width = `${l}px`
@@ -76,7 +76,7 @@ export default class Resize extends Element<HTMLDivElement, Props> {
     this._add_pointer_listener(right, 1, 0, 'e')
     resize.appendChild(right)
 
-    const bottom = document.createElement('div')
+    const bottom = this.$system.api.document.createElement('div')
     bottom.classList.add('resize-bottom')
     bottom.style.position = 'absolute'
     bottom.style.width = '100%'
@@ -89,7 +89,7 @@ export default class Resize extends Element<HTMLDivElement, Props> {
     this._add_pointer_listener(bottom, 0, 1, 's')
     resize.appendChild(bottom)
 
-    const left = document.createElement('div')
+    const left = this.$system.api.document.createElement('div')
     left.classList.add('resize-left')
     left.style.position = 'absolute'
     left.style.width = `${l}px`
@@ -102,7 +102,7 @@ export default class Resize extends Element<HTMLDivElement, Props> {
     this._add_pointer_listener(left, -1, 0, 'w')
     resize.appendChild(left)
 
-    const top_right = document.createElement('div')
+    const top_right = this.$system.api.document.createElement('div')
     top_right.classList.add('resize-top_right')
     top_right.style.position = 'absolute'
     top_right.style.width = `${l}px`
@@ -115,7 +115,7 @@ export default class Resize extends Element<HTMLDivElement, Props> {
     this._add_pointer_listener(top_right, 1, -1, 'ne')
     resize.appendChild(top_right)
 
-    const right_bottom = document.createElement('div')
+    const right_bottom = this.$system.api.document.createElement('div')
     right_bottom.classList.add('resize-right_bottom')
     right_bottom.style.position = 'absolute'
     right_bottom.style.width = `${l}px`
@@ -128,7 +128,7 @@ export default class Resize extends Element<HTMLDivElement, Props> {
     this._add_pointer_listener(right_bottom, 1, 1, 'se')
     resize.appendChild(right_bottom)
 
-    const bottom_left = document.createElement('div')
+    const bottom_left = this.$system.api.document.createElement('div')
     bottom_left.classList.add('resize-bottom_left')
     bottom_left.style.position = 'absolute'
     bottom_left.style.width = `${l}px`
@@ -141,7 +141,7 @@ export default class Resize extends Element<HTMLDivElement, Props> {
     this._add_pointer_listener(bottom_left, -1, 1, 'sw')
     resize.appendChild(bottom_left)
 
-    const left_top = document.createElement('div')
+    const left_top = this.$system.api.document.createElement('div')
     left_top.classList.add('resize-left_top')
     left_top.style.position = 'absolute'
     left_top.style.width = `${l}px`
@@ -165,12 +165,16 @@ export default class Resize extends Element<HTMLDivElement, Props> {
     y: DirectionUnit,
     direction: Direction
   ) => {
+    const {
+      api: {
+        input: {
+          pointer: { setPointerCapture },
+        },
+      },
+    } = this.$system
+
     element.addEventListener('pointerdown', (event) => {
       const { clientX, clientY, pointerId } = event
-
-      element.setPointerCapture(pointerId)
-
-      // event.stopPropagation()
 
       this._resize.style.position = 'absolute'
       this._resize.style.width = `100%`
@@ -213,33 +217,40 @@ export default class Resize extends Element<HTMLDivElement, Props> {
       }
 
       const on_pointer_up = (event) => {
+        // console.log('on_pointer_up')
         const { pointerId } = event
 
         if (this._pointer_down[pointerId]) {
           this._pointer_down_count--
-          delete this._pointer_down[pointerId]
 
-          element.releasePointerCapture(pointerId)
+          delete this._pointer_down[pointerId]
+          delete this._pointer_down_direction[pointerId]
 
           if (this._pointer_down_count === 0) {
             element.removeEventListener('pointermove', on_pointer_move)
             element.removeEventListener('pointerup', on_pointer_up)
             element.removeEventListener('pointercancel', on_pointer_up)
+            element.removeEventListener('pointerleave', on_pointer_up)
 
             this.dispatchEvent('resizeend', {})
+
             this._resize.style.position = 'initial'
             this._resize.style.width = '0'
             this._resize.style.height = '0'
           }
+
+          releasePointerCapture()
         }
       }
 
       if (this._pointer_down_count === 1) {
-        // TODO use IO event system
         element.addEventListener('pointermove', on_pointer_move)
         element.addEventListener('pointerup', on_pointer_up)
         element.addEventListener('pointercancel', on_pointer_up)
+        element.addEventListener('pointerleave', on_pointer_up)
       }
+
+      const releasePointerCapture = setPointerCapture(element, pointerId)
 
       this._dispatch_resize_start(pointerId, direction)
     })

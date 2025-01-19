@@ -1,21 +1,23 @@
-import namespaceURI from '../../../../../client/component/namespaceURI'
-import { segmentLinkId } from '../../../../../client/id'
-import parentElement from '../../../../../client/parentElement'
-import { NONE } from '../../../../../client/theme'
+import { namespaceURI } from '../../../../../client/component/namespaceURI'
 import { Element } from '../../../../../client/element'
+import { segmentLinkId } from '../../../../../client/id'
+import { parentElement } from '../../../../../client/platform/web/parentElement'
+import { COLOR_NONE } from '../../../../../client/theme'
 import {
-  Size,
-  Thing,
   describeCircle,
   describeRect,
-  unitVector,
   oppositeVector,
   pointInNode,
+  Thing,
+  unitVector,
 } from '../../../../../client/util/geometry'
+import { Size } from '../../../../../client/util/geometry/types'
+import { userSelect } from '../../../../../client/util/style/userSelect'
 import { System } from '../../../../../system'
 import { Dict } from '../../../../../types/Dict'
 import { isEmptyObject } from '../../../../../util/object'
-import SVGG from '../../svg/G/Component'
+import Div from '../../Div/Component'
+import SVGG from '../../svg/Group/Component'
 import SVGPath from '../../svg/Path/Component'
 import SVGSVG from '../../svg/SVG/Component'
 
@@ -37,7 +39,9 @@ export interface Props {
   padding?: number
 }
 
-export const DEFAULT_STYLE = {}
+export const DEFAULT_STYLE = {
+  ...userSelect('none'),
+}
 
 export const MINIMAP_WIDTH = 200
 export const MINIMAP_HEIGHT = 150
@@ -63,10 +67,22 @@ export default class Minimap extends Element<HTMLDivElement, Props> {
 
     const { style, width, height } = $props
 
+    const root = new Div(
+      {
+        className: 'minimap-root',
+        style: {
+          width: '100%',
+          height: '100%',
+        },
+      },
+      this.$system
+    )
+    root.preventDefault('mousedown')
+    root.preventDefault('touchdown')
+
     const map_graph = new SVGG({ className: 'minimap-graph' }, this.$system)
     this._map_graph = map_graph
 
-    // TODO bring "minimap screen" to minimap
     const map_children = new SVGG(
       { className: 'minimap-children' },
       this.$system
@@ -76,41 +92,46 @@ export default class Minimap extends Element<HTMLDivElement, Props> {
     const svg = new SVGSVG(
       {
         className: 'minimap',
-        width,
-        height,
+        attr: {
+          width: `${width}`,
+          height: `${height}`,
+        },
         style: {
           ...DEFAULT_STYLE,
           ...style,
         },
         viewBox: '0 0 0 0',
-        tabIndex: -1,
       },
       this.$system
     )
-    svg.preventDefault('mousedown')
-    svg.preventDefault('touchdown')
+
     this._map_el = svg
 
     this.tick()
 
-    const $element = parentElement()
+    const $element = parentElement($system)
 
     this.$element = $element
     this.$slot = map_children.$slot
-    this.$subComponent = {
+    this.$unbundled = false
+    this.$primitive = true
+
+    this.setSubComponents({
+      root,
       svg,
       map_graph,
       map_children,
-    }
-    this.$unbundled = false
+    })
 
-    this.registerRoot(svg)
+    root.registerParentRoot(svg)
+
+    this.registerRoot(root)
 
     svg.registerParentRoot(map_graph)
     svg.registerParentRoot(map_children)
 
     svg.$element.onfocus = () => {
-      console.log('Minimap', 'onFocus')
+      // console.log('Minimap', 'onFocus')
     }
   }
 
@@ -127,18 +148,22 @@ export default class Minimap extends Element<HTMLDivElement, Props> {
   public tick(): void {
     const { nodes = {}, links = {}, padding = 0 } = this.$props
 
-    for (let node_id in this._node_component) {
+    for (const node_id in this._node_component) {
       if (!nodes[node_id]) {
         const node_el = this._node_component[node_id]
+
         this._map_graph.$element.removeChild(node_el.$element)
+
         delete this._node_component[node_id]
       }
     }
 
-    for (let link_id in this._link_el) {
+    for (const link_id in this._link_el) {
       if (!links[link_id]) {
         const link_el = this._link_el[link_id]
+
         this._map_graph.$element.removeChild(link_el)
+
         delete this._link_el[link_id]
       }
     }
@@ -152,7 +177,7 @@ export default class Minimap extends Element<HTMLDivElement, Props> {
     let min_y = Number.MAX_SAFE_INTEGER
     let max_y = Number.MIN_SAFE_INTEGER
 
-    for (let node_id in nodes) {
+    for (const node_id in nodes) {
       const node = nodes[node_id]
       const { x, y, width, height, r, shape } = node
 
@@ -167,9 +192,12 @@ export default class Minimap extends Element<HTMLDivElement, Props> {
         node_component = new SVGPath(
           {
             style: {
-              fill: NONE,
+              fill: COLOR_NONE,
               pointerEvents: 'none',
               strokeWidth: 'inherit',
+            },
+            attr: {
+              'stroke-linecap': 'normal',
             },
           },
           this.$system
@@ -188,25 +216,40 @@ export default class Minimap extends Element<HTMLDivElement, Props> {
       node_component.setProp('d', d)
     }
 
-    for (let link_id in links) {
+    for (const link_id in links) {
       const { source, target } = segmentLinkId(link_id)
+
+      if (source === target) {
+        continue
+      }
+
       let link_el = this._link_el[link_id]
+
       if (!link_el) {
-        link_el = document.createElementNS(namespaceURI, 'line')
-        // link_el.setAttribute('stroke', 'currentColor')
+        link_el = this.$system.api.document.createElementNS(
+          namespaceURI,
+          'line'
+        )
+
         link_el.style.pointerEvents = 'none'
+
         this._link_el[link_id] = link_el
-        // TODO use Component appendChild
+
         this._map_graph.$element.appendChild(link_el)
       }
+
       const sourceNode = nodes[source]
       const targetNode = nodes[target]
+
       const { x: x0, y: y0 } = sourceNode
       const { x: x1, y: y1 } = targetNode
+
       const u = unitVector(x0, y0, x1, y1)
       const nu = oppositeVector(u)
+
       const { x: _x0, y: _y0 } = pointInNode(sourceNode, u)
       const { x: _x1, y: _y1 } = pointInNode(targetNode, nu)
+
       link_el.setAttribute('x1', `${_x0}`)
       link_el.setAttribute('y1', `${_y0}`)
       link_el.setAttribute('x2', `${_x1}`)

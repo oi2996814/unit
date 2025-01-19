@@ -1,88 +1,46 @@
 {
   "name": "on value",
   "units": {
-    "getvalue": {
-      "id": "d74f12c2-1868-11eb-8136-238c1b1a727f",
+    "listen": {
+      "id": "367241d8-ad12-11ea-beed-9777f31699a8",
       "input": {
-        "unit": {},
-        "any": {
-          "data": "1"
-        }
-      },
-      "output": {
-        "value": {}
-      }
-    },
-    "oninput": {
-      "id": "b345c410-b1ee-11ea-b725-0b9ed734d65f",
-      "input": {
-        "element": {}
-      },
-      "output": {
-        "event": {}
-      }
-    }
-  },
-  "merges": {
-    "0": {
-      "oninput": {
-        "input": {
-          "element": true
-        }
-      },
-      "getvalue": {
-        "input": {
-          "unit": true
-        }
-      }
-    },
-    "1": {
-      "oninput": {
-        "output": {
-          "event": true
-        }
-      },
-      "getvalue": {
-        "input": {
-          "any": true
+        "event": {
+          "data": "'value'",
+          "constant": true
+        },
+        "remove": {
+          "ignored": false
         }
       }
     }
   },
+  "merges": {},
   "inputs": {
     "element": {
-      "type": "`U`",
-      "pin": {
+      "plug": {
         "0": {
-          "mergeId": "0"
+          "unitId": "listen",
+          "pinId": "emitter"
         }
       },
       "ref": true
     }
   },
   "outputs": {
-    "value": {
-      "pin": {
+    "event": {
+      "plug": {
         "0": {
-          "unitId": "getvalue",
-          "pinId": "value"
+          "unitId": "listen",
+          "pinId": "data"
         }
-      },
-      "type": "any"
+      }
     }
   },
   "metadata": {
     "icon": "square",
-    "description": "output `element` value and listen \"input\" event",
-    "complexity": 9,
-    "tags": [
-      "platform",
-      "core",
-      "api",
-      "event"
-    ]
+    "description": "listen to `element` input event",
+    "tags": ["platform", "core", "api", "event"]
   },
-  "id": "f1e3b2aa-1215-49f0-a2cd-2ef7178a4374",
-  "type": "`U`&`G`",
-  "system": true
+  "id": "d0e6f14c-400c-42f3-bfd6-1bbe0146f490",
+  "type": "`U`&`G`"
 }

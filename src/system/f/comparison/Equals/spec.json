@@ -1,0 +1,24 @@
+{
+  "name": "equals",
+  "inputs": {
+    "a": {
+      "type": "any"
+    },
+    "b": {
+      "type": "any"
+    }
+  },
+  "outputs": {
+    "a = b": {
+      "type": "boolean"
+    }
+  },
+  "metadata": {
+    "icon": "equal",
+    "description": "equality",
+    "tags": ["f", "comparison"]
+  },
+  "id": "85204bf6-6692-4686-a785-23127c0594b5",
+  "base": true,
+  "type": "`U`"
+}

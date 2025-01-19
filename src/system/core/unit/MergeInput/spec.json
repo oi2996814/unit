@@ -1,0 +1,160 @@
+{
+  "type": "`U`&`G`",
+  "name": "merge input",
+  "units": {
+    "foreachkeyvalue": {
+      "id": "47771360-640a-11ea-8393-d32f60372182",
+      "input": {
+        "obj": {}
+      },
+      "output": {
+        "key": {},
+        "value": {},
+        "test": {
+          "ignored": false
+        }
+      },
+      "metadata": {
+        "position": {
+          "x": -50,
+          "y": -1
+        }
+      }
+    },
+    "setinput": {
+      "id": "43b43afd-9e7d-44ba-aef7-6e9db4ed8744",
+      "input": {
+        "unit": {},
+        "name": {},
+        "data": {}
+      },
+      "output": {
+        "unit": {}
+      },
+      "metadata": {
+        "position": {
+          "x": 49,
+          "y": 0
+        }
+      }
+    },
+    "loop": {
+      "id": "3432494e-fab6-4e9d-a846-0c48a7c429cd",
+      "input": {
+        "next": {},
+        "test": {},
+        "init": {}
+      },
+      "output": {
+        "current": {},
+        "local": {
+          "ignored": true
+        },
+        "final": {
+          "ignored": false
+        }
+      }
+    }
+  },
+  "merges": {
+    "0": {
+      "foreachkeyvalue": {
+        "output": {
+          "value": true
+        }
+      },
+      "setinput": {
+        "input": {
+          "data": true
+        }
+      }
+    },
+    "1": {
+      "foreachkeyvalue": {
+        "output": {
+          "key": true
+        }
+      },
+      "setinput": {
+        "input": {
+          "name": true
+        }
+      }
+    },
+    "2": {
+      "foreachkeyvalue": {
+        "output": {
+          "test": true
+        }
+      },
+      "loop": {
+        "input": {
+          "test": true
+        }
+      }
+    },
+    "3": {
+      "setinput": {
+        "input": {
+          "unit": true
+        }
+      },
+      "loop": {
+        "output": {
+          "current": true
+        }
+      }
+    },
+    "4": {
+      "setinput": {
+        "output": {
+          "unit": true
+        }
+      },
+      "loop": {
+        "input": {
+          "next": true
+        }
+      }
+    }
+  },
+  "inputs": {
+    "obj": {
+      "plug": {
+        "0": {
+          "unitId": "foreachkeyvalue",
+          "pinId": "obj"
+        }
+      },
+      "ref": false
+    },
+    "unit": {
+      "plug": {
+        "0": {
+          "unitId": "loop",
+          "pinId": "init",
+          "kind": "input"
+        }
+      },
+      "ref": false
+    }
+  },
+  "outputs": {
+    "unit": {
+      "plug": {
+        "0": {
+          "unitId": "loop",
+          "pinId": "final",
+          "kind": "output"
+        }
+      },
+      "ref": false
+    }
+  },
+  "metadata": {
+    "icon": "object-set",
+    "description": "set each `unit` key value input",
+    "tags": ["core", "unit"]
+  },
+  "id": "568638fd-0338-4ad3-a76f-8581c7b3aa44"
+}

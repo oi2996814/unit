@@ -1,29 +1,41 @@
-import { BC } from '../../../../../interface/BC'
-import { V } from '../../../../../interface/V'
-import { ObjectWaiter } from '../../../../../ObjectWaiter'
-import { Primitive } from '../../../../../Primitive'
-import BluetoothService from '../BluetoothService'
+import { $ } from '../../../../../Class/$'
+import { Functional, FunctionalEvents } from '../../../../../Class/Functional'
+import { Done } from '../../../../../Class/Functional/Done'
+import { System } from '../../../../../system'
+import { Callback } from '../../../../../types/Callback'
+import { BluetoothCharacteristic } from '../../../../../types/global/BluetoothCharacteristic'
+import { BC } from '../../../../../types/interface/BC'
+import { BSE } from '../../../../../types/interface/BSE'
+import { ID_BLUETOOTH_CHARACTERISTIC } from '../../../../_ids'
 
 export interface I {
-  service: BluetoothService
+  service: BSE
   uuid: string
 }
 
-export interface O {}
+export interface O {
+  charac: BC
+}
 
-export default class BluetoothCharacteristic
-  extends Primitive<I, O>
-  implements V<string>, BC
-{
-  private _characteristic: any
+type BluetoothCharacteristic_EE = {
+  characteristicvaluechanged: [string, boolean]
+}
 
-  private _characteristic_waiter = new ObjectWaiter<any>()
+export type BluetoothCharacteristicEvents =
+  FunctionalEvents<BluetoothCharacteristic_EE> & BluetoothCharacteristic_EE
 
-  constructor() {
+export default class BluetoothCharacteristic_ extends Functional<
+  I,
+  O,
+  BluetoothCharacteristicEvents
+> {
+  private _characteristic: BluetoothCharacteristic
+
+  constructor(system: System) {
     super(
       {
         i: ['service', 'uuid'],
-        o: [],
+        o: ['charac'],
       },
       {
         input: {
@@ -31,7 +43,14 @@ export default class BluetoothCharacteristic
             ref: true,
           },
         },
-      }
+        output: {
+          charac: {
+            ref: true,
+          },
+        },
+      },
+      system,
+      ID_BLUETOOTH_CHARACTERISTIC
     )
 
     this.addListener('listen', ({ event }: { event: string }) => {
@@ -39,7 +58,6 @@ export default class BluetoothCharacteristic
         this.startNotifications()
       }
     })
-
     this.addListener('unlisten', ({ event }: { event: string }) => {
       if (event === 'write') {
         this.stopNotification()
@@ -47,37 +65,66 @@ export default class BluetoothCharacteristic
     })
   }
 
-  onRefInputData(name: string, data: any): void {
-    // if (name === 'service') {
-    if (this._input.service.active() && this._input.uuid.active()) {
-      this._setup()
+  async f({ service, uuid }, done: Done<O>): Promise<void> {
+    let characteristic: any
+
+    try {
+      characteristic = await service.getCharacteristic(uuid)
+    } catch (err) {
+      done(undefined, err.message.toLowerCase())
+
+      return
     }
-    this._setup()
-    // }
+
+    this._characteristic = characteristic
+
+    const charac = new (class _BluetoothDevice extends $ implements BC {
+      __ = ['BC']
+
+      read(callback: Callback<any>): void {
+        ;(async () => {
+          const dataView = await characteristic.readValue()
+
+          const data = dataView.getUint8(0).toString()
+
+          callback(data)
+        })()
+      }
+
+      write(data: any, callback: Callback): void {
+        ;(async () => {
+          try {
+            const charCodeArray = data.split('').map((c) => c.charCodeAt(0))
+
+            const buffer = Uint8Array.from(charCodeArray)
+
+            await characteristic.writeValue(buffer)
+          } catch (err) {
+            callback(err.message)
+          }
+        })()
+      }
+    })(this.__system)
+
+    done({ charac })
   }
 
-  onRefInputDrop(name: string): void {
-    // if (name === 'service') {
-    this._characteristic_waiter.set(null)
-    // }
-  }
+  d() {
+    if (this._characteristic) {
+      this.stopNotification()
 
-  private _setup() {
-    const { service, uuid } = this._i
-
-    service.getCharacteristic(uuid, (characteristic) => {
-      this._characteristic_waiter.set(characteristic)
-    })
+      this._characteristic = undefined
+    }
   }
 
   private _started: boolean = false
 
-  public async startNotifications() {
+  private async startNotifications() {
     if (this._started) {
       return
     }
 
-    const characteristic = await this._characteristic_waiter.once()
+    const characteristic = this._characteristic
 
     this._started = true
 
@@ -103,21 +150,5 @@ export default class BluetoothCharacteristic
     this._started = false
 
     this._characteristic.stopNotifications()
-  }
-
-  public async write(data: string): Promise<void> {
-    if (this._characteristic) {
-      const charCodeArray = data.split('').map((c) => c.charCodeAt(0))
-      const buffer = Uint8Array.from(charCodeArray)
-      await this._characteristic.writeValue(buffer)
-      return
-    }
-  }
-
-  public async read(): Promise<string> {
-    if (this._characteristic) {
-      const dataView = await this._characteristic.readValue()
-      return dataView.getUint8(0).toString()
-    }
   }
 }

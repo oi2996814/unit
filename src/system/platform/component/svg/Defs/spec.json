@@ -4,18 +4,18 @@
     "style": {
       "type": "object",
       "optional": true
+    },
+    "attr": {
+      "type": "object",
+      "optional": true,
+      "defaultIgnored": true
     }
   },
   "outputs": {},
   "metadata": {
     "icon": "square",
     "description": "SVG defs",
-    "complexity": 6.4555343476085465,
-    "tags": [
-      "platform",
-      "component",
-      "svg"
-    ]
+    "tags": ["platform", "component", "svg"]
   },
   "id": "3fcb8e64-923d-11ea-bab1-43fa3b273af8",
   "base": true,
@@ -23,7 +23,6 @@
     "defaultWidth": 120,
     "defaultHeight": 120
   },
-  "type": "`U`&`C`",
-  "system": true,
+  "type": "`U`&`C`&`V`&`J`",
   "render": true
 }

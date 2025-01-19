@@ -1,8 +1,14 @@
-import ResizeObserver from 'resize-observer-polyfill'
-import callAll from '../callAll'
-import { Unlisten } from '../Unlisten'
-import { parseTransformXY } from './parseTransformXY'
-import { animateThrottle } from './throttle'
+import { System } from '../system'
+import {
+  IPositionObserverEntry,
+  PositionObserver,
+  PositionObserverCallback,
+} from '../types/global/PositionObserver'
+import { Unlisten } from '../types/Unlisten'
+import { callAll } from '../util/call/callAll'
+import { animateThrottle } from './animateThrottle'
+import { applyLayoutValue } from './parseLayoutValue'
+import { parseTransform } from './parseTransform'
 import {
   addVector,
   angleToRad,
@@ -10,58 +16,38 @@ import {
   subtractVector,
 } from './util/geometry'
 
-export class PositionObserver {
-  private _callback: (
-    x: number,
-    y: number,
-    sx: number,
-    sy: number,
-    rx: number,
-    ry: number,
-    rz: number
-  ) => void
+export class PositionObserver_ implements PositionObserver {
+  private _system: System
 
+  private _callback: PositionObserverCallback
   private _unlisten: () => void
-
   private _abort: () => void
 
-  constructor(
-    callback: (
-      x: number,
-      y: number,
-      sx: number,
-      sy: number,
-      rx: number,
-      ry: number,
-      rz: number
-    ) => void
-  ) {
-    // const { f: _callback } = animateThrottle(callback)
-    // this._callback = _callback
+  constructor(system: System, callback: PositionObserverCallback) {
+    this._system = system
     this._callback = callback
   }
 
-  public observe(element: HTMLElement): {
-    x: number
-    y: number
-    sx: number
-    sy: number
-    rx: number
-    ry: number
-    rz: number
-  } {
+  public observe(element: HTMLElement): IPositionObserverEntry {
+    // console.log('PositionObserver', 'observe')
+
+    const {
+      api: {
+        document: { MutationObserver, ResizeObserver },
+        animation: { requestAnimationFrame, cancelAnimationFrame },
+      },
+    } = this._system
+
     if (this._abort) {
       this._abort()
+
       this._abort = undefined
     }
 
-    // console.log(element)
     const { isConnected } = element
 
     if (!isConnected) {
-      console.log('PositionObserver', 'observe', '!isConnected')
-      return { x: 0, y: 0, sx: 1, sy: 1, rx: 0, ry: 0, rz: 0 }
-      // throw new Error('element is not mounted')
+      throw new Error('element is not mounted')
     }
 
     let x: number = 0
@@ -73,6 +59,12 @@ export class PositionObserver {
     let rx: number = 0
     let ry: number = 0
     let rz: number = 0
+
+    let bx: number = 0
+    let by: number = 0
+
+    let gbx: number = 0
+    let gby: number = 0
 
     let width: number = 0
     let height: number = 0
@@ -93,6 +85,12 @@ export class PositionObserver {
     let parent_x: number = 0
     let parent_y: number = 0
 
+    let parent_bx: number = 0
+    let parent_by: number = 0
+
+    let parent_gbx: number = 0
+    let parent_gby: number = 0
+
     let parent_scroll_top = 0
     let parent_scroll_left = 0
 
@@ -104,21 +102,35 @@ export class PositionObserver {
     let parent_rz = 0
 
     let _transform: string | undefined
+    let _borderWidth: string | undefined
 
-    const _update_local = (): void => {
+    let _border_x: number = 0
+    let _border_y: number = 0
+
+    function _update_local(): void {
       __update_local()
 
       update()
     }
 
-    const __update_local = (): void => {
-      const { offsetLeft, offsetTop, offsetWidth, offsetHeight, style } =
-        element
+    function __update_local(): void {
+      const {
+        offsetLeft = 0,
+        offsetTop = 0,
+        offsetWidth = 0,
+        offsetHeight = 0,
+      } = element
 
       offset_x = offsetLeft
       offset_y = offsetTop
 
-      const { transform } = style
+      let { transform } = element.style
+
+      const computedStyle = getComputedStyle(element)
+
+      const { borderWidth } = computedStyle
+
+      transform = transform || computedStyle.transform
 
       if (
         transform !== _transform ||
@@ -134,7 +146,8 @@ export class PositionObserver {
             _rotate_x,
             _rotate_y,
             _rotate_z,
-          ] = parseTransformXY(transform, offsetWidth, offsetHeight)
+          ] = parseTransform(transform, offsetWidth, offsetHeight)
+
           transform_x = _transform_x
           transform_y = _transform_y
           scale_x = _scale_x
@@ -154,17 +167,48 @@ export class PositionObserver {
         _transform = transform
       }
 
+      if (borderWidth !== _borderWidth) {
+        if (borderWidth) {
+          const [borderSizeStr] = borderWidth.split(' ')
+
+          let borderSize = 0
+
+          if (['thin', 'medium', 'thick'].includes(borderSizeStr)) {
+            // TODO
+          } else {
+            borderSize = applyLayoutValue(borderSizeStr, 0)
+          }
+
+          _border_x = borderSize
+          _border_y = borderSize
+
+          _borderWidth = borderWidth
+
+          bx = _border_x
+          by = _border_y
+        }
+      }
+
+      gbx = parent_bx + parent_gbx
+      gby = parent_by + parent_gby
+
       width = offsetWidth
       height = offsetHeight
     }
 
-    const { f: update_local, abort } = animateThrottle(_update_local)
-
-    this._abort = abort
+    const { f: update_local, abort } = animateThrottle(
+      _update_local,
+      requestAnimationFrame,
+      cancelAnimationFrame
+    )
 
     // const update_local = _update_local
 
-    const _update = (): void => {
+    // const abort = NOOP
+
+    // this._abort = abort
+
+    function _update(): void {
       sx = scale_x * parent_scale_x
       sy = scale_y * parent_scale_y
 
@@ -182,25 +226,29 @@ export class PositionObserver {
       const local_x = offset_x + transform_x
       const local_y = offset_y + transform_y
 
-      const scaled_local_x = local_x * parent_scale_x
-      const scaled_local_y = local_y * parent_scale_y
+      const parent_scaled_local_x = local_x * parent_scale_x
+      const parent_scaled_local_y = local_y * parent_scale_y
 
-      const scaled_rotated_local_x =
-        scaled_local_x * parent_rz_cos - scaled_local_y * parent_rz_sin
-      const scaled_rotated_local_y =
-        scaled_local_y * parent_rz_cos + scaled_local_x * parent_rz_sin
+      const parent_scaled_rotated_local_x =
+        parent_scaled_local_x * parent_rz_cos -
+        parent_scaled_local_y * parent_rz_sin
+      const parent_scaled_rotated_local_y =
+        parent_scaled_local_y * parent_rz_cos +
+        parent_scaled_local_x * parent_rz_sin
 
       const px =
+        parent_gbx / 2 +
         parent_x -
         parent_scroll_left +
-        scaled_rotated_local_x * scale_x -
-        ((width * sx) / 2) * (scale_x - 1)
+        parent_scaled_rotated_local_x * scale_x -
+        ((width * parent_scale_x) / 2) * (scale_x - 1)
 
       const py =
+        parent_gby / 2 +
         parent_y -
         parent_scroll_top +
-        scaled_rotated_local_y * scale_y -
-        ((height * sy) / 2) * (scale_y - 1)
+        parent_scaled_rotated_local_y * scale_y -
+        ((height * parent_scale_y) / 2) * (scale_y - 1)
 
       const cx =
         px +
@@ -226,71 +274,113 @@ export class PositionObserver {
 
     const update = (): void => {
       _update()
-      this._callback(x, y, sx, sy, rx, ry, rz)
+
+      this._callback(x, y, sx, sy, rx, ry, rz, bx, by, gbx, gby)
     }
 
-    const callback = function (mutationsList) {
-      // for (const mutation of mutationsList) {
-      //   console.log('element', mutation)
-      //   if (mutation.type === 'childList') {
-      //   } else if (mutation.type === 'attributes') {
-      //   }
-      // }
-      update_local()
-    }
-
-    const config = {
+    const mutationConfig = {
       childList: false,
       subtree: false,
       attributes: true,
       attributeFilter: ['style'],
     }
 
-    const mutationObserver = new MutationObserver(callback)
+    const mutationObserver = new MutationObserver(update_local)
 
-    mutationObserver.observe(element, config)
+    mutationObserver.observe(element, mutationConfig)
 
-    const unlisten_self = () => {
-      mutationObserver.disconnect()
+    const resizeObserver = new ResizeObserver(update_local)
+
+    const resizeConfig: ResizeObserverOptions = {
+      box: 'device-pixel-content-box',
     }
 
-    const update_parent = (): (() => void) => {
+    // Safari (iOS) will not accept this config
+    // resizeObserver.observe(element, resizeConfig)
+    resizeObserver.observe(element)
+
+    function unlisten_self() {
+      abort()
+
+      mutationObserver.disconnect()
+
+      resizeObserver.unobserve(element)
+      resizeObserver.disconnect()
+    }
+
+    const update_parent = () => {
       const { offsetParent, parentElement } = element
 
-      const targetParent = offsetParent || parentElement
+      // const targetParent = parentElement
+      const targetParent = offsetParent
 
       if (targetParent) {
         const scrollParentUnlisten: Unlisten[] = []
+
         const pushScrollParent = (p: Element) => {
           const { scrollLeft, scrollTop } = p
+
           parent_scroll_top += scrollTop
           parent_scroll_left += scrollLeft
+
           let _scrollLeft = scrollLeft
           let _scrollTop = scrollTop
-          const parentScrollListener = function () {
+
+          function parentScrollListener() {
             const { scrollLeft, scrollTop } = p
+
             parent_scroll_left += scrollLeft - _scrollLeft
             parent_scroll_top += scrollTop - _scrollTop
+
             _scrollLeft = scrollLeft
             _scrollTop = scrollTop
+
             update()
           }
-          const { f: _parentScrollListener } =
-            animateThrottle(parentScrollListener)
-          p.addEventListener('scroll', _parentScrollListener, {
+
+          const { f: parentScrollListener_, abort: parentScrollAbort_ } =
+            animateThrottle(
+              parentScrollListener,
+              requestAnimationFrame,
+              cancelAnimationFrame
+            )
+
+          p.addEventListener('scroll', parentScrollListener_, {
             passive: true,
           })
-          const unlisten = () => {
-            p.removeEventListener('scroll', _parentScrollListener)
+
+          function unlisten() {
+            p.removeEventListener('scroll', parentScrollListener_)
+
+            parentScrollAbort_()
           }
+
           scrollParentUnlisten.push(unlisten)
         }
-        let p = parentElement
-        while (p !== targetParent) {
-          pushScrollParent(p)
-          p = p.parentElement
+
+        if (element.style.position === 'absolute') {
+          //
+        } else {
+          let p = parentElement
+
+          while (p && p !== targetParent) {
+            if (p instanceof HTMLElement) {
+              if (
+                p.style.position === 'absolute' ||
+                p.style.position === 'fixed'
+              ) {
+                break
+              }
+            }
+
+            pushScrollParent(p)
+
+            p = p.parentElement
+          }
+
+          pushScrollParent(targetParent)
         }
-        pushScrollParent(targetParent)
+
         const unlitenScroll = callAll(scrollParentUnlisten)
 
         const parentConfig = {
@@ -300,21 +390,7 @@ export class PositionObserver {
           attributeFilter: ['style'],
         }
 
-        const parentMutationCallback: MutationCallback = (mutationsList) => {
-          // for (const mutation of mutationsList) {
-          //   // console.log('parent', mutation)
-          //   if (mutation.type === 'childList') {
-          //     const { removedNodes } = mutation
-          //     const removedNodesLength = removedNodes.length
-          //     for (let i = 0; i < removedNodesLength; i++) {
-          //       const removedNode = removedNodes.item(i)
-          //       if (removedNode === element) {
-          //         break
-          //       }
-          //     }
-          //   } else if (mutation.type === 'attributes') {
-          //   }
-          // }
+        function parentMutationCallback() {
           update_local()
         }
 
@@ -324,27 +400,36 @@ export class PositionObserver {
 
         parentMutationObserver.observe(targetParent, parentConfig)
 
-        const parentPositionCallback = (
-          _parent_x: number,
-          _parent_y: number,
-          _parent_scale_x: number,
-          _parent_scale_y: number,
-          _parent_rotate_x: number,
-          _parent_rotate_y: number,
-          _parent_rotate_z: number
-        ) => {
-          parent_x = _parent_x
-          parent_y = _parent_y
-          parent_scale_x = _parent_scale_x
-          parent_scale_y = _parent_scale_y
-          parent_rx = _parent_rotate_x
-          parent_ry = _parent_rotate_y
-          parent_rz = _parent_rotate_z
+        function parentPositionCallback(
+          x: number,
+          y: number,
+          sx: number,
+          sy: number,
+          rx: number,
+          ry: number,
+          rz: number,
+          bx: number,
+          by: number,
+          gbx: number,
+          gby: number
+        ) {
+          parent_x = x
+          parent_y = y
+          parent_bx = bx
+          parent_by = by
+          parent_gbx = gbx
+          parent_gby = gby
+          parent_scale_x = sx
+          parent_scale_y = sy
+          parent_rx = rx
+          parent_ry = ry
+          parent_rz = rz
 
           update_local()
         }
 
-        const parentPostionObserver = new PositionObserver(
+        const parentPositionObserver = new PositionObserver_(
+          this._system,
           parentPositionCallback
         )
 
@@ -353,7 +438,7 @@ export class PositionObserver {
           y: _parent_y,
           sx: _parent_scale_x,
           sy: _parent_scale_y,
-        } = parentPostionObserver.observe(targetParent as HTMLElement)
+        } = parentPositionObserver.observe(targetParent as HTMLElement)
 
         parent_x = _parent_x
         parent_y = _parent_y
@@ -363,7 +448,7 @@ export class PositionObserver {
 
         _update()
 
-        const parentResizeObserverCallback = () => {
+        function parentResizeObserverCallback() {
           update_local()
         }
 
@@ -373,37 +458,45 @@ export class PositionObserver {
 
         parentResizeObserver.observe(targetParent)
 
-        return () => {
+        return function () {
           unlitenScroll()
+
           parentResizeObserver.disconnect()
           parentMutationObserver.disconnect()
-          parentPostionObserver.disconnect()
+          parentPositionObserver.disconnect()
         }
       } else {
-        return () => {}
+        return function () {}
       }
     }
 
     const unlisten_parent = update_parent()
 
-    const unlisten = () => {
+    function unlisten() {
       unlisten_self()
       unlisten_parent()
     }
 
     this._unlisten = unlisten
+    this._abort = abort
 
-    // update_local()
     __update_local()
     _update()
 
-    return { x, y, sx, sy, rx, ry, rz }
+    return { x, y, sx, sy, rx, ry, rz, bx, by, gbx, gby }
   }
 
   disconnect() {
+    // console.log('PositionObserver', 'disconnect')
+
     if (this._unlisten) {
       this._unlisten()
       this._unlisten = undefined
+    }
+
+    if (this._abort) {
+      this._abort()
+      this._abort = undefined
     }
   }
 }

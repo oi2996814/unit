@@ -1,36 +1,5 @@
 import { randomIntegerBetween } from '../../math'
-
-export type Size = {
-  width: number
-  height: number
-}
-
-export type Point = {
-  x: number
-  y: number
-}
-
-export type Line = {
-  x0: number
-  y0: number
-  x1: number
-  y1: number
-}
-
-export type Circle = {
-  x: number
-  y: number
-  r: number
-}
-
-export type Rect = {
-  x: number
-  y: number
-  width: number
-  height: number
-}
-
-export type Position = Point
+import { Line, Point, Position, Rect } from './types'
 
 export const DEG = Math.PI / 180
 
@@ -185,7 +154,7 @@ export const ellipsoidalToCartesian = (
   rx: number,
   ry: number,
   angle: number
-): { x: number; y: number } => {
+): Position => {
   // flattening factor
   const ff = 1 - ry / rx
   let e2 = 2 * ff
@@ -270,6 +239,16 @@ export function randomInRect(
   }
 }
 
+export function randomInPaddedRect(
+  x0: number,
+  y0: number,
+  x1: number,
+  y1: number,
+  offset: number
+): Point {
+  return randomInRect(x0 - offset, y0 - offset, x1 + offset, y1 + offset)
+}
+
 export function randomInCircle(cX: number, cY: number, R: number): Point {
   const angle = randomAngle()
   return {
@@ -301,7 +280,7 @@ export function pointInRectangle(
 ) {
   const region = rectangleRegion(x, y, width, height, u)
   const tan = u.x / u.y
-  let a = Math.atan2(u.y, u.x)
+  const a = Math.atan2(u.y, u.x)
   if (region === 'left' || region === 'right') {
     const sx = Math.sign(u.x)
     return {
@@ -343,6 +322,19 @@ export function unitVector(
   return { x: dx / d, y: dy / d }
 }
 
+export function pointUnitVector(
+  { x: x0, y: y0 }: Point,
+  { x: x1, y: y1 }: Point
+): Point {
+  const dx = x1 - x0
+  const dy = y1 - y0
+  const d = norm(dx, dy)
+  if (d === 0) {
+    return randomUnitVector()
+  }
+  return { x: dx / d, y: dy / d }
+}
+
 export function oppositeVector(vector: Point): Point {
   const { x, y } = vector
   return {
@@ -360,6 +352,10 @@ export const applyVector = (point: Point, u: Point, d: number): Point => {
 
 export function vector(x0: number, y0: number, x1: number, y1: number): Point {
   return { x: x1 - x0, y: y1 - y0 }
+}
+
+export function pointVector(p0: Point, p1: Point): Point {
+  return vector(p0.x, p0.y, p1.x, p1.y)
 }
 
 export function jigglePoint(point: Point, intensity: number = 1): Point {
@@ -467,8 +463,90 @@ export function subtractVector(a: Point, b: Point): Point {
   return { x: a.x - b.x, y: a.y - b.y }
 }
 
-export function boundingRadius(width: number, height: number) {
+export function resizeVector(a: Point, k: number): Point {
+  return { x: a.x * k, y: a.y * k }
+}
+
+export function rectBoundingRadius(width: number, height: number) {
   return Math.sqrt(width * width + height + height) / 2
+}
+
+export function rectsBoundingRect(rects: Rect[]): Rect {
+  if (rects.length === 0) {
+    return {
+      x: 0,
+      y: 0,
+      width: 0,
+      height: 0,
+    }
+  }
+
+  let minX = Infinity
+  let minY = Infinity
+  let maxX = -Infinity
+  let maxY = -Infinity
+
+  for (const rect of rects) {
+    minX = Math.min(minX, rect.x)
+    minY = Math.min(minY, rect.y)
+    maxX = Math.max(maxX, rect.x + rect.width)
+    maxY = Math.max(maxY, rect.y + rect.height)
+  }
+
+  return { x: minX, y: minY, width: maxX - minX, height: maxY - minY }
+}
+
+export function centerRectsBoundingRect(rects: Rect[]): Rect {
+  if (rects.length === 0) {
+    return {
+      x: 0,
+      y: 0,
+      width: 0,
+      height: 0,
+    }
+  }
+
+  let minX = Infinity
+  let minY = Infinity
+  let maxX = -Infinity
+  let maxY = -Infinity
+
+  for (const rect of rects) {
+    minX = Math.min(minX, rect.x - rect.width / 2)
+    minY = Math.min(minY, rect.y - rect.height / 2)
+    maxX = Math.max(maxX, rect.x + rect.width / 2)
+    maxY = Math.max(maxY, rect.y + rect.height / 2)
+  }
+
+  const width = maxX - minX
+  const height = maxY - minY
+
+  return { x: minX + width / 2, y: minY + height / 2, width, height }
+}
+
+export function centerRectsBoundingLine(rects: Rect[]): Line {
+  if (rects.length === 0) {
+    return {
+      x0: 0,
+      y0: 0,
+      x1: 0,
+      y1: 0,
+    }
+  }
+
+  let x0 = Infinity
+  let y0 = Infinity
+  let x1 = -Infinity
+  let y1 = -Infinity
+
+  for (const rect of rects) {
+    x0 = Math.min(x0, rect.x - rect.width / 2)
+    y0 = Math.min(y0, rect.y - rect.height / 2)
+    x1 = Math.max(x1, rect.x + rect.width / 2)
+    y1 = Math.max(y1, rect.y + rect.height / 2)
+  }
+
+  return { x0, y0, x1, y1 }
 }
 
 export function rectangleRegion(
@@ -496,49 +574,28 @@ export function rectangleRegion(
 
 export type Shape = 'circle' | 'rect'
 
-// TODO
-export function bezierSpline(): Point[] {
-  return []
-}
-
-export function is_inside(a: Thing, b: Thing): boolean {
-  const {
-    x: a_x,
-    y: a_y,
-    shape: a_shape,
-    r: a_r,
-    width: a_width,
-    height: a_height,
-  } = a
-  const {
-    x: b_x,
-    y: b_y,
-    shape: b_shape,
-    r: b_r,
-    width: b_width,
-    height: b_height,
-  } = b
-
-  if (a_shape === 'circle' && b_shape === 'circle') {
-    return distance(a_x, a_y, b_x, b_y) <= b_r - a_r
-  } else if (a_shape === 'circle' && b_shape === 'rect') {
+export function isInside(a: Thing, b: Thing, offset: number = 0): boolean {
+  if (a.shape === 'circle' && b.shape === 'circle') {
+    return distance(a.x, a.y, b.x, b.y) <= b.r - a.r + offset
+  } else if (a.shape === 'circle' && b.shape === 'rect') {
     return (
-      a_x - a.r >= b_x - b_width / 2 &&
-      a_x + a.r <= b_x + b_width / 2 &&
-      a_y - a.r >= b_y - b_height / 2 &&
-      a_y + a.r <= b_y + b_height / 2
+      a.x - a.r >= b.x - b.width / 2 - offset &&
+      a.x + a.r <= b.x + b.width / 2 + offset &&
+      a.y - a.r >= b.y - b.height / 2 - offset &&
+      a.y + a.r <= b.y + b.height / 2 + offset
     )
-  } else if (a_shape === 'rect' && b_shape === 'circle') {
+  } else if (a.shape === 'rect' && b.shape === 'circle') {
     // https://stackoverflow.com/questions/14097290/check-if-circle-contains-rectangle
-    const dx = Math.max(b_x - a_x + a_width / 2, a_x + a_width / 2 - b_x)
-    const dy = Math.max(b_y - a_y + a_height / 2, a_y + a_height / 2 - b_y)
-    return b_r * b_r >= dx * dx + dy * dy
+    const dx = Math.max(b.x - a.x + a.width / 2, a.x + a.width / 2 - b.x)
+    const dy = Math.max(b.y - a.y + a.height / 2, a.y + a.height / 2 - b.y)
+
+    return b.r >= Math.sqrt(dx * dx + dy * dy) - offset
   } else {
     return (
-      a_x - a_width / 2 >= b_x - b_width / 2 &&
-      a_x + a_width / 2 <= b_x + b_width / 2 &&
-      a_y - a_height / 2 >= b_y - b_height / 2 &&
-      a_y + a_height / 2 <= b_y + b_height / 2
+      a.x - a.width / 2 >= b.x - b.width / 2 - offset &&
+      a.x + a.width / 2 <= b.x + b.width / 2 + offset &&
+      a.y - a.height / 2 >= b.y - b.height / 2 - offset &&
+      a.y + a.height / 2 <= b.y + b.height / 2 + offset
     )
   }
 }
@@ -580,7 +637,7 @@ export function _surfaceDistance(
   const d = distance(a_x, a_y, b_x, b_y)
   const u = unitVector(a_x, a_y, b_x, b_y)
 
-  let a_d: number = _centerToSurfaceDistance(
+  const a_d: number = _centerToSurfaceDistance(
     a_shape,
     a_x,
     a_y,
@@ -589,7 +646,7 @@ export function _surfaceDistance(
     a_height,
     u
   )
-  let b_d: number = _centerToSurfaceDistance(
+  const b_d: number = _centerToSurfaceDistance(
     b_shape,
     b_x,
     b_y,
@@ -599,15 +656,9 @@ export function _surfaceDistance(
     u
   )
 
-  let l: number
-  const ds = b_d + a_d
-  const dd = Math.abs(a_d - b_d)
-  if (d <= ds && d >= dd - 1) {
-    l = 0
-  } else if (d < dd) {
-    l = d - dd
-  }
-  l = d - ds
+  const d_sum = b_d + a_d
+
+  const l = d - d_sum
 
   return {
     d,
@@ -626,8 +677,8 @@ export function surfaceDistanceY(
   const d = Math.abs(a_y - b_y)
   const u = Math.sign(a_y - b_y)
 
-  let a_d: number = a.height / 2
-  let b_d: number = b.height / 2
+  const a_d: number = a.height / 2
+  const b_d: number = b.height / 2
 
   let l: number
   const ds = b_d + a_d
@@ -682,17 +733,29 @@ export function _centerToSurfaceDistance(
   }
 }
 
+export function rectCenter(rect: Rect): Point {
+  return {
+    x: rect.x + rect.width / 2,
+    y: rect.y + rect.height / 2,
+  }
+}
+
 export function centerOfMass(points: Point[]): Point {
   let sum_x = 0
   let sum_y = 0
+
   const n = points.length
+
   for (let i = 0; i < points.length; i++) {
     const p = points[i]
+
     sum_x += p.x
     sum_y += p.y
   }
+
   const x = sum_x / n
   const y = sum_y / n
+
   return { x, y }
 }
 
@@ -702,4 +765,92 @@ export const vectorAngle = (p0: Point, p1: Point): number => {
     a += TWO_PI
   }
   return a / DEG
+}
+
+export const roundPoint = (position: Position): Position => {
+  return {
+    x: Math.round(position.x),
+    y: Math.round(position.y),
+  }
+}
+
+export function catmullRom(
+  p0: number,
+  p1: number,
+  p2: number,
+  p3: number,
+  t: number
+): number {
+  const tensionFactor = 0.5
+  const startingPointWeight = 2
+  const linearTerm1 = -1
+  const linearTerm2 = 1
+  const quadraticTerm1 = 2
+  const quadraticTerm2 = -5
+  const quadraticTerm3 = 4
+  const quadraticTerm4 = -1
+  const cubicTerm1 = -1
+  const cubicTerm2 = 3
+  const cubicTerm3 = -3
+  const cubicTerm4 = 1
+
+  const t2 = t * t
+  const t3 = t2 * t
+
+  return (
+    tensionFactor *
+    (startingPointWeight * p1 +
+      (linearTerm1 * p0 + linearTerm2 * p2) * t +
+      (quadraticTerm1 * p0 +
+        quadraticTerm2 * p1 +
+        quadraticTerm3 * p2 +
+        quadraticTerm4 * p3) *
+        t2 +
+      (cubicTerm1 * p0 + cubicTerm2 * p1 + cubicTerm3 * p2 + cubicTerm4 * p3) *
+        t3)
+  )
+}
+
+export function catmullRomSpline(points: Point[]): number[][] {
+  if (points.length < 4) return
+
+  const spline: number[][] = []
+
+  spline.push([points[0].x, points[0].y])
+
+  for (let i = 0; i < points.length - 3; i++) {
+    const fourPoints = points.slice(i, i + 4)
+
+    const segment = catmullRomSplineSegment(fourPoints)
+
+    for (let i = 0; i < segment.length; i++) {
+      spline.push(segment[i])
+    }
+  }
+
+  return spline
+}
+
+export function catmullRomSplineSegment(
+  lastFourPoints: Point[],
+  step: number = 0.1
+): number[][] {
+  if (lastFourPoints.length < 4) {
+    return []
+  }
+
+  const spline: number[][] = []
+
+  spline.push([lastFourPoints[0].x, lastFourPoints[0].y])
+
+  const [p0, p1, p2, p3] = lastFourPoints
+
+  for (let t = 0; t <= 1; t += step) {
+    const x = catmullRom(p0.x, p1.x, p2.x, p3.x, t)
+    const y = catmullRom(p0.y, p1.y, p2.y, p3.y, t)
+
+    spline.push([x, y])
+  }
+
+  return spline
 }

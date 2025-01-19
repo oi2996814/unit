@@ -1,50 +1,55 @@
-import classnames from '../../../../../client/classnames'
+import { classnames } from '../../../../../client/classnames'
 import {
-  CONTAINER_COLUMN_LEFT_MARGIN,
-  CONTAINER_ROW_MARGIN,
-  CONTAINER_COLUMN_RIGHT_MARGIN,
   childrenOverflow,
+  CONTAINER_COLUMN_LEFT_MARGIN,
+  CONTAINER_COLUMN_RIGHT_MARGIN,
+  CONTAINER_ROW_LEFT_MARGIN,
+  CONTAINER_ROW_RIGHT_MARGIN,
+  getLeafHeight,
 } from '../../../../../client/component/getDatumSize'
-import mergePropStyle from '../../../../../client/component/mergeStyle'
-import parentElement from '../../../../../client/parentElement'
-import { NONE } from '../../../../../client/theme'
+import { mergePropStyle } from '../../../../../client/component/mergeStyle'
 import { Element } from '../../../../../client/element'
+import { parentElement } from '../../../../../client/platform/web/parentElement'
+import { COLOR_NONE } from '../../../../../client/theme'
+import { idFromUnitValue } from '../../../../../spec/idFromUnitValue'
 import {
-  TreeNode,
-  TreeNodeType,
-  _isValidObjKey,
+  _isValidObjKeyType,
   getTree,
   isCompositeType,
+  isValidObjKey,
+  TreeNode,
+  TreeNodeType,
 } from '../../../../../spec/parser'
 import { System } from '../../../../../system'
 import { Dict } from '../../../../../types/Dict'
+import { forEach } from '../../../../../util/array'
+import forEachValueKey from '../../../../core/object/ForEachKeyValue/f'
 import Div from '../../Div/Component'
-import DataTreeLeaf from '../DataLeaf/Component'
+import DataTreeLeaf from '../DataTreeLeaf/Component'
 
 export interface Props {
   className?: string
   style?: Dict<string>
+  fontSize: number
   path?: number[]
   data: TreeNode
   parent?: TreeNode | null
   appendChildren?: Element[]
+  invalid?: boolean
 }
 
 const STYLE_SEPARATOR = {
   display: 'flex',
   alignItems: 'center',
   textAlign: 'center',
-  height: '16px',
-  width: '7px',
-  fontSize: '12px',
+  boxSizing: 'border-box',
 }
 
 const STYLE_DELIMITER = {
   display: 'flex',
+  alignItems: 'center',
   textAlign: 'center',
-  height: '16px',
-  width: '7px',
-  fontSize: '14px',
+  boxSizing: 'border-box',
 }
 
 const STYLE_PARENT = (overflow: boolean) => {
@@ -60,13 +65,15 @@ const STYLE_PARENT = (overflow: boolean) => {
 const STYLE_CONTAINER = (overflow: boolean) => {
   return {
     display: 'flex',
+    color: 'currentcolor',
+    boxSizing: 'border-box',
     flexDirection: overflow ? 'column' : 'row',
     marginLeft: overflow
       ? `${CONTAINER_COLUMN_LEFT_MARGIN}px`
-      : `${CONTAINER_ROW_MARGIN}px`,
+      : `${CONTAINER_ROW_LEFT_MARGIN}px`,
     marginRight: overflow
       ? `${CONTAINER_COLUMN_RIGHT_MARGIN}px`
-      : `${CONTAINER_ROW_MARGIN}px`,
+      : `${CONTAINER_ROW_RIGHT_MARGIN}px`,
     height: 'fit-content',
     width: 'fit-content',
   }
@@ -74,29 +81,29 @@ const STYLE_CONTAINER = (overflow: boolean) => {
 
 const STYLE_COMMA = {
   display: 'flex',
-  height: '16px',
-  width: '7px',
   textAlign: 'left',
-  fontSize: '14px',
+  boxSizing: 'border-box',
 }
 
 const STYLE_SPACE = {
   display: 'inline-block',
+  boxSizing: 'border-box',
   width: '2px',
 }
 
 export const DEFAULT_STYLE = {
   width: 'fit-content',
+  height: '100%',
+  color: 'currentcolor',
+  boxSizing: 'border-box',
 }
 
 export default class DataTree extends Element<HTMLDivElement, Props> {
-  private _data: TreeNode
-
-  private _root: Div
-
-  private _child: Dict<DataTree> = {}
-
-  private _leaf: DataTreeLeaf | null = null
+  public _data: TreeNode
+  public _root: Div
+  public _child: Dict<DataTree> = {}
+  public _delimiter_list: Div[] = []
+  public _leaf: DataTreeLeaf | null = null
 
   constructor($props: Props, $system: System) {
     super($props, $system)
@@ -114,9 +121,15 @@ export default class DataTree extends Element<HTMLDivElement, Props> {
 
     this._reset()
 
-    const $element = parentElement()
+    const $element = parentElement($system)
 
     this.$element = $element
+    this.$slot = {
+      default: root,
+    }
+    this.setSubComponents({
+      root,
+    })
 
     this.registerRoot(root)
   }
@@ -124,6 +137,8 @@ export default class DataTree extends Element<HTMLDivElement, Props> {
   private __primitive = (data: TreeNode) => this._primitive(data)
   private __key_value = (data: TreeNode) => this._key_value(data)
   private __array_expression = (data: TreeNode) => this._array_expression(data)
+  private __prop_expression = (data: TreeNode) => this._prop_expression(data)
+  private __unit = (data: TreeNode) => this._unit(data)
   private __object_expression = (data: TreeNode) =>
     this._object_expression(data)
   private __expression = (data: TreeNode) => this._expression(data)
@@ -152,10 +167,11 @@ export default class DataTree extends Element<HTMLDivElement, Props> {
     [TreeNodeType.NumberLiteral]: this.__primitive,
     [TreeNodeType.Regex]: this.__primitive,
     [TreeNodeType.RegexLiteral]: this.__primitive,
-    [TreeNodeType.Unit]: this.__primitive,
+    [TreeNodeType.Unit]: this.__unit,
     [TreeNodeType.Class]: this.__primitive,
     [TreeNodeType.ClassLiteral]: this.__primitive,
     [TreeNodeType.ArithmeticExpression]: this.__primitive,
+    [TreeNodeType.PropExpression]: this.__prop_expression,
     [TreeNodeType.KeyValue]: this.__key_value,
     [TreeNodeType.ArrayExpression]: this.__array_expression,
     [TreeNodeType.ObjectExpression]: this.__object_expression,
@@ -167,15 +183,16 @@ export default class DataTree extends Element<HTMLDivElement, Props> {
   }
 
   private _reset = () => {
-    // console.log('DataTree', 'reset')
-
-    const { data, style: _style } = this.$props
+    const { data, style: _style, invalid } = this.$props
 
     this._data = data
 
     this._child = {}
+    this._delimiter_list = []
 
-    const element = this.NODE_TYPE_TO_ELEMENT[data.type](data)
+    const element = invalid
+      ? this.__primitive(data)
+      : (this.NODE_TYPE_TO_ELEMENT[data.type] ?? this.__primitive)(data)
 
     const { style, children } = element
 
@@ -188,14 +205,17 @@ export default class DataTree extends Element<HTMLDivElement, Props> {
     data: TreeNode,
     appendChildren?: Element[],
     className?: string,
-    style?: Dict<string>
+    style?: Dict<string>,
+    invalid?: boolean
   ): DataTree => {
-    const { path = [], data: parent_data } = this.$props
+    const { path = [], data: parent_data, fontSize } = this.$props
     const child = new DataTree(
       {
         className,
         style,
         data,
+        invalid,
+        fontSize,
         path: [...path, index],
         parent: parent_data,
         appendChildren,
@@ -212,9 +232,15 @@ export default class DataTree extends Element<HTMLDivElement, Props> {
     style: Dict<string>
     children: Element[]
   } => {
-    const { appendChildren = [], parent } = this.$props
+    const {
+      api: {
+        text: { measureText },
+      },
+    } = this.$system
+
+    const { appendChildren = [], parent, fontSize } = this.$props
     const empty = data.children.length === 0
-    const overflow = childrenOverflow(data)
+    const overflow = childrenOverflow(data, fontSize, measureText)
     const style = STYLE_PARENT(overflow)
     const object_literal_open_delimiter = this._delimiter(
       {
@@ -234,8 +260,10 @@ export default class DataTree extends Element<HTMLDivElement, Props> {
     )
     for (let i = 0; i < data.children.length; i++) {
       const child = data.children[i]
+
       const comma = this._comma()
       const space = this._space()
+
       if (child.type === TreeNodeType.KeyValue) {
         const key_value = child
         const key_value_tree = this._child_element(
@@ -245,7 +273,7 @@ export default class DataTree extends Element<HTMLDivElement, Props> {
           'comma-space'
         )
         object_literal_container.appendChild(key_value_tree)
-      } else if (_isValidObjKey(child)) {
+      } else if (_isValidObjKeyType(child)) {
         const key = child
         const key_tree = this._child_element(
           i,
@@ -271,15 +299,23 @@ export default class DataTree extends Element<HTMLDivElement, Props> {
         object_literal_container.appendChild(invalid_tree)
       }
     }
+
     if (empty) {
       const empty_tree = this._child_element(0, getTree(''))
+
       object_literal_container.appendChild(empty_tree)
     }
+
     const object_literal_close_delimiter = this._delimiter({}, `}`)
     const object_literal_end = new Div(
       {
         className: 'object-literal',
-        style: { display: 'flex', width: 'fit-content' },
+        style: {
+          display: 'flex',
+          width: 'fit-content',
+          color: 'currentcolor',
+          boxSizing: 'border-box',
+        },
       },
       this.$system
     )
@@ -301,9 +337,15 @@ export default class DataTree extends Element<HTMLDivElement, Props> {
     style: Dict<string>
     children: Element[]
   } => {
-    const { appendChildren = [], parent } = this.$props
+    const {
+      api: {
+        text: { measureText },
+      },
+    } = this.$system
+
+    const { appendChildren = [], parent, fontSize } = this.$props
     const empty = data.children.length === 0
-    const overflow = childrenOverflow(data)
+    const overflow = childrenOverflow(data, fontSize, measureText)
     const style = STYLE_PARENT(overflow)
     const array_literal_open_delimiter = this._delimiter(
       {
@@ -346,7 +388,12 @@ export default class DataTree extends Element<HTMLDivElement, Props> {
     const array_literal_close_delimiter = this._delimiter({}, `]`)
     const array_literal_end = new Div(
       {
-        style: { display: 'flex', width: 'fit-content' },
+        style: {
+          display: 'flex',
+          width: 'fit-content',
+          color: 'currentcolor',
+          boxSizing: 'border-box',
+        },
       },
       this.$system
     )
@@ -368,9 +415,15 @@ export default class DataTree extends Element<HTMLDivElement, Props> {
     style: Dict<string>
     children: Element[]
   } => {
-    const { path = [], appendChildren = [] } = this.$props
+    const {
+      api: {
+        text: { measureText },
+      },
+    } = this.$system
+
+    const { path = [], appendChildren = [], fontSize } = this.$props
     const empty = data.children.length === 0
-    const overflow = childrenOverflow(data)
+    const overflow = childrenOverflow(data, fontSize, measureText)
     const style = STYLE_PARENT(overflow)
     const expression_open_delimiter = this._delimiter(
       { display: overflow && path[path.length - 1] > 0 ? 'none' : 'block' },
@@ -408,7 +461,12 @@ export default class DataTree extends Element<HTMLDivElement, Props> {
     const expression_close_delimiter = this._delimiter({}, `)`)
     const expression_literal_end = new Div(
       {
-        style: { display: 'flex', width: 'fit-content' },
+        style: {
+          display: 'flex',
+          width: 'fit-content',
+          color: 'currentcolor',
+          boxSizing: 'border-box',
+        },
       },
       this.$system
     )
@@ -427,10 +485,16 @@ export default class DataTree extends Element<HTMLDivElement, Props> {
   private _key_value = (
     data: TreeNode
   ): { style: Dict<string>; children: Element[] } => {
-    const { appendChildren = [] } = this.$props
+    const {
+      api: {
+        text: { measureText },
+      },
+    } = this.$system
+
+    const { appendChildren = [], fontSize } = this.$props
     const value_tree = data.children[1]
     const key_tree = data.children[0]
-    const value_overflow = childrenOverflow(value_tree)
+    const value_overflow = childrenOverflow(value_tree, fontSize, measureText)
     const style = {
       display: 'flex',
       flexDirection: value_overflow ? 'column' : 'row',
@@ -438,15 +502,25 @@ export default class DataTree extends Element<HTMLDivElement, Props> {
     const key_value_key = new Div(
       {
         className: 'key-value-key',
-        style: { display: 'flex', width: 'fit-content' },
+        style: {
+          display: 'flex',
+          width: 'fit-content',
+          color: 'currentcolor',
+          boxSizing: 'border-box',
+        },
       },
       this.$system
     )
+
+    const is_invalid_key = !isValidObjKey(key_tree.value)
+
     const key_value_key_tree = this._child_element(
       0,
       key_tree,
       [],
-      'key-value-key-tree'
+      'key-value-key-tree',
+      {},
+      is_invalid_key
     )
     key_value_key.appendChild(key_value_key_tree)
 
@@ -474,7 +548,11 @@ export default class DataTree extends Element<HTMLDivElement, Props> {
     const key_value_value = new Div(
       {
         className: 'key-value-value',
-        style: { display: 'flex', width: 'fit-content' },
+        style: {
+          display: 'flex',
+          width: 'fit-content',
+          boxSizing: 'border-box',
+        },
       },
       this.$system
     )
@@ -500,7 +578,7 @@ export default class DataTree extends Element<HTMLDivElement, Props> {
   private _primitive = (
     data: TreeNode
   ): { style: Dict<string>; children: Element[] } => {
-    const { path = [], parent, appendChildren = [] } = this.$props
+    const { path = [], parent, appendChildren = [], fontSize } = this.$props
 
     const style = { display: 'flex' }
 
@@ -510,14 +588,14 @@ export default class DataTree extends Element<HTMLDivElement, Props> {
           padding: '0',
           textAlign: 'center',
           resize: 'none',
-          height: '16px',
-          maxWidth: '210px',
           fontWeight: 'inherit',
+          fontSize: 'inherit',
           wordWrap: 'normal',
           whiteSpace: 'nowrap',
-          background: NONE,
-          backgroundColor: NONE,
+          background: COLOR_NONE,
+          backgroundColor: COLOR_NONE,
         },
+        fontSize,
         value: data.value,
         path,
         parent,
@@ -528,6 +606,16 @@ export default class DataTree extends Element<HTMLDivElement, Props> {
     const children: Element[] = [this._leaf, ...appendChildren]
 
     return { style, children }
+  }
+
+  private _unit = (data: TreeNode) => {
+    const { specs, classes } = this.$system
+
+    const id = idFromUnitValue(data.value, specs, classes)
+
+    const _data = getTree(`\`${id}\``)
+
+    return this._primitive(_data)
   }
 
   private _array_expression = (
@@ -544,7 +632,11 @@ export default class DataTree extends Element<HTMLDivElement, Props> {
     const array_expression_close_delimiter = this._delimiter({}, ']')
     const array_expression_open_close = new Div(
       {
-        style: { display: 'flex', width: 'fit-content' },
+        style: {
+          display: 'flex',
+          width: 'fit-content',
+          boxSizing: 'border-box',
+        },
       },
       this.$system
     )
@@ -565,6 +657,27 @@ export default class DataTree extends Element<HTMLDivElement, Props> {
     return { style, children }
   }
 
+  private _prop_expression = (data: TreeNode) => {
+    const style = { display: 'flex', width: 'fit-content' }
+
+    const prop_expression_object_tree = this._child_element(
+      0,
+      data.children[0],
+      [],
+      'prop-expression-object'
+    )
+    const prop_expression_array_tree = this._child_element(
+      1,
+      data.children[1],
+      [],
+      'prop-expression-array'
+    )
+
+    const children = [prop_expression_object_tree, prop_expression_array_tree]
+
+    return { style, children }
+  }
+
   private _object_expression = (
     data: TreeNode
   ): {
@@ -579,7 +692,11 @@ export default class DataTree extends Element<HTMLDivElement, Props> {
     const object_expression_close_delimiter = this._delimiter({}, '}')
     const object_expression_open_close = new Div(
       {
-        style: { display: 'flex', width: 'fit-content' },
+        style: {
+          display: 'flex',
+          width: 'fit-content',
+          boxSizing: 'border-box',
+        },
       },
       this.$system
     )
@@ -602,8 +719,14 @@ export default class DataTree extends Element<HTMLDivElement, Props> {
   private _or = (
     data: TreeNode
   ): { style: Dict<string>; children: Element[] } => {
-    const {} = this.$props
-    const overflow = childrenOverflow(data)
+    const {
+      api: {
+        text: { measureText },
+      },
+    } = this.$system
+
+    const { fontSize } = this.$props
+    const overflow = childrenOverflow(data, fontSize, measureText)
     const style = { ...STYLE_PARENT(overflow), alignItems: 'center' }
     const children: Element[] = []
     for (let i = 0; i < data.children.length; i++) {
@@ -666,39 +789,67 @@ export default class DataTree extends Element<HTMLDivElement, Props> {
   }
 
   private _separator = (style: Dict<string>, innerText: string): Div => {
-    return new Div(
+    const {
+      api: {
+        text: { measureText },
+      },
+    } = this.$system
+
+    const { fontSize } = this.$props
+
+    const lineHeight = getLeafHeight('', fontSize, measureText)
+
+    const separator = new Div(
       {
         className: 'separator',
         style: {
           ...STYLE_SEPARATOR,
+          lineHeight: `${lineHeight}px`,
           ...style,
         },
         innerText,
       },
       this.$system
     )
+
+    this._delimiter_list.push(separator)
+
+    return separator
   }
 
   private _delimiter = (style: Dict<string>, innerText: string): Div => {
-    return new Div(
+    const {
+      api: {
+        text: { measureText },
+      },
+    } = this.$system
+
+    const { fontSize } = this.$props
+
+    const lineHeight = getLeafHeight('', fontSize, measureText)
+
+    const delimiter = new Div(
       {
         className: 'delimiter',
         style: {
           ...STYLE_DELIMITER,
+          lineHeight: `${lineHeight}px`,
           ...style,
         },
         innerText,
       },
       this.$system
     )
+
+    this._delimiter_list.push(delimiter)
+
+    return delimiter
   }
 
   public update(data: TreeNode): void {
-    console.log('DataTree', 'update', data)
+    // console.log('DataTree', 'update', data)
 
     if (data.type === this._data.type) {
-      // this._data.value = data.value
-
       if (isCompositeType(data.type)) {
         const l = data.children.length
         const _l = this._data.children.length
@@ -707,23 +858,27 @@ export default class DataTree extends Element<HTMLDivElement, Props> {
 
         for (let i = 0; i < L; i++) {
           const _child = this._data.children[i]
+
           const child = data.children[i]
 
           if (_child && child) {
             const _child_comp = this._root.$children[i] as DataTree
+
             _child_comp.update(child)
           } else if (_child && !child) {
             for (let j = _l - 1; j >= i; j--) {
               this._root.removeChildAt(j)
             }
+
             break
           } else if (!_child && child) {
             // const child_comp = new DataTree({ data: child })
             // this._root.appendChild(child_comp)
             const { style, children } =
               this.NODE_TYPE_TO_ELEMENT[child.type](child)
-            for (const childd of children) {
-              this._root.appendChild(childd)
+
+            for (const child of children) {
+              this._root.appendChild(child)
             }
           } else {
             throw new Error('something impossible just happened')
@@ -734,20 +889,44 @@ export default class DataTree extends Element<HTMLDivElement, Props> {
       }
     } else {
       this._data = data
+
       this._reset()
     }
   }
 
   onPropChanged(prop: string, current: any): void {
+    const {
+      api: {
+        text: { measureText },
+      },
+    } = this.$system
+
     if (prop === 'data') {
       this._reset()
-      // this.update(current || EMPTY_TREE)
+    } else if (prop === 'fontSize') {
+      const { fontSize } = this.$props
+
+      forEachValueKey(this._child, (child) => {
+        child.setProp('fontSize', current)
+      })
+
+      const lineHeight = getLeafHeight('', fontSize, measureText)
+
+      forEach(this._delimiter_list, (delimiter) => {
+        delimiter.$element.style.lineHeight = `${lineHeight}px`
+      })
+
+      if (this._leaf) {
+        this._leaf.setProp('fontSize', current)
+      }
     } else if (prop === 'style') {
       this._root.setProp('style', { ...DEFAULT_STYLE, ...current })
     }
   }
 
-  public focus = (options?: FocusOptions | undefined) => {
+  public focus = (
+    options: FocusOptions | undefined = { preventScroll: true }
+  ) => {
     if (this._leaf) {
       this._leaf.focus(options)
     }
@@ -799,11 +978,11 @@ export default class DataTree extends Element<HTMLDivElement, Props> {
 
   public getChildAtPath = (path: number[]): DataTree | null => {
     let child: DataTree | null = this
-    for (let index of path) {
+    for (const index of path) {
       if (child) {
         child = child.getChild(index)
       } else {
-        throw new Error(`There is no child at ${path}`)
+        throw new Error(`there is no child at ${path}`)
       }
     }
     return child

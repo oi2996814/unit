@@ -2,12 +2,15 @@ import * as assert from 'assert'
 import { Unit } from '../../../../Class/Unit'
 import { watchUnitAndLog } from '../../../../debug'
 import Exec from '../../../../system/f/meta/Exec'
+import { system } from '../../../util/system'
 
-const exec = new Exec()
+const exec = new Exec(system)
 
 exec.play()
 
-const unit = new Unit({})
+const RANDOM_ID = system.newSpecId()
+
+const unit = new Unit({}, {}, system, RANDOM_ID)
 
 false && watchUnitAndLog(exec)
 

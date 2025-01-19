@@ -1,0 +1,30 @@
+{
+  "name": "add pin to merge",
+  "inputs": {
+    "graph": {
+      "type": "`G`",
+      "ref": true
+    },
+    "mergeId": {
+      "type": "string"
+    },
+    "unitId": {
+      "type": "string"
+    },
+    "type": {
+      "type": "'input'|'output'"
+    },
+    "pinId": {
+      "type": "string"
+    }
+  },
+  "outputs": {},
+  "metadata": {
+    "icon": "circle",
+    "description": "set `graph` `id` unit `type` `name` pin `data`",
+    "tags": ["f", "graph"]
+  },
+  "id": "d1f8bea7-3ef6-42c3-a4fc-b50e7484a823",
+  "base": true,
+  "type": "`U`"
+}

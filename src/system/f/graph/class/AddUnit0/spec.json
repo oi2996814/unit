@@ -1,0 +1,27 @@
+{
+  "name": "add unit",
+  "inputs": {
+    "class": {
+      "type": "`U`"
+    },
+    "graph": {
+      "type": "`G`"
+    },
+    "id": {
+      "type": "string"
+    }
+  },
+  "outputs": {
+    "graph": {
+      "type": "`U`&`G`"
+    }
+  },
+  "metadata": {
+    "icon": "circle",
+    "description": "add unit of `class` to `graph`",
+    "tags": ["f", "graph"]
+  },
+  "id": "73967b68-9b4b-44c1-8a19-f505551f6c53",
+  "base": true,
+  "type": "`U`"
+}

@@ -1,0 +1,116 @@
+{
+  "name": "on click toggle",
+  "units": {
+    "onclick": {
+      "id": "97c94516-add1-11ea-ba72-8f55299b735c",
+      "input": {
+        "element": {
+          "metadata": {
+            "position": {
+              "x": -105,
+              "y": -18
+            }
+          }
+        }
+      },
+      "output": {
+        "event": {}
+      },
+      "metadata": {
+        "position": {
+          "x": -52,
+          "y": -9
+        }
+      }
+    },
+    "toggle": {
+      "id": "58c50bb2-569f-4b7a-aba3-176d9ac91d5c",
+      "input": {
+        "init": {
+          "metadata": {
+            "position": {
+              "x": 15,
+              "y": 34
+            }
+          }
+        },
+        "toggle": {}
+      },
+      "output": {
+        "value": {
+          "metadata": {
+            "position": {
+              "x": 97,
+              "y": 2
+            }
+          }
+        }
+      },
+      "metadata": {
+        "position": {
+          "x": 52,
+          "y": 9
+        }
+      }
+    }
+  },
+  "merges": {
+    "0": {
+      "toggle": {
+        "input": {
+          "toggle": true
+        }
+      },
+      "onclick": {
+        "output": {
+          "event": true
+        }
+      }
+    }
+  },
+  "inputs": {
+    "init": {
+      "plug": {
+        "0": {
+          "unitId": "toggle",
+          "pinId": "init"
+        }
+      }
+    },
+    "element": {
+      "plug": {
+        "0": {
+          "unitId": "onclick",
+          "pinId": "element"
+        }
+      },
+      "ref": true
+    },
+    "toggle": {
+      "plug": {
+        "0": {
+          "mergeId": "0"
+        }
+      },
+      "ref": false,
+      "defaultIgnored": true
+    }
+  },
+  "outputs": {
+    "value": {
+      "plug": {
+        "0": {
+          "unitId": "toggle",
+          "pinId": "value"
+        }
+      }
+    }
+  },
+  "metadata": {
+    "icon": "square",
+    "description": "toggle true/false on click",
+    "tags": ["platform", "core"]
+  },
+  "id": "9b2bdc7c-eb5d-11ea-bdb1-1760294f446b",
+  "type": "`U`&`G`"
+}

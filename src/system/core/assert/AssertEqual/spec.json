@@ -13,42 +13,35 @@
   },
   "inputs": {
     "message": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "if",
           "pinId": "a"
         }
-      },
-      "type": "string"
+      }
     },
     "b": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "notequal",
           "pinId": "b"
         }
-      },
-      "type": "<A>"
+      }
     },
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "notequal",
           "pinId": "a"
         }
-      },
-      "type": "<A>"
+      }
     }
   },
   "outputs": {},
   "metadata": {
     "icon": "alert-circle",
     "description": "throw `message` if `a` is not equal `b`",
-    "complexity": 6.658006411800678,
-    "tags": [
-      "core",
-      "assert"
-    ]
+    "tags": ["core", "assert"]
   },
   "merges": {
     "0": {
@@ -77,6 +70,5 @@
     }
   },
   "id": "0047d386-e392-4230-adde-0d71a0bc2de4",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

@@ -1,14 +1,15 @@
 import { Done } from '../../../../../Class/Functional/Done'
-import { Semifunctional } from '../../../../../Class/Semifunctional'
+import { Holder } from '../../../../../Class/Holder'
 import { Component } from '../../../../../client/component'
-import {
-  getGlobalComponent,
-  listenGlobalComponent,
-} from '../../../../../client/globalComponent'
-import { C } from '../../../../../interface/C'
+import { System } from '../../../../../system'
+import { Component_ } from '../../../../../types/interface/Component'
+import { ID_SIZE_OBSERVER } from '../../../../_ids'
+import { firstGlobalComponentPromise } from '../../../../globalComponent'
 
 export type I = {
-  component: C
+  component: Component_
+  opt: ResizeObserverOptions
+  done: any
 }
 
 export type O = {
@@ -16,11 +17,13 @@ export type O = {
   height: number
 }
 
-export default class SizeObserver extends Semifunctional<I, O> {
-  constructor() {
+export default class SizeObserver extends Holder<I, O> {
+  private _observer: ResizeObserver
+
+  constructor(system: System) {
     super(
       {
-        fi: ['component'],
+        fi: ['component', 'opt'],
         fo: [],
         i: [],
         o: ['width', 'height'],
@@ -31,60 +34,53 @@ export default class SizeObserver extends Semifunctional<I, O> {
             ref: true,
           },
         },
-      }
+      },
+      system,
+      ID_SIZE_OBSERVER
     )
   }
 
-  private _observer: ResizeObserver
+  async f({ component, opt }: I, done: Done<O>) {
+    const {
+      api: {
+        document: { ResizeObserver },
+      },
+    } = this.__system
 
-  f({ component }: I, done: Done<O>) {
-    const __global_id = component.getGlobalId()
+    const observer_callback: ResizeObserverCallback = (
+      entries: ResizeObserverEntry[]
+    ) => {
+      const entry = entries[0]
 
-    let _component = getGlobalComponent(this.__system, __global_id)
+      const { width, height } = entry.contentRect
 
-    const setup = (_next_component: Component) => {
-      if (!this._observer) {
-        const observer_callback: ResizeObserverCallback = (
-          entries: ResizeObserverEntry[]
-        ) => {
-          const entry = entries[0]
-
-          const { width, height } = entry.contentRect
-
-          this._output.width.push(width)
-          this._output.height.push(height)
-        }
-
-        const observer = new ResizeObserver(observer_callback)
-
-        this._observer = observer
-      }
-
-      if (_component) {
-        this._observer.unobserve(_component.$element)
-      }
-
-      _component = _next_component
-
-      const { $element } = _component
-
-      this._observer.observe($element)
+      this._output.width.push(width)
+      this._output.height.push(height)
     }
 
-    if (_component) {
-      setup(_component)
-    }
+    const observer = new ResizeObserver(observer_callback)
 
-    const unlisten_global = listenGlobalComponent(
+    this._observer = observer
+
+    const globalId = component.getGlobalId()
+
+    const component_ = (await firstGlobalComponentPromise(
       this.__system,
-      __global_id,
-      (_component) => {
-        setup(_component)
-      }
-    )
+      globalId
+    )) as Component<HTMLElement>
+
+    const leaf = component_.getFirstRootLeaf() as Component<HTMLElement>
+
+    const { $node } = leaf
+
+    this._observer.observe($node)
   }
 
   d() {
-    // TODO
+    if (this._observer) {
+      this._observer.disconnect()
+
+      this._observer = undefined
+    }
   }
 }

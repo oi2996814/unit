@@ -15,15 +15,10 @@
   },
   "metadata": {
     "icon": "percent",
-    "description": "remainder arithmetic operator",
-    "complexity": 2.6601560328373144,
-    "tags": [
-      "f",
-      "arithmetic"
-    ]
+    "description": "remainder of `a` divided by `b`",
+    "tags": ["f", "arithmetic"]
   },
   "id": "c5c05c85-f4c1-4b67-ab85-08b61fe67531",
   "base": true,
-  "type": "`U`",
-  "system": true
+  "type": "`U`"
 }

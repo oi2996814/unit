@@ -1,32 +1,42 @@
 import { Primitive } from '../../../../Primitive'
+import { System } from '../../../../system'
+import { ID_PLAN } from '../../../_ids'
 
 export interface I<T> {
   a: T
 }
 
 export interface O<T> {
-  first: T
-  second: T
+  '0': T
+  '1': T
 }
 
 export default class Plan<T> extends Primitive<I<T>, O<T>> {
   private _current: T | undefined = undefined
   private _looping: boolean = false
 
-  constructor() {
-    super({
-      i: ['a'],
-      o: ['first', 'second'],
-    })
+  constructor(system: System) {
+    super(
+      {
+        i: ['a'],
+        o: ['0', '1'],
+      },
+      {},
+      system,
+      ID_PLAN
+    )
+
+    this.addListener('reset', this._reset)
+  }
+
+  private _reset() {
+    this._current = undefined
+    this._looping = false
   }
 
   onDataInputData(name: string, data: any) {
-    if (!this._output.second.empty()) {
-      this._forwarding_empty = true
-      this._output.second.pull()
-      this._forwarding_empty = false
-    }
     this._current = data
+
     this._forward_if_ready()
   }
 
@@ -35,11 +45,12 @@ export default class Plan<T> extends Primitive<I<T>, O<T>> {
       !this._forwarding &&
       !this._backwarding &&
       !this._looping &&
-      this._current !== undefined
+      this._current !== undefined &&
+      this._i_invalid.size === 0
     ) {
       this._looping = true
       this._forwarding = true
-      this._output.first.push(this._current)
+      this._output[0].push(this._current)
       this._forwarding = false
     }
   }
@@ -48,23 +59,24 @@ export default class Plan<T> extends Primitive<I<T>, O<T>> {
     if (!this._backwarding) {
       this._current = undefined
       this._looping = false
-      this._output.first.pull()
-      this._output.second.pull()
+      this._output[0].pull()
+      this._output[1].pull()
     }
   }
 
   onDataInputInvalid(name: string) {
     this._looping = false
-    this._output.first.invalidate()
-    this._output.second.invalidate()
+    this._current = undefined
+    this._output[0].invalidate()
+    this._output[1].invalidate()
   }
 
   onDataOutputDrop(name: string) {
     // console.log('Plan', 'onDataOutputDrop', name)
-    if (name === 'first') {
+    if (name === '0') {
       if (this._current !== undefined) {
         this._forwarding = true
-        this._output.second.push(this._current)
+        this._output[1].push(this._current)
         this._forwarding = false
       }
     } else {
@@ -84,5 +96,22 @@ export default class Plan<T> extends Primitive<I<T>, O<T>> {
       this._current = undefined
       this._backward_all()
     }
+  }
+
+  public snapshotSelf() {
+    return {
+      ...super.snapshotSelf(),
+      ...(this._looping ? { _looping: true } : {}),
+      ...(this._current !== undefined ? { _current: this._current } : {}),
+    }
+  }
+
+  public restoreSelf(state): void {
+    const { _looping, _current, ...rest } = state
+
+    super.restoreSelf(rest)
+
+    this._looping = _looping
+    this._current = _current
   }
 }

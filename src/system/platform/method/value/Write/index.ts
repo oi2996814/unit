@@ -1,22 +1,26 @@
-import { Functional } from '../../../../../Class/Functional'
 import { Done } from '../../../../../Class/Functional/Done'
-import { V } from '../../../../../interface/V'
+import { Semifunctional } from '../../../../../Class/Semifunctional'
+import { System } from '../../../../../system'
+import { V } from '../../../../../types/interface/V'
+import { ID_WRITE } from '../../../../_ids'
 
 export interface I<T> {
-  value: V
+  value: V<T>
   data: T
 }
 
 export interface O<T> {
-  data: any
+  done: any
 }
 
-export default class Write<T> extends Functional<I<T>, O<T>> {
-  constructor() {
+export default class Write<T> extends Semifunctional<I<T>, O<T>> {
+  constructor(system: System) {
     super(
       {
-        i: ['value', 'data'],
-        o: ['data'],
+        fi: ['value', 'data'],
+        fo: [],
+        i: [],
+        o: ['done'],
       },
       {
         input: {
@@ -24,16 +28,25 @@ export default class Write<T> extends Functional<I<T>, O<T>> {
             ref: true,
           },
         },
-      }
+      },
+      system,
+      ID_WRITE
     )
   }
 
   async f({ value, data }: I<T>, done: Done<O<T>>) {
-    try {
-      await value.write(data)
-      done({ data })
-    } catch (err) {
-      done(undefined, err)
-    }
+    value.write(data, (data, err) => {
+      if (err) {
+        done(undefined, err)
+
+        return
+      }
+
+      done()
+    })
+  }
+
+  b() {
+    this._output.done.push(true)
   }
 }

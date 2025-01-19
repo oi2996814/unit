@@ -1,0 +1,176 @@
+{
+  "type": "`U`&`G`",
+  "name": "download blob",
+  "units": {
+    "downloadurl": {
+      "id": "c18c8f59-f3c8-49a8-9dbd-ed30fdf856e9",
+      "input": {
+        "url": {},
+        "name": {
+          "metadata": {
+            "position": {
+              "x": 97,
+              "y": -30
+            }
+          }
+        }
+      },
+      "output": {},
+      "metadata": {
+        "position": {
+          "x": 49,
+          "y": -27
+        }
+      }
+    },
+    "createbloburl": {
+      "id": "1d5b6bb0-f18e-4428-a350-a29d8ca3ff4a",
+      "input": {
+        "blob": {
+          "metadata": {
+            "position": {
+              "x": -101,
+              "y": 8
+            }
+          }
+        },
+        "init": {
+          "metadata": {
+            "position": {
+              "x": -100,
+              "y": -27
+            }
+          }
+        }
+      },
+      "output": {
+        "url": {},
+        "done": {
+          "ignored": false,
+          "metadata": {
+            "position": {
+              "x": -19,
+              "y": 20
+            }
+          }
+        }
+      },
+      "metadata": {
+        "position": {
+          "x": -55,
+          "y": -9
+        }
+      }
+    }
+  },
+  "merges": {
+    "1": {
+      "downloadurl": {
+        "input": {
+          "url": true
+        }
+      },
+      "createbloburl": {
+        "output": {
+          "url": true
+        }
+      }
+    }
+  },
+  "inputs": {
+    "name": {
+      "plug": {
+        "0": {
+          "unitId": "downloadurl",
+          "pinId": "name"
+        }
+      },
+      "ref": false,
+      "metadata": {
+        "position": {
+          "0": {
+            "ext": {
+              "x": 120,
+              "y": -33
+            }
+          }
+        }
+      }
+    },
+    "blob": {
+      "plug": {
+        "0": {
+          "unitId": "createbloburl",
+          "pinId": "blob"
+        }
+      },
+      "ref": true,
+      "metadata": {
+        "position": {
+          "0": {
+            "ext": {
+              "x": -120,
+              "y": 22
+            }
+          }
+        }
+      }
+    },
+    "init": {
+      "plug": {
+        "0": {
+          "unitId": "createbloburl",
+          "pinId": "init"
+        }
+      },
+      "ref": false,
+      "metadata": {
+        "position": {
+          "0": {
+            "ext": {
+              "x": -117,
+              "y": -43
+            }
+          }
+        }
+      }
+    }
+  },
+  "outputs": {
+    "done": {
+      "plug": {
+        "0": {
+          "unitId": "createbloburl",
+          "pinId": "done",
+          "kind": "output"
+        }
+      },
+      "ref": false,
+      "type": "any",
+      "metadata": {
+        "position": {
+          "0": {
+            "ext": {
+              "x": -14,
+              "y": 43
+            }
+          }
+        }
+      }
+    }
+  },
+  "metadata": {
+    "icon": "download",
+    "description": "download blob file with `name`",
+    "tags": ["platform", "core", "canvas"],
+    "position": {
+      "merge": {
+        "1": {
+          "x": -3,
+          "y": -22
+        }
+      }
+    }
+  },
+  "id": "c3a080cc-f2f2-4c7c-998d-17809c555ef1"
+}

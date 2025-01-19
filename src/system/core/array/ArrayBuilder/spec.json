@@ -15,62 +15,52 @@
   "metadata": {
     "icon": "array",
     "description": "build a list from empty list",
-    "complexity": 7.6576728499156825,
-    "tags": [
-      "core",
-      "array"
-    ]
+    "tags": ["core", "array"]
   },
   "inputs": {
     "test": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "arraybuilderfrom",
           "pinId": "test"
         }
-      },
-      "type": "boolean"
+      }
     },
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "arraybuilderfrom",
           "pinId": "a"
         }
-      },
-      "type": "<A>"
+      }
     }
   },
   "outputs": {
     "acc": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "arraybuilderfrom",
           "pinId": "acc"
         }
-      },
-      "type": "<A>[]"
+      }
     },
     "a[]": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "arraybuilderfrom",
           "pinId": "a[]"
         }
-      },
-      "type": "<A>[]"
+      }
     },
     "local": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "arraybuilderfrom",
           "pinId": "local"
         }
-      },
-      "type": "<A>[]"
+      }
     }
   },
   "id": "4a065231-48e6-44ed-95bb-8f96c4643574",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

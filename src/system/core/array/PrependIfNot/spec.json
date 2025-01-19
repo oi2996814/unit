@@ -9,7 +9,7 @@
     }
   },
   "merges": {
-    "obgzpvr": {
+    "0": {
       "prependif": {
         "input": {
           "test": true
@@ -25,56 +25,47 @@
   "metadata": {
     "icon": "chevrons-left",
     "description": "prepend element `b` to `a` if not `test`",
-    "complexity": 7,
-    "tags": [
-      "core",
-      "array"
-    ]
+    "tags": ["core", "array"]
   },
   "inputs": {
     "test": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "not",
           "pinId": "a"
         }
       },
-      "type": "boolean"
+      "functional": true
     },
     "a": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "prependif",
           "pinId": "a"
         }
       },
-      "type": "<A>[]"
+      "functional": true
     },
     "b": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "prependif",
           "pinId": "b"
         }
       },
-      "type": "<A>"
+      "functional": true
     }
   },
   "outputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "prependif",
           "pinId": "a"
         }
-      },
-      "type": "<A>[]"
+      }
     }
   },
   "id": "e75537f8-d35a-45c4-8193-e0c6e015b4c6",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

@@ -7,19 +7,19 @@ import {
 } from '../../../debug'
 import { fromSpec } from '../../../spec/fromSpec'
 import _specs from '../../../system/_specs'
-import { GraphSpec } from '../../../types'
+import { GraphSpec } from '../../../types/GraphSpec'
+import { system } from '../../util/system'
 
 const spec =
   require('../../../system/core/array/Multiply/spec.json') as GraphSpec
-const ArrayMultiply = fromSpec(spec, _specs)
 
-import { system } from '../../util/system'
+const ArrayMultiply = fromSpec(spec, _specs)
 
 const arrayMultiply = new ArrayMultiply(system) as Graph
 
-false && watchUnitAndLog(arrayMultiply)
-false && watchGraphAndLog(arrayMultiply)
-false && watchTreeAndLog(arrayMultiply)
+0 && watchUnitAndLog(arrayMultiply)
+0 && watchGraphAndLog(arrayMultiply)
+0 && watchTreeAndLog(arrayMultiply)
 
 arrayMultiply.play()
 

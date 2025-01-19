@@ -1,0 +1,36 @@
+{
+  "name": "image to bitmap",
+  "inputs": {
+    "opt": {
+      "type": "{imageOrientation?:'none'|'flipY',premultiplyAlpha?:'none'|'premultiply'|'default',colorSpaceConversion?:'none'|'default',resizeWidth?:number,resizeHeight?:number,resizeQuality?:'pixelated'|'low'|'medium'}",
+      "metadata": {
+        "examples": ["{}"]
+      }
+    },
+    "image": {
+      "type": "`IM`",
+      "ref": true
+    },
+    "rect": {
+      "type": "{x?:number,y?:number,width?:number,height?:number}",
+      "metadata": {
+        "examples": ["{}"]
+      }
+    }
+  },
+  "outputs": {
+    "bitmap": {
+      "type": "`IB`",
+      "ref": true
+    }
+  },
+  "id": "262beb5f-21bd-4848-a62d-185f6f8a78e1",
+  "base": true,
+  "metadata": {
+    "icon": "image",
+    "description": "transform image to bitmap",
+    "tags": ["platform", "api", "media", "image"],
+    "globals": ["MediaRecorder"]
+  },
+  "type": "`U`"
+}

@@ -1,38 +1,36 @@
 {
   "name": "on drag delta",
+  "type": "`U`&`G`",
   "inputs": {
     "element": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "ondrag",
           "pinId": "element"
         }
       },
-      "ref": true,
-      "type": "`U`"
+      "ref": true
     }
   },
   "outputs": {
     "x": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "subtract",
           "pinId": "a - b"
         }
-      },
-      "type": "number"
+      }
     },
     "y": {
-      "pin": {
+      "plug": {
         "0": {
-          "unitId": "subgtract",
+          "unitId": "subtract0",
           "pinId": "a - b"
         }
-      },
-      "type": "number"
+      }
     },
     "test": {
-      "pin": {
+      "plug": {
         "0": {
           "mergeId": "6"
         }
@@ -95,14 +93,14 @@
         }
       }
     },
-    "propclientxclienty": {
+    "getclientxclienty": {
       "id": "1cbbfd58-c4ee-4c83-a5c8-83f614eb7027",
       "input": {
         "obj": {}
       },
       "output": {
-        "clientY": {},
-        "clientX": {}
+        "y": {},
+        "x": {}
       },
       "metadata": {
         "position": {
@@ -111,14 +109,14 @@
         }
       }
     },
-    "propclientxclienty0": {
+    "getclientxclienty0": {
       "id": "1cbbfd58-c4ee-4c83-a5c8-83f614eb7027",
       "input": {
         "obj": {}
       },
       "output": {
-        "clientY": {},
-        "clientX": {}
+        "y": {},
+        "x": {}
       },
       "metadata": {
         "position": {
@@ -127,7 +125,7 @@
         }
       }
     },
-    "subgtract": {
+    "subtract0": {
       "id": "fa94b179-00e3-4ed1-814e-7938324a833f",
       "input": {
         "a": {},
@@ -217,7 +215,7 @@
       }
     },
     "1": {
-      "propclientxclienty0": {
+      "getclientxclienty0": {
         "input": {
           "obj": true
         }
@@ -239,9 +237,9 @@
           "a": true
         }
       },
-      "propclientxclienty0": {
+      "getclientxclienty0": {
         "output": {
-          "clientX": true
+          "x": true
         }
       }
     },
@@ -251,33 +249,33 @@
           "b": true
         }
       },
-      "propclientxclienty": {
+      "getclientxclienty": {
         "output": {
-          "clientX": true
+          "x": true
         }
       }
     },
     "4": {
-      "subgtract": {
+      "subtract0": {
         "input": {
           "a": true
         }
       },
-      "propclientxclienty0": {
+      "getclientxclienty0": {
         "output": {
-          "clientY": true
+          "y": true
         }
       }
     },
     "5": {
-      "subgtract": {
+      "subtract0": {
         "input": {
           "b": true
         }
       },
-      "propclientxclienty": {
+      "getclientxclienty": {
         "output": {
-          "clientY": true
+          "y": true
         }
       }
     },
@@ -311,7 +309,7 @@
       }
     },
     "8": {
-      "propclientxclienty": {
+      "getclientxclienty": {
         "input": {
           "obj": true
         }
@@ -323,16 +321,10 @@
       }
     }
   },
-  "render": false,
   "metadata": {
     "icon": "grab",
-    "complexity": 24,
-    "tags": [
-      "platform",
-      "core",
-      "api",
-      "event"
-    ],
+    "description": "keep track of current pointer x y distance from initial press",
+    "tags": ["platform", "core", "api", "event"],
     "position": {
       "merge": {
         "0": {

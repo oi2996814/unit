@@ -1,6 +1,8 @@
 import { Functional } from '../../../../../Class/Functional'
 import { Done } from '../../../../../Class/Functional/Done'
-import { J } from '../../../../../interface/J'
+import { System } from '../../../../../system'
+import { J } from '../../../../../types/interface/J'
+import { ID_HAS_KEY_0 } from '../../../../_ids'
 
 export interface I<T> {
   obj: J
@@ -12,28 +14,35 @@ export interface O<T> {
 }
 
 export default class HasKey<T> extends Functional<I<T>, O<T>> {
-  constructor() {
+  constructor(system: System) {
     super(
       {
         i: ['obj', 'key'],
-        o: ['data'],
+        o: ['has'],
       },
       {
         input: {
-          unit: {
+          obj: {
             ref: true,
           },
         },
-      }
+      },
+      system,
+      ID_HAS_KEY_0
     )
   }
 
   async f({ obj, key }: I<T>, done: Done<O<T>>) {
+    let has: boolean
+
     try {
-      const has = await obj.hasKey(key)
-      done({ has })
+      has = await obj.hasKey(key)
     } catch (err) {
-      done(undefined, err)
+      done(undefined, err.message)
+
+      return
     }
+
+    done({ has })
   }
 }

@@ -1,11 +1,12 @@
 import * as assert from 'assert'
 import { Graph } from '../../Class/Graph'
 import { watchGraphAndLog, watchUnitAndLog } from '../../debug'
-import _specs from '../../system/_specs'
-import { ID_FILTER, ID_IDENTITY, ID_TRUE } from '../spec/id'
+import { ID_FILTER, ID_IDENTITY, ID_TRUE } from '../../system/_ids'
 import { system } from '../util/system'
 
-const composition0 = new Graph<{}, {}>({}, {}, system)
+const spec = system.emptySpec()
+
+const composition0 = new Graph<{}, {}>(spec, {}, system)
 
 false && watchUnitAndLog(composition0)
 false && watchGraphAndLog(composition0)
@@ -16,12 +17,12 @@ const id2 = 'id2'
 
 composition0.play()
 
-composition0.addUnits({
+composition0.addUnitSpecs({
   [id0]: {
     id: ID_IDENTITY,
     input: {
       a: {
-        data: 0,
+        data: '0',
       },
     },
     output: {},
@@ -34,8 +35,8 @@ composition0.addUnits({
   },
 })
 
-composition0.addMerges({
-  merge0: {
+composition0.addMerge(
+  {
     [id0]: {
       output: {
         a: true,
@@ -52,7 +53,10 @@ composition0.addMerges({
       },
     },
   },
-  merge1: {
+  'merge0'
+)
+composition0.addMerge(
+  {
     [id1]: {
       output: {
         a: true,
@@ -64,21 +68,27 @@ composition0.addMerges({
       },
     },
   },
-})
+  'merge1'
+)
 
-assert.equal(composition0.refUnit(id0).peakOutput('a'), 0)
-assert.equal(composition0.refUnit(id0).peakInput('a'), 0)
-assert.equal(composition0.refUnit(id1).peakOutput('a'), 0)
-assert.equal(composition0.refUnit(id1).peakInput('a'), 0)
-assert.equal(composition0.refUnit(id2).peakOutput('a'), 0)
-assert.equal(composition0.refUnit(id2).peakInput('a'), 0)
+assert.equal(composition0.getUnit(id0).peakOutput('a'), 0)
+assert.equal(composition0.getUnit(id0).peakInput('a'), 0)
+assert.equal(composition0.getUnit(id1).peakOutput('a'), 0)
+assert.equal(composition0.getUnit(id1).peakInput('a'), 0)
+assert.equal(composition0.getUnit(id2).peakOutput('a'), 0)
+assert.equal(composition0.getUnit(id2).peakInput('a'), 0)
 
-const composition1 = new Graph<{}, {}>({}, {}, system)
+const spec0 = system.emptySpec()
+
+const composition1 = new Graph<{}, {}>(spec0, {}, system)
+
 composition1.play()
+
 const id3 = 'id3'
 const id4 = 'id4'
-composition1.addUnit({ id: ID_IDENTITY }, id3)
-composition1.addUnit({ id: ID_IDENTITY }, id4)
+
+composition1.addUnitSpec(id3, { unit: { id: ID_IDENTITY } })
+composition1.addUnitSpec(id4, { unit: { id: ID_IDENTITY } })
 composition1.addMerge(
   {
     [id3]: {
@@ -94,12 +104,14 @@ composition1.addMerge(
   },
   '0'
 )
-const identity3 = composition1.refUnit(id3)
-const identity4 = composition1.refUnit(id4)
+const identity3 = composition1.getUnit(id3)
+const identity4 = composition1.getUnit(id4)
+
 identity3.push('a', 1)
 identity3.push('a', 2)
 identity3.push('a', 3)
 identity3.push('a', 4)
+
 composition1.addMerge(
   {
     [id3]: {
@@ -116,11 +128,15 @@ composition1.addMerge(
   '0'
 )
 
-const composition2 = new Graph<{}, {}>({}, {}, system)
+const spec1 = system.emptySpec()
+
+const composition2 = new Graph<{}, {}>(spec1, {}, system)
+
 composition2.play()
-composition2.addUnit({ id: ID_IDENTITY }, id0)
-composition2.addUnit({ id: ID_IDENTITY }, id1)
-composition2.addUnit({ id: ID_IDENTITY }, id2)
+
+composition2.addUnitSpec(id0, { unit: { id: ID_IDENTITY } })
+composition2.addUnitSpec(id1, { unit: { id: ID_IDENTITY } })
+composition2.addUnitSpec(id2, { unit: { id: ID_IDENTITY } })
 composition2.addMerge(
   {
     [id0]: {
@@ -148,8 +164,10 @@ composition2.setUnitInputData(id0, 'a', 0)
 const UNIT_ID_FILTER = 'UNIT_ID_FILTER'
 const UNIT_ID_TRUE = 'UNIT_ID_TRUE'
 
+const spec2 = system.emptySpec()
+
 const composition4 = new Graph<{ number: number }, { sum: number }>(
-  {},
+  spec2,
   {},
   system
 )
@@ -159,8 +177,8 @@ false && watchGraphAndLog(composition4)
 
 composition4.play()
 
-composition4.addUnit(
-  {
+composition4.addUnitSpec(UNIT_ID_FILTER, {
+  unit: {
     id: ID_FILTER,
     output: {
       a: {
@@ -174,17 +192,13 @@ composition4.addUnit(
       },
     },
   },
-  UNIT_ID_FILTER
-)
-composition4.addUnit(
-  {
-    id: ID_TRUE,
-  },
-  UNIT_ID_TRUE
-)
+})
+composition4.addUnitSpec(UNIT_ID_TRUE, {
+  unit: { id: ID_TRUE },
+})
 
-const filter = composition4.refUnit(UNIT_ID_FILTER)
-const _true = composition4.refUnit(UNIT_ID_TRUE)
+const filter = composition4.getUnit(UNIT_ID_FILTER)
+const _true = composition4.getUnit(UNIT_ID_TRUE)
 
 filter.push('a', [0, 1, 2])
 

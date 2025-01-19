@@ -9,7 +9,7 @@
     }
   },
   "merges": {
-    "merge0": {
+    "0": {
       "lessthanequal": {
         "input": {
           "a": true
@@ -21,7 +21,7 @@
         }
       }
     },
-    "merge1": {
+    "1": {
       "lessthanequal": {
         "input": {
           "b": true
@@ -36,52 +36,43 @@
   },
   "inputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
-          "mergeId": "merge0"
+          "mergeId": "0"
         }
-      },
-      "type": "number"
+      }
     },
     "b": {
-      "pin": {
+      "plug": {
         "0": {
-          "mergeId": "merge1"
+          "mergeId": "1"
         }
-      },
-      "type": "number"
+      }
     }
   },
   "outputs": {
     "a ≤ b": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "lessthanequal",
           "pinId": "a ≤ b"
         }
-      },
-      "type": "boolean"
+      }
     },
     "a > b": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "greaterthan",
           "pinId": "a > b"
         }
-      },
-      "type": "boolean"
+      }
     }
   },
   "metadata": {
-    "icon": null,
-    "description": "...",
-    "complexity": 5.658636473139003,
-    "tags": [
-      "core",
-      "common"
-    ]
+    "icon": "less-than-equal",
+    "description": "less than euqal + greater than",
+    "tags": ["core", "common"]
   },
   "id": "baa94d4a-90a4-4b3d-8f4f-d10780c64754",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

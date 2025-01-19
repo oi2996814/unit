@@ -14,7 +14,7 @@
     }
   },
   "merges": {
-    "uqrhbkeci": {
+    "0": {
       "loop": {
         "input": {
           "next": true
@@ -26,7 +26,7 @@
         }
       }
     },
-    "bauiallzd": {
+    "1": {
       "loop": {
         "output": {
           "current": true
@@ -41,63 +41,53 @@
   },
   "inputs": {
     "test": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "loop",
           "pinId": "test"
         }
-      },
-      "type": "boolean"
+      }
     },
     "init": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "loop",
           "pinId": "init"
         }
-      },
-      "type": "number"
+      }
     }
   },
   "outputs": {
     "current": {
-      "pin": {
+      "plug": {
         "0": {
-          "mergeId": "bauiallzd"
+          "mergeId": "1"
         }
-      },
-      "type": "number"
+      }
     },
     "local": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "loop",
           "pinId": "local"
         }
-      },
-      "type": "number"
+      }
     },
     "final": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "loop",
           "pinId": "final"
         }
       },
-      "defaultIgnored": true,
-      "type": "number"
+      "defaultIgnored": true
     }
   },
   "metadata": {
     "icon": "undo",
     "description": "increment value until `test` is false",
-    "complexity": 4,
-    "tags": [
-      "core",
-      "common"
-    ]
+    "tags": ["core", "common"]
   },
   "id": "4e2c89b2-e9cb-42f6-bb8d-e9d665c21fa7",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

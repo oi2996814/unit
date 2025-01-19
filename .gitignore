@@ -18,10 +18,19 @@ lib/**/*
 
 build/**/*
 
-yarn-error.log
+dist/**/*
 
 .env
 
 public/index.js
+public/sw.js
+
+public/index.js.map
+public/sw.js.map
 
 src/client/static/js/index.js.ts
+
+src/client/extension/src/*.js
+src/client/extension/src/*.js.map
+
+public/build.json

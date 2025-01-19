@@ -1,50 +1,78 @@
-import removeIndex from '../../system/core/array/RemoveIndex/f'
-import assocPath from '../../system/core/object/AssocPath/f'
-import dissocPath from '../../system/core/object/DissocPath/f'
-import propPath from '../../system/core/object/PropPath/f'
-import $indexOf from '../../system/f/array/IndexOf/f'
+import { GraphMoveSubComponentRootData } from '../../Class/Graph/interface'
+import { deepSet_ } from '../../deepSet'
 import merge from '../../system/f/object/Merge/f'
-import set from '../../system/f/object/Set/f'
-import { Action, GraphComponentSpec, GraphSubComponentSpec } from '../../types'
+import _set from '../../system/f/object/Set/f'
+import { GraphComponentSpec, GraphSubComponentSpec } from '../../types'
+import { insert, pull, push, removeAt, reorder } from '../../util/array'
 import {
-  REMOVE_SUB_COMPONENT,
-  SET_SIZE,
-  SET_SUB_COMPONENT,
-  SET_SUB_COMPONENT_CHILDREN,
-} from '../actions/component'
+  deepDelete,
+  deepGet,
+  deepGetOrDefault,
+  deepSet,
+} from '../../util/object'
+import { getComponentSubComponentParentId } from '../util/component'
 
-export type State = GraphComponentSpec
+export const appendRoot = (
+  { childId }: { childId: string },
+  component: GraphComponentSpec
+): void => {
+  component.children = component.children ?? []
 
-export const defaultState: State = {}
-
-export const appendChild = ({ id }, state: State): State => {
-  const children = state.children || []
-  return set(state, 'children', [...children, id])
+  push(component.children, childId)
 }
 
-export const removeChild = ({ id }, state: State): State => {
-  const children = [...(state.children || [])]
-  const index = children.indexOf(id)
-  if (index > -1) {
-    children.splice(index, 1)
-    return set(state, 'children', children)
-  }
-  return state
+export const insertRoot = (
+  { childId, at }: { childId: string; at: number },
+  component: GraphComponentSpec
+): void => {
+  component.children = component.children || []
+
+  insert(component.children, childId, at)
+}
+
+export const removeRoot = ({ childId }, state: GraphComponentSpec): void => {
+  pull(state.children, childId)
 }
 
 export const setSubComponent = (
-  { id, spec }: { id: string; spec: GraphSubComponentSpec },
-  state: State
-): State => {
-  return assocPath(state, ['subComponents', id], spec)
+  {
+    unitId,
+    subComponent,
+  }: { unitId: string; subComponent: GraphSubComponentSpec },
+  component: GraphComponentSpec
+): void => {
+  deepSet(component, ['subComponents', unitId], subComponent)
 }
 
 export const removeSubComponent = (
-  { id }: { id: string },
-  state: State
-): State => {
-  state = dissocPath(state, ['subComponents', id])
-  return state
+  { unitId }: { unitId: string },
+  component: GraphComponentSpec
+): void => {
+  const subComponent = deepGetOrDefault(
+    component,
+    ['subComponents', unitId],
+    {}
+  )
+
+  const parentId = getComponentSubComponentParentId(component, unitId)
+
+  const { children = [] } = subComponent
+
+  deepDelete(component, ['subComponents', unitId])
+
+  const index = component?.slots?.findIndex(([_unitId]) => _unitId === unitId)
+
+  if (index > -1) {
+    removeAt(component.slots, index)
+  }
+
+  for (const childId of children) {
+    if (parentId) {
+      appendSubComponentChild({ parentId, childId }, component)
+    } else {
+      appendRoot({ childId }, component)
+    }
+  }
 }
 
 export const setSize = (
@@ -52,75 +80,168 @@ export const setSize = (
     defaultWidth,
     defaultHeight,
   }: { defaultWidth: number; defaultHeight: number },
-  state: State
-): State => {
-  return merge(state, { defaultWidth, defaultHeight })
+  component: GraphComponentSpec
+): GraphComponentSpec => {
+  return merge(component, { defaultWidth, defaultHeight })
 }
 
 export const setChildren = (
   { children }: { children: string[] },
-  state: State
-): State => {
-  return set(state, 'children', children)
+  component: GraphComponentSpec
+): GraphComponentSpec => {
+  return _set(component, 'children', children)
 }
 
 export const setSubComponentSize = (
   { id, width, height }: { id: string; width: number; height: number },
-  state: State
-): State => {
-  return assocPath(
-    state,
+  component: GraphComponentSpec
+): void => {
+  deepSet_(
+    component,
     ['subComponents', id],
-    merge(state.subComponents[id], { width, height })
+    merge(component.subComponents[id], { width, height })
   )
 }
 
 export const setSubComponentChildren = (
   { id, children }: { id: string; children: string[] },
-  state: State
-): State => {
-  return assocPath(state, ['subComponents', id, 'children'], children)
+  component: GraphComponentSpec
+): void => {
+  deepSet_(component, ['subComponents', id, 'children'], children)
 }
 
 export const removeSubComponentChild = (
-  { id, childId }: { id: string; childId: string },
-  state: State
-): State => {
-  const children = propPath(state, ['subComponents', id, 'children'])
-  const { i } = $indexOf({ 'a[]': children, a: childId })
-  const { a: _children } = removeIndex({ a: children, i })
-  state = assocPath(state, ['subComponents', id, 'children'], _children)
-  return state
+  { subComponentId, childId }: { subComponentId: string; childId: string },
+  component: GraphComponentSpec
+): void => {
+  const subComponent = deepGet(component, ['subComponents', subComponentId])
+
+  const { children = [], childSlot = {} } = subComponent
+
+  pull(children, childId)
+
+  deepDelete(childSlot, [childId])
 }
 
 export const appendSubComponentChild = (
-  { id, childId }: { id: string; childId: string },
-  state: State
-): State => {
+  { parentId, childId }: { parentId: string; childId: string },
+  state: GraphComponentSpec
+): void => {
   const { subComponents } = state
-  const subComponent = subComponents[id]
+
+  subComponents[parentId] = subComponents[parentId] ?? {}
+
+  const subComponent = subComponents[parentId]
+
+  subComponent.children = subComponent.children || []
+
   const { children } = subComponent
-  return assocPath(
-    state,
-    ['subComponents', id, 'children'],
-    [...children, childId]
-  )
+
+  push(children, childId)
 }
 
-export default function (
-  state: State = defaultState,
-  { type, data }: Action
-): State {
-  switch (type) {
-    case SET_SUB_COMPONENT:
-      return setSubComponent(data, state)
-    case REMOVE_SUB_COMPONENT:
-      return removeSubComponent(data, state)
-    case SET_SIZE:
-      return setSubComponentSize(data, state)
-    case SET_SUB_COMPONENT_CHILDREN:
-      return setSubComponentChildren(data, state)
-    default:
-      return state
+export const insertSubComponentChild = (
+  { parentId, childId, at }: { parentId: string; childId: string; at: number },
+  state: GraphComponentSpec
+): void => {
+  const { subComponents } = state
+
+  subComponents[parentId] = subComponents[parentId] ?? {}
+
+  const subComponent = subComponents[parentId]
+
+  subComponent.children = subComponent.children ?? []
+
+  const { children } = subComponent
+
+  insert(children, childId, at)
+}
+
+export const reorderSubComponent = (
+  { parentId, childId, to }: { parentId: string; childId: string; to: number },
+  state: GraphComponentSpec
+): void => {
+  if (parentId) {
+    reorder(state.subComponents[parentId].children ?? [], childId, to)
+  } else {
+    reorder(state.children, childId, to)
+  }
+}
+
+export const _removeSubComponentFromParent = (
+  { parentId, children, slotMap }: GraphMoveSubComponentRootData,
+  state: GraphComponentSpec
+) => {
+  for (const childId of children) {
+    if (parentId) {
+      removeRoot({ childId }, state)
+      appendSubComponentChild({ parentId, childId }, state)
+    } else {
+      appendRoot({ childId }, state)
+    }
+  }
+}
+
+export const moveSubComponentRoot = (
+  { parentId, children, slotMap }: GraphMoveSubComponentRootData,
+  state: GraphComponentSpec
+) => {
+  for (const childId of children) {
+    const currentParentId = getComponentSubComponentParentId(state, childId)
+
+    if (currentParentId) {
+      removeSubComponentChild(
+        { subComponentId: currentParentId, childId },
+        state
+      )
+    } else {
+      removeRoot({ childId }, state)
+    }
+
+    if (parentId) {
+      appendSubComponentChild({ parentId, childId }, state)
+    } else {
+      appendRoot({ childId }, state)
+    }
+  }
+}
+
+export const removeSubComponentFromParent = (
+  { subComponentId }: { subComponentId: string },
+  component: GraphComponentSpec
+) => {
+  const currentParentId = getComponentSubComponentParentId(
+    component,
+    subComponentId
+  )
+
+  if (currentParentId) {
+    removeSubComponentChild(
+      {
+        subComponentId: currentParentId,
+        childId: subComponentId,
+      },
+      component
+    )
+  } else {
+    removeRoot({ childId: subComponentId }, component)
+  }
+}
+
+export const moveRoot = (
+  {
+    parentId,
+    childId,
+    at,
+    slotName,
+  }: { parentId: string; childId: string; at: number; slotName: string },
+  component: GraphComponentSpec
+) => {
+  removeSubComponentFromParent({ subComponentId: childId }, component)
+
+  if (parentId) {
+    insertSubComponentChild({ parentId, childId, at }, component)
+  } else {
+    insertRoot({ childId, at }, component)
   }
 }

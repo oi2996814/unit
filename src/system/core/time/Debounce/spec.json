@@ -44,45 +44,37 @@
   },
   "metadata": {
     "icon": "alarm-clock",
-    "description": "no description",
-    "complexity": 11.210792580101181,
-    "tags": [
-      "core",
-      "time"
-    ]
+    "description": "output only after stream has stopped for `ms` milliseconds",
+    "tags": ["core", "time"]
   },
   "inputs": {
     "ms": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "wait",
           "pinId": "a"
         }
-      },
-      "type": "number"
+      }
     },
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "memory",
           "pinId": "a"
         }
-      },
-      "type": "<A>"
+      }
     }
   },
   "outputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "delay",
           "pinId": "a"
         }
-      },
-      "type": "<A>"
+      }
     }
   },
   "id": "e55c58b3-8653-4481-b5c9-2a75fce6365a",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

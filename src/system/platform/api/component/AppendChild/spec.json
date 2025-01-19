@@ -14,11 +14,9 @@
       }
     },
     "child": {
-      "type": "`C`",
+      "type": "<T:`C`>",
       "metadata": {
-        "examples": [
-          "f27cae4e-fea8-11ea-b91e-db41e114c426"
-        ],
+        "examples": ["${unit:{id:'f27cae4e-fea8-11ea-b91e-db41e114c426'}}"],
         "position": {
           "0": {
             "x": 128,
@@ -29,7 +27,7 @@
     }
   },
   "outputs": {
-    "i": {
+    "at": {
       "type": "number",
       "defaultIgnored": true
     }
@@ -38,14 +36,8 @@
   "metadata": {
     "icon": "square",
     "description": "append `child` instance to `parent`",
-    "complexity": 2.662898652780609,
-    "tags": [
-      "platform",
-      "api",
-      "component"
-    ]
+    "tags": ["platform", "api", "component"]
   },
   "id": "ee4715e6-f479-11ea-b231-bf95a7f38a99",
-  "type": "`U`",
-  "system": true
+  "type": "`U`"
 }

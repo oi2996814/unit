@@ -2,10 +2,16 @@
   "name": "and",
   "inputs": {
     "a": {
-      "type": "number"
+      "type": "number",
+      "metadata": {
+        "examples": ["0", "1"]
+      }
     },
     "b": {
-      "type": "number"
+      "type": "number",
+      "metadata": {
+        "examples": ["0", "1"]
+      }
     }
   },
   "outputs": {
@@ -14,16 +20,11 @@
     }
   },
   "metadata": {
-    "icon": "binary",
+    "icon": "bitwise-and",
     "description": "bitwise AND operator",
-    "complexity": 2.655337916720716,
-    "tags": [
-      "f",
-      "bitwise"
-    ]
+    "tags": ["f", "bitwise"]
   },
   "id": "be6801c0-02e2-4f76-bcad-b68c80991fad",
   "base": true,
-  "type": "`U`",
-  "system": true
+  "type": "`U`"
 }

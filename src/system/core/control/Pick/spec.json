@@ -36,55 +36,46 @@
   },
   "inputs": {
     "a": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "if",
           "pinId": "a"
         }
       },
-      "type": "<A>"
+      "functional": true
     },
     "b": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "ifnot",
           "pinId": "a"
         }
       },
-      "type": "<A>"
+      "functional": true
     },
     "c": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "mergeId": "0"
         }
       },
-      "type": "boolean"
+      "functional": true
     }
   },
   "outputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "mergeId": "1"
         }
-      },
-      "type": "<A>"
+      }
     }
   },
   "metadata": {
     "icon": "pointer",
     "description": "conditional picker",
-    "complexity": 4,
-    "tags": [
-      "core",
-      "control"
-    ]
+    "tags": ["core", "control"]
   },
   "id": "396497e4-f8e7-4573-95c9-a4f186a5cd05",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

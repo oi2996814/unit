@@ -1,4 +1,4 @@
 export interface GlobalRefSpec {
-  __global_id: string
+  globalId: string
   __: string[]
 }

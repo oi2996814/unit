@@ -2,33 +2,30 @@
   "name": "merge width height",
   "inputs": {
     "height": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "tagheight",
           "pinId": "height"
         }
-      },
-      "type": "any"
+      }
     },
     "width": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "tagwidth",
           "pinId": "width"
         }
-      },
-      "type": "any"
+      }
     }
   },
   "outputs": {
     "{width,height}": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "merge",
           "pinId": "ab"
         }
-      },
-      "type": "object"
+      }
     }
   },
   "units": {
@@ -128,7 +125,7 @@
   },
   "metadata": {
     "icon": "brackets-curly",
-    "complexity": 5,
+    "description": "{width, height}",
     "position": {
       "merge": {
         "0": {
@@ -141,12 +138,8 @@
         }
       }
     },
-    "tags": [
-      "platform",
-      "core"
-    ]
+    "tags": ["platform", "core"]
   },
   "id": "450dac92-395b-4c7b-b8c0-219315c28035",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

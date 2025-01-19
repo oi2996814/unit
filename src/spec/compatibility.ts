@@ -1,11 +1,12 @@
+import { keys } from '../system/f/object/Keys/f'
 import { Specs } from '../types'
 import { isTypeMatch } from './parser'
-import { getSpecTypeInterfaceByPath, TypeInterface } from './type'
+import { getSpecTypeInterfaceById, TypeInterface } from './type'
 
 export function compatibleInterface(
+  specs: Specs,
   a: string,
-  b: string,
-  specs: Specs
+  b: string
 ): boolean {
   const aSpec = specs[a]
   const bSpec = specs[b]
@@ -13,11 +14,11 @@ export function compatibleInterface(
   const { inputs: aI, outputs: aO } = aSpec
   const { inputs: bI, outputs: bO } = bSpec
 
-  const aInputNames = Object.keys(aI)
-  const aOutputNames = Object.keys(aO)
+  const aInputNames = keys(aI)
+  const aOutputNames = keys(aO)
 
-  const bInputNames = Object.keys(bI)
-  const bOutputNames = Object.keys(bO)
+  const bInputNames = keys(bI)
+  const bOutputNames = keys(bO)
 
   if (
     aInputNames.length !== bInputNames.length ||
@@ -26,8 +27,8 @@ export function compatibleInterface(
     return false
   }
 
-  const aTypeInterface: TypeInterface = getSpecTypeInterfaceByPath(a, specs)
-  const bTypeInterface: TypeInterface = getSpecTypeInterfaceByPath(b, specs)
+  const aTypeInterface: TypeInterface = getSpecTypeInterfaceById(a, specs)
+  const bTypeInterface: TypeInterface = getSpecTypeInterfaceById(b, specs)
 
   const aITypes = aInputNames.map((pinId) => aTypeInterface.input[pinId])
   const aOTypes = aOutputNames.map((pinId) => aTypeInterface.output[pinId])
@@ -40,7 +41,10 @@ export function compatibleInterface(
     const aOType = aOTypes[i]
     const bOType = bOTypes[i]
 
-    if (!isTypeMatch(aIType, bIType) || !isTypeMatch(aOType, bOType)) {
+    if (
+      !isTypeMatch(specs, aIType, bIType) ||
+      !isTypeMatch(specs, aOType, bOType)
+    ) {
       return false
     }
   }

@@ -1,4 +1,6 @@
 import { Functional } from '../../../../Class/Functional'
+import { System } from '../../../../system'
+import { ID_IDENTITY } from '../../../_ids'
 
 export interface I<T> {
   a: T
@@ -9,11 +11,16 @@ export interface O<T> {
 }
 
 export default class Identity<T> extends Functional<I<T>, O<T>> {
-  constructor() {
-    super({
-      i: ['a'],
-      o: ['a'],
-    })
+  constructor(system: System) {
+    super(
+      {
+        i: ['a'],
+        o: ['a'],
+      },
+      {},
+      system,
+      ID_IDENTITY
+    )
   }
 
   f({ a }: Partial<I<T>>, done): void {

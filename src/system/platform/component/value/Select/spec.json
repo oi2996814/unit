@@ -1,0 +1,32 @@
+{
+  "name": "select",
+  "inputs": {
+    "value": {
+      "type": "string",
+      "optional": true
+    },
+    "style": {
+      "type": "object",
+      "optional": true
+    }
+  },
+  "outputs": {
+    "value": {
+      "type": "string",
+      "optional": true
+    }
+  },
+  "metadata": {
+    "icon": "form-input",
+    "description": "select HTML element",
+    "tags": ["platform", "component", "value"]
+  },
+  "id": "6c7cd7d1-c8a0-4317-9c8c-ba781f150729",
+  "base": true,
+  "component": {
+    "defaultWidth": 180,
+    "defaultHeight": 45
+  },
+  "type": "`U`&`C`&`V`&`J`",
+  "render": true
+}

@@ -9,7 +9,7 @@
     }
   },
   "merges": {
-    "achlazehm": {
+    "0": {
       "repeatn": {
         "input": {
           "n": true
@@ -21,7 +21,7 @@
         }
       }
     },
-    "rcvjcbte": {
+    "1": {
       "repeatn": {
         "output": {
           "a": true
@@ -37,45 +37,37 @@
   "metadata": {
     "icon": "brackets",
     "description": "init an array with length `n` filled with `a`'s",
-    "complexity": 4,
-    "tags": [
-      "core",
-      "array"
-    ]
+    "tags": ["core", "array"]
   },
   "inputs": {
     "n": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
-          "mergeId": "achlazehm"
+          "mergeId": "0"
         }
       },
-      "type": "number"
+      "functional": true
     },
     "a": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "repeatn",
           "pinId": "a"
         }
       },
-      "type": "<A>"
+      "functional": true
     }
   },
   "outputs": {
     "a[]": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "narraybuilder",
           "pinId": "a[]"
         }
-      },
-      "type": "<A>[]"
+      }
     }
   },
   "id": "5a7912c7-9c67-45b6-ae2b-e352405e6c16",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

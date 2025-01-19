@@ -9,7 +9,7 @@
     }
   },
   "merges": {
-    "lxbvanzk": {
+    "0": {
       "map2": {
         "output": {
           "a[i]": true
@@ -21,7 +21,7 @@
         }
       }
     },
-    "dkllawfhv": {
+    "1": {
       "map2": {
         "output": {
           "b[i]": true
@@ -33,7 +33,7 @@
         }
       }
     },
-    "kynujs": {
+    "2": {
       "multiply": {
         "output": {
           "a × b": true
@@ -48,47 +48,39 @@
   },
   "metadata": {
     "icon": "x",
-    "description": "no description",
-    "complexity": 10.657079851009025,
-    "tags": [
-      "core",
-      "array"
-    ]
+    "description": "build new array by multiply arrays `a` and `b` element by element",
+    "tags": ["core", "array"]
   },
   "inputs": {
     "b": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "map2",
           "pinId": "b"
         }
       },
-      "type": "any"
+      "functional": true
     },
     "a": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "map2",
           "pinId": "a"
         }
       },
-      "type": "number[]"
+      "functional": true
     }
   },
   "outputs": {
     "ab": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "map2",
-          "pinId": "b"
+          "pinId": "c"
         }
-      },
-      "type": "number[]"
+      }
     }
   },
   "id": "2dbdf0a4-09c1-49af-b9f8-d51b5cbab5a2",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

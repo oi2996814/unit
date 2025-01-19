@@ -1,0 +1,33 @@
+{
+  "name": "set",
+  "inputs": {
+    "obj": {
+      "type": "`J`",
+      "ref": true
+    },
+    "name": {
+      "type": "string"
+    },
+    "data": {
+      "type": "any",
+      "ref": true
+    },
+    "done": {
+      "type": "any"
+    }
+  },
+  "outputs": {
+    "done": {
+      "type": "any",
+      "defaultIgnored": true
+    }
+  },
+  "metadata": {
+    "icon": "object-set",
+    "description": "set `unit` property `name` to `data`",
+    "tags": ["platform", "method", "object"]
+  },
+  "id": "610b35bc-a709-4eed-a655-9ee0baa860f8",
+  "base": true,
+  "type": "`U`"
+}

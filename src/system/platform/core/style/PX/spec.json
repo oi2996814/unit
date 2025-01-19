@@ -44,37 +44,29 @@
   },
   "inputs": {
     "n": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "numbertostring",
           "pinId": "n"
         }
-      },
-      "type": "number"
+      }
     }
   },
   "outputs": {
     "px": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "concat",
           "pinId": "ab"
         }
-      },
-      "type": "string"
+      }
     }
   },
   "metadata": {
     "icon": "dot-circle",
-    "description": "append \"px\" to `n`",
-    "complexity": 4,
-    "tags": [
-      "platform",
-      "core",
-      "style"
-    ]
+    "description": "`n` + \"px\"",
+    "tags": ["platform", "core", "style"]
   },
   "id": "87c7b2b8-c17e-11ea-ba3a-072aa030b89f",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

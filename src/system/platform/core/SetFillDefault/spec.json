@@ -1,0 +1,70 @@
+{
+  "name": "set fill default",
+  "units": {
+    "setifordefault": {
+      "id": "c0b85780-7e99-11ea-9a99-879f3f411ebd",
+      "input": {
+        "key": {
+          "constant": true,
+          "data": "'fill'"
+        },
+        "testdefault": {
+          "constant": true,
+          "data": "false"
+        }
+      }
+    }
+  },
+  "merges": {},
+  "inputs": {
+    "default": {
+      "plug": {
+        "0": {
+          "unitId": "setifordefault",
+          "pinId": "default"
+        }
+      }
+    },
+    "test": {
+      "plug": {
+        "0": {
+          "unitId": "setifordefault",
+          "pinId": "test"
+        }
+      }
+    },
+    "value": {
+      "plug": {
+        "0": {
+          "unitId": "setifordefault",
+          "pinId": "value"
+        }
+      }
+    },
+    "obj": {
+      "plug": {
+        "0": {
+          "unitId": "setifordefault",
+          "pinId": "obj"
+        }
+      }
+    }
+  },
+  "outputs": {
+    "obj": {
+      "plug": {
+        "0": {
+          "unitId": "setifordefault",
+          "pinId": "obj"
+        }
+      }
+    }
+  },
+  "metadata": {
+    "icon": "object-set",
+    "description": "set `obj` \"fill\" to `value` if `test` is true or to `default` otherwise",
+    "tags": ["platform", "core"]
+  },
+  "id": "887e66b8-a08e-11ea-bfea-b3687d92658a",
+  "type": "`U`&`G`"
+}

@@ -1,0 +1,131 @@
+{
+  "name": "delete all",
+  "units": {
+    "loop": {
+      "id": "3432494e-fab6-4e9d-a846-0c48a7c429cd",
+      "input": {
+        "next": {},
+        "test": {},
+        "init": {}
+      },
+      "output": {
+        "current": {},
+        "local": {
+          "ignored": true
+        },
+        "final": {
+          "ignored": false
+        }
+      }
+    },
+    "foreach": {
+      "id": "e2da2ac1-26bd-4c91-b8ad-a0395d9c8857",
+      "input": {
+        "a": {}
+      },
+      "output": {
+        "a[i]": {},
+        "test": {
+          "ignored": false
+        }
+      }
+    },
+    "delete": {
+      "id": "664b5d3c-e4cf-11ea-ab74-eb6d2f3bd6f1",
+      "input": {
+        "obj": {},
+        "key": {}
+      },
+      "output": {
+        "obj": {}
+      }
+    }
+  },
+  "merges": {
+    "0": {
+      "foreach": {
+        "output": {
+          "test": true
+        }
+      },
+      "loop": {
+        "input": {
+          "test": true
+        }
+      }
+    },
+    "1": {
+      "delete": {
+        "input": {
+          "key": true
+        }
+      },
+      "foreach": {
+        "output": {
+          "a[i]": true
+        }
+      }
+    },
+    "2": {
+      "delete": {
+        "output": {
+          "obj": true
+        }
+      },
+      "loop": {
+        "input": {
+          "next": true
+        }
+      }
+    },
+    "3": {
+      "loop": {
+        "output": {
+          "current": true
+        }
+      },
+      "delete": {
+        "input": {
+          "obj": true
+        }
+      }
+    }
+  },
+  "inputs": {
+    "obj": {
+      "plug": {
+        "0": {
+          "unitId": "loop",
+          "pinId": "init"
+        }
+      },
+      "functional": true
+    },
+    "keys": {
+      "plug": {
+        "0": {
+          "unitId": "foreach",
+          "pinId": "a"
+        }
+      },
+      "functional": true
+    }
+  },
+  "outputs": {
+    "obj": {
+      "plug": {
+        "0": {
+          "unitId": "loop",
+          "pinId": "final"
+        }
+      }
+    }
+  },
+  "metadata": {
+    "icon": "brackets-curly",
+    "description": "delete all `keys` from `obj`",
+    "tags": ["core", "object"]
+  },
+  "id": "474d900a-fd28-11ea-b59c-670afe58a912",
+  "type": "`U`&`G`"
+}

@@ -1,5 +1,5 @@
-import { Callback } from '../Callback'
-import { Unlisten } from '../Unlisten'
+import { Callback } from '../types/Callback'
+import { Unlisten } from '../types/Unlisten'
 import { Component } from './component'
 import { listenMovement } from './listenMovement'
 
@@ -13,6 +13,12 @@ export function whenInteracted(
   on_active: Callback<undefined>,
   on_inactive: Callback<undefined>
 ): Unlisten {
+  const {
+    api: {
+      window: { setTimeout, clearTimeout },
+    },
+  } = component.$system
+
   let timeout = null
   const resetTimeout = () => {
     if (timeout) {

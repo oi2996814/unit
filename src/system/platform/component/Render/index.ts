@@ -1,30 +1,34 @@
-import { Element } from '../../../../Class/Element/Element'
-import { PO } from '../../../../interface/PO'
+import { $ } from '../../../../Class/$'
+import { Element_ } from '../../../../Class/Element'
 import { System } from '../../../../system'
+import { Dict } from '../../../../types/Dict'
+import { $U } from '../../../../types/interface/async/$U'
+import { ID_RENDER } from '../../../_ids'
 
 export interface I {
-  pod: PO
-  className: string
+  component: $U & $
   style: object
+  attr: Dict<string>
 }
 
 export interface O {}
 
-export default class Render extends Element<I, O> {
+export default class Render extends Element_<I, O> {
   constructor(system: System) {
     super(
       {
-        i: ['style', 'pod'],
+        i: ['style', 'component', 'attr'],
         o: [],
       },
       {
         input: {
-          pod: {
+          component: {
             ref: true,
           },
         },
       },
-      system
+      system,
+      ID_RENDER
     )
   }
 }

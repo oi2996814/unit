@@ -1,0 +1,21 @@
+{
+  "name": "log",
+  "inputs": {
+    "a": {
+      "type": "number"
+    }
+  },
+  "outputs": {
+    "ln(a)": {
+      "type": "number"
+    }
+  },
+  "metadata": {
+    "icon": "exponential",
+    "description": "log of `a` in natural base",
+    "tags": ["f", "math"]
+  },
+  "id": "f68b0b2a-7967-445e-86a8-99ebc1e2144c",
+  "base": true,
+  "type": "`U`"
+}

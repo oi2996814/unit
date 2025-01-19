@@ -1,0 +1,29 @@
+{
+  "name": "set input",
+  "inputs": {
+    "unit": {
+      "_type": "<T:`U`>",
+      "type": "`U`"
+    },
+    "name": {
+      "type": "string"
+    },
+    "data": {
+      "type": "any"
+    }
+  },
+  "outputs": {
+    "unit": {
+      "_type": "<T>",
+      "type": "any"
+    }
+  },
+  "metadata": {
+    "icon": "object-set",
+    "description": "set input `name` of `unit` to `data`",
+    "tags": ["f", "unit"]
+  },
+  "id": "43b43afd-9e7d-44ba-aef7-6e9db4ed8744",
+  "base": true,
+  "type": "`U`"
+}

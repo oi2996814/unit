@@ -37,51 +37,42 @@
   "metadata": {
     "icon": "git-merge",
     "description": "wait for `b` and `c` before output `a`",
-    "complexity": 4,
-    "tags": [
-      "core",
-      "control"
-    ]
+    "tags": ["core", "control"]
   },
   "inputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "mergeId": "0"
         }
-      },
-      "type": "<A>"
+      }
     },
     "b": {
-      "pin": {
+      "plug": {
         "0": {
           "mergeId": "1"
         }
-      },
-      "type": "<B>"
+      }
     }
   },
   "outputs": {
     "b": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "wait1",
           "pinId": "a"
         }
-      },
-      "type": "<B>"
+      }
     },
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "wait0",
           "pinId": "a"
         }
-      },
-      "type": "<A>"
+      }
     }
   },
   "id": "349eb1a9-85ae-4fec-93f2-19ba3370b6c3",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

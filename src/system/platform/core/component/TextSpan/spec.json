@@ -2,8 +2,7 @@
   "name": "text span",
   "inputs": {
     "style": {
-      "type": "object",
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "span",
           "pinId": "style"
@@ -11,8 +10,7 @@
       }
     },
     "value": {
-      "type": "string",
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "text",
           "pinId": "value"
@@ -51,22 +49,15 @@
   },
   "merges": {},
   "metadata": {
-    "complexity": 4,
-    "tags": [
-      "platform",
-      "core",
-      "component"
-    ]
+    "icon": "square",
+    "description": "text inside a span",
+    "tags": ["platform", "core", "component"]
   },
   "component": {
-    "children": [
-      "span"
-    ],
+    "children": ["span"],
     "subComponents": {
       "span": {
-        "children": [
-          "text"
-        ]
+        "children": ["text"]
       },
       "text": {
         "children": []
@@ -76,6 +67,6 @@
     "defaultHeight": 60
   },
   "id": "4ba86ad5-899b-4e8d-b5ce-3589dcfeaefd",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`C`&`G`",
+  "render": true
 }

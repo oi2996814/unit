@@ -11,11 +11,11 @@
       "type": "number"
     },
     "x": {
-      "type": "number",
+      "type": "string",
       "defaultIgnored": true
     },
     "y": {
-      "type": "number",
+      "type": "string",
       "defaultIgnored": true
     }
   },
@@ -23,12 +23,7 @@
   "metadata": {
     "icon": "bot",
     "description": "your fellow robot",
-    "complexity": 8.61619998888127,
-    "tags": [
-      "platform",
-      "component",
-      "app"
-    ]
+    "tags": ["platform", "component", "app"]
   },
   "id": "0e9e6cd4-67eb-11ea-995b-4b0721193361",
   "base": true,
@@ -36,7 +31,6 @@
     "defaultHeight": 200,
     "defaultWidth": 200
   },
-  "type": "`U`&`C`",
-  "system": true,
+  "type": "`U`&`C`&`V`&`J`",
   "render": true
 }

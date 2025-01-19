@@ -2,30 +2,29 @@
   "name": "min max slider",
   "inputs": {
     "max": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "max",
           "pinId": "value"
         },
-        "vtjbjuvw": {
-          "mergeId": "zzmfgw"
+        "1": {
+          "mergeId": "6"
         },
-        "ckkotbhab": {
-          "mergeId": "soblkxus"
+        "2": {
+          "mergeId": "7"
         }
       },
-      "type": "number",
       "metadata": {
         "position": {
           "0": {
             "x": -364,
             "y": -6
           },
-          "vtjbjuvw": {
+          "1": {
             "x": -120,
             "y": 62
           },
-          "ckkotbhab": {
+          "2": {
             "x": -138,
             "y": -133
           }
@@ -33,19 +32,18 @@
       }
     },
     "min": {
-      "pin": {
+      "plug": {
         "0": {
-          "mergeId": "odaeytf"
+          "mergeId": "8"
         },
         "lmxgapmoa": {
           "unitId": "min",
           "pinId": "value"
         },
         "ehxxshptb": {
-          "mergeId": "kxsvjbukp"
+          "mergeId": "9"
         }
       },
-      "type": "number",
       "metadata": {
         "position": {
           "0": {
@@ -64,7 +62,7 @@
       }
     },
     "value": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "slider",
           "pinId": "value"
@@ -74,7 +72,6 @@
           "pinId": "value"
         }
       },
-      "type": "number",
       "metadata": {
         "position": {
           "0": {
@@ -89,7 +86,18 @@
       }
     }
   },
-  "outputs": {},
+  "outputs": {
+    "slider": {
+      "plug": {
+        "0": {
+          "unitId": "slider",
+          "pinId": "_self"
+        }
+      },
+      "ref": true,
+      "defaultIgnored": true
+    }
+  },
   "units": {
     "numberinput": {
       "id": "9bc56564-ef4e-11ea-939a-27ae3feb321e",
@@ -348,7 +356,7 @@
         }
       }
     },
-    "vgnyhv": {
+    "row": {
       "id": "ad5a2fcc-fdee-11ea-a34f-77e9c48dbe57",
       "input": {
         "style": {
@@ -368,7 +376,7 @@
         }
       }
     },
-    "erfaxmfs": {
+    "column": {
       "id": "67a6fb5a-feab-11ea-8bd1-a3c19e76592a",
       "input": {
         "style": {
@@ -388,7 +396,7 @@
         }
       }
     },
-    "gwmdyifn": {
+    "oninput3": {
       "id": "b345c410-b1ee-11ea-b725-0b9ed734d65f",
       "input": {
         "element": {}
@@ -403,7 +411,7 @@
         }
       }
     },
-    "tpavgk": {
+    "oninput4": {
       "id": "b345c410-b1ee-11ea-b725-0b9ed734d65f",
       "input": {
         "element": {}
@@ -420,7 +428,7 @@
     }
   },
   "merges": {
-    "zppynw": {
+    "0": {
       "oninput": {
         "input": {
           "element": true
@@ -437,7 +445,7 @@
         }
       }
     },
-    "zifdlhqi": {
+    "1": {
       "setvalue": {
         "input": {
           "element": true
@@ -454,7 +462,7 @@
         }
       }
     },
-    "bvubmjxo": {
+    "2": {
       "setvalue0": {
         "input": {
           "value": true
@@ -466,7 +474,7 @@
         }
       }
     },
-    "vaufopf": {
+    "3": {
       "max": {
         "output": {
           "_self": true
@@ -477,13 +485,13 @@
           "element": true
         }
       },
-      "gwmdyifn": {
+      "oninput3": {
         "input": {
           "element": true
         }
       }
     },
-    "iltnvkkw": {
+    "4": {
       "oninput2": {
         "input": {
           "element": true
@@ -494,13 +502,13 @@
           "_self": true
         }
       },
-      "tpavgk": {
+      "oninput4": {
         "input": {
           "element": true
         }
       }
     },
-    "ezwsb": {
+    "5": {
       "setvalue": {
         "input": {
           "value": true
@@ -512,19 +520,19 @@
         }
       }
     },
-    "zzmfgw": {
+    "6": {
       "numberinput": {
         "input": {
           "max": true
         }
       },
-      "gwmdyifn": {
+      "oninput3": {
         "output": {
           "event": true
         }
       }
     },
-    "soblkxus": {
+    "7": {
       "oninput1": {
         "output": {
           "event": true
@@ -536,8 +544,8 @@
         }
       }
     },
-    "odaeytf": {
-      "tpavgk": {
+    "8": {
+      "oninput4": {
         "output": {
           "event": true
         }
@@ -548,7 +556,7 @@
         }
       }
     },
-    "kxsvjbukp": {
+    "9": {
       "oninput2": {
         "output": {
           "event": true
@@ -577,59 +585,46 @@
         "width": 120,
         "height": 45
       },
-      "vgnyhv": {
-        "children": [
-          "min",
-          "numberinput",
-          "max"
-        ]
+      "row": {
+        "children": ["min", "numberinput", "max"]
       },
-      "erfaxmfs": {
-        "children": [
-          "slider",
-          "vgnyhv"
-        ],
+      "column": {
+        "children": ["slider", "row"],
         "width": 278,
         "height": 85
       }
     },
-    "children": [
-      "erfaxmfs"
-    ],
+    "children": ["column"],
     "defaultWidth": 210,
     "defaultHeight": 120
   },
   "metadata": {
     "icon": "sliders",
-    "complexity": 29.497526082686285,
-    "tags": [
-      "platform",
-      "core",
-      "component"
-    ],
+    "tags": ["platform", "core", "component"],
+    "description": "slider + fields for adjusting min max",
     "position": {
       "merge": {
-        "bvubmjxo": {
+        "2": {
           "x": -73,
           "y": -44
         },
-        "ezwsb": {
+        "5": {
           "x": 114,
           "y": -36
         },
-        "zzmfgw": {
+        "6": {
           "x": -98,
           "y": 42
         },
-        "soblkxus": {
+        "7": {
           "x": -132,
           "y": -101
         },
-        "odaeytf": {
+        "8": {
           "x": 160,
           "y": -89
         },
-        "kxsvjbukp": {
+        "9": {
           "x": 111,
           "y": 56
         }
@@ -637,6 +632,6 @@
     }
   },
   "id": "0d9605e4-f4f2-4141-a7f0-1f090c88230f",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`C`&`G`",
+  "render": true
 }

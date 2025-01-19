@@ -1,6 +1,8 @@
 import { Functional } from '../../../../../Class/Functional'
 import { Done } from '../../../../../Class/Functional/Done'
-import { C } from '../../../../../interface/C'
+import { System } from '../../../../../system'
+import { C } from '../../../../../types/interface/C'
+import { ID_REMOVE_CHILD } from '../../../../_ids'
 
 export interface I {
   parent: C
@@ -10,7 +12,7 @@ export interface I {
 export interface O {}
 
 export default class RemoveChild extends Functional<I, O> {
-  constructor() {
+  constructor(system: System) {
     super(
       {
         i: ['parent', 'at'],
@@ -22,16 +24,23 @@ export default class RemoveChild extends Functional<I, O> {
             ref: true,
           },
         },
-      }
+      },
+      system,
+      ID_REMOVE_CHILD
     )
   }
 
   f({ parent, at }: I, done: Done<O>): void {
     try {
-      parent.removeChild(at)
-      done({})
+      const child = parent.removeChild(at)
+
+      child.destroy()
     } catch (err) {
       done(undefined, err.message)
+
+      return
     }
+
+    done({})
   }
 }

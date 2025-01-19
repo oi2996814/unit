@@ -1,0 +1,26 @@
+{
+  "name": "file reader",
+  "inputs": {
+    "opt": {
+      "type": "{}"
+    },
+    "done": {
+      "type": "any"
+    }
+  },
+  "outputs": {
+    "reader": {
+      "type": "`FR`",
+      "ref": true,
+      "icon": "file"
+    }
+  },
+  "metadata": {
+    "icon": "file-output",
+    "description": "read the contents of files stored on the user's system",
+    "tags": ["platform", "api", "file"]
+  },
+  "id": "f8485868-345a-416a-b323-547ddcb068ad",
+  "base": true,
+  "type": "`U`"
+}

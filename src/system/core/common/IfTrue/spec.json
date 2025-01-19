@@ -51,35 +51,28 @@
   },
   "inputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "mergeId": "2"
         }
-      },
-      "type": "boolean"
+      }
     }
   },
   "outputs": {
-    "false": {
-      "pin": {
+    "true": {
+      "plug": {
         "0": {
           "unitId": "if",
           "pinId": "a if b"
         }
-      },
-      "type": "boolean"
+      }
     }
   },
   "metadata": {
     "icon": "filter",
     "description": "true if `a` is true",
-    "complexity": 5,
-    "tags": [
-      "core",
-      "common"
-    ]
+    "tags": ["core", "common"]
   },
   "id": "9ee34534-a1e8-478d-87ca-81a5325f5d5c",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

@@ -1,0 +1,132 @@
+{
+  "name": "is between",
+  "inputs": {
+    "c": {
+      "plug": {
+        "0": {
+          "unitId": "lessthan",
+          "pinId": "b"
+        }
+      }
+    },
+    "b": {
+      "plug": {
+        "0": {
+          "unitId": "greaterthanequal",
+          "pinId": "b"
+        }
+      }
+    },
+    "a": {
+      "plug": {
+        "0": {
+          "mergeId": "0"
+        }
+      }
+    }
+  },
+  "outputs": {
+    "test": {
+      "plug": {
+        "0": {
+          "unitId": "and",
+          "pinId": "a and b"
+        }
+      }
+    }
+  },
+  "units": {
+    "lessthan": {
+      "id": "82c3cf2a-0855-4c6d-a4c4-807b0ce1fd35",
+      "input": {
+        "a": {},
+        "b": {}
+      },
+      "output": {
+        "a < b": {}
+      },
+      "metadata": {
+        "position": {
+          "x": 31,
+          "y": -36
+        }
+      }
+    },
+    "greaterthanequal": {
+      "id": "c9e06816-0d2b-43ec-b7c8-d07563e19b6b",
+      "input": {
+        "a": {},
+        "b": {}
+      },
+      "output": {
+        "a ≥ b": {}
+      },
+      "metadata": {
+        "position": {
+          "x": 31,
+          "y": 35
+        }
+      }
+    },
+    "and": {
+      "id": "407640f7-f1c3-4297-a5ce-baff357a6d31",
+      "input": {
+        "a": {},
+        "b": {}
+      },
+      "output": {
+        "a and b": {}
+      },
+      "metadata": {
+        "position": {
+          "x": -64,
+          "y": -1
+        }
+      }
+    }
+  },
+  "merges": {
+    "0": {
+      "greaterthanequal": {
+        "input": {
+          "a": true
+        }
+      },
+      "lessthan": {
+        "input": {
+          "a": true
+        }
+      }
+    },
+    "1": {
+      "greaterthanequal": {
+        "output": {
+          "a ≥ b": true
+        }
+      },
+      "and": {
+        "input": {
+          "a": true
+        }
+      }
+    },
+    "2": {
+      "lessthan": {
+        "output": {
+          "a < b": true
+        }
+      },
+      "and": {
+        "input": {
+          "b": true
+        }
+      }
+    }
+  },
+  "metadata": {
+    "icon": "question",
+    "description": "check whether `a` is between `b` and `c`"
+  },
+  "id": "f022d16a-7a47-47c8-8d9b-3278df13bcc5",
+  "type": "`U`&`G`"
+}

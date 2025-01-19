@@ -15,16 +15,11 @@
   "metadata": {
     "icon": "plus",
     "description": "sum the next `n` `a`",
-    "complexity": 25.687026295795267,
-    "tags": [
-      "core",
-      "common"
-    ]
+    "tags": ["core", "common"]
   },
   "inputs": {
     "n": {
-      "type": "number",
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "sumnfrom",
           "pinId": "n"
@@ -32,8 +27,7 @@
       }
     },
     "a": {
-      "type": "number",
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "sumnfrom",
           "pinId": "a"
@@ -43,8 +37,7 @@
   },
   "outputs": {
     "sum": {
-      "type": "number",
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "sumnfrom",
           "pinId": "sum"
@@ -53,6 +46,5 @@
     }
   },
   "id": "74edae3f-87de-455c-a65a-e458334d2c47",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

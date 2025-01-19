@@ -3,7 +3,7 @@ import { stringify } from '../spec/stringify'
 import { PinDataMoment } from './PinDataMoment'
 import { PinType } from './PinType'
 
-export function watchPinEvent(
+export function watchPinEvent<T>(
   event: PinEvent,
   type: PinType,
   pinId: string,
@@ -11,10 +11,12 @@ export function watchPinEvent(
   callback: (moment: PinDataMoment) => void
 ): () => void {
   // console.log(event, type, pin)
-  const listener = (data) => {
+
+  const listener = (data: any) => {
     if (data !== undefined) {
-      data = stringify(data)
+      data = stringify(data, true)
     }
+
     callback({
       type,
       event,
@@ -25,7 +27,9 @@ export function watchPinEvent(
       },
     })
   }
+
   pin.prependListener(event, listener)
+
   return () => {
     pin.removeListener(event, listener)
   }

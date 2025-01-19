@@ -1,17 +1,35 @@
-import { Primitive } from '../../../../../Primitive'
+import { Primitive, PrimitiveEvents } from '../../../../../Primitive'
+import { apiNotSupportedError } from '../../../../../exception/APINotImplementedError'
+import { System } from '../../../../../system'
+import { ID_NOTIFICATION } from '../../../../_ids'
 
 export interface I {}
 
 export interface O {}
 
-export default class _Notification extends Primitive<I, O> {
+export type Notification_EE = {
+  click: []
+  close: []
+  error: []
+  show: []
+}
+
+export type NotificationEvents = PrimitiveEvents<Notification_EE> &
+  Notification_EE
+
+export default class _Notification extends Primitive<I, O, NotificationEvents> {
   private _notification: Notification | null = null
 
-  constructor() {
-    super({
-      i: [],
-      o: [],
-    })
+  constructor(system: System) {
+    super(
+      {
+        i: [],
+        o: [],
+      },
+      {},
+      system,
+      ID_NOTIFICATION
+    )
 
     this._setup()
   }
@@ -23,8 +41,15 @@ export default class _Notification extends Primitive<I, O> {
   }
 
   private _setup() {
-    if ('Notification' in window) {
+    const {
+      api: {
+        window: { Notification },
+      },
+    } = this.__system
+
+    if (Notification) {
       const { permission } = Notification
+
       if (permission === 'default') {
         Notification.requestPermission().then(
           (_permission: NotificationPermission) => {
@@ -35,7 +60,7 @@ export default class _Notification extends Primitive<I, O> {
         this.err('not authorized')
       }
     } else {
-      this.err('not authorized')
+      this.err(apiNotSupportedError('Notification'))
     }
   }
 
@@ -45,16 +70,16 @@ export default class _Notification extends Primitive<I, O> {
   ): void {
     this._notification = new Notification(title, opt)
     this._notification.onclick = () => {
-      this.emit('ntf_click', {})
+      this.emit('click')
     }
     this._notification.onclose = () => {
-      this.emit('ntf_close', {})
+      this.emit('close')
     }
     this._notification.onerror = () => {
-      this.emit('ntf_error', {})
+      this.emit('error')
     }
     this._notification.onshow = () => {
-      this.emit('ntf_show', {})
+      this.emit('show')
     }
     callback()
   }

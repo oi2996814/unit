@@ -20,7 +20,7 @@
     }
   },
   "merges": {
-    "sstwb": {
+    "0": {
       "reduce": {
         "output": {
           "a[i]": true
@@ -32,7 +32,7 @@
         }
       }
     },
-    "yhgjl": {
+    "1": {
       "reduce": {
         "output": {
           "local": true
@@ -59,37 +59,30 @@
   },
   "inputs": {
     "a": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "reduce",
           "pinId": "a"
         }
       },
-      "type": "number[]"
+      "functional": true
     }
   },
   "outputs": {
     "sum": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "reduce",
           "pinId": "result"
         }
-      },
-      "type": "number"
+      }
     }
   },
   "metadata": {
     "icon": "plus",
     "description": "sum all elements of array `a`",
-    "complexity": 7,
-    "tags": [
-      "core",
-      "array"
-    ]
+    "tags": ["core", "array"]
   },
   "id": "bd1a9bbb-6129-4031-b7e9-aec351d847d9",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

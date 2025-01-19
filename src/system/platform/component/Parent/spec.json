@@ -1,16 +1,12 @@
 {
   "name": "parent",
-  "type": "`U`&`C`",
+  "type": "`U`&`C`&`V`&`J`",
   "inputs": {},
   "outputs": {},
   "metadata": {
     "icon": "square",
     "description": "HTML div element",
-    "complexity": 6.37088375368308,
-    "tags": [
-      "platform",
-      "component"
-    ]
+    "tags": ["platform", "component"]
   },
   "id": "78b0939d-43e1-4f6c-867d-e4217a55d217",
   "base": true,
@@ -18,6 +14,5 @@
     "defaultWidth": 210,
     "defaultHeight": 210
   },
-  "system": true,
   "render": true
 }

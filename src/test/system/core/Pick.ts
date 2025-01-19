@@ -3,15 +3,15 @@ import { watchGraphAndLog, watchUnitAndLog } from '../../../debug'
 import { fromSpec } from '../../../spec/fromSpec'
 import _specs from '../../../system/_specs'
 import { countEvent } from '../../util'
+import { system } from '../../util/system'
 
 const spec = require('../../../system/core/control/Pick/spec.json')
 
 const Pick = fromSpec<{ a: any; b: any; c: boolean }, { a: any }>(
   spec,
-  _specs
+  _specs,
+  {}
 )
-
-import { system } from '../../util/system'
 
 const pick = new Pick(system)
 
@@ -20,7 +20,6 @@ false && watchGraphAndLog(pick)
 
 const dataCounter = countEvent(pick.getOutput('a'), 'data')
 const dropCounter = countEvent(pick.getOutput('a'), 'drop')
-
 
 pick.play()
 

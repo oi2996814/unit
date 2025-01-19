@@ -1,7 +1,7 @@
 {
   "name": "RGB to XYZ",
   "units": {
-    "zkotzntwd": {
+    "multiply": {
       "id": "2dbdf0a4-09c1-49af-b9f8-d51b5cbab5a2",
       "input": {
         "b": {
@@ -10,7 +10,7 @@
         }
       }
     },
-    "kpvelfewp": {
+    "multiply0": {
       "id": "2dbdf0a4-09c1-49af-b9f8-d51b5cbab5a2",
       "input": {
         "b": {
@@ -19,7 +19,7 @@
         }
       }
     },
-    "pckybqxm": {
+    "multiply1": {
       "id": "2dbdf0a4-09c1-49af-b9f8-d51b5cbab5a2",
       "input": {
         "b": {
@@ -28,143 +28,135 @@
         }
       }
     },
-    "dvmkrmbh": {
+    "sumall": {
       "id": "bd1a9bbb-6129-4031-b7e9-aec351d847d9"
     },
-    "hxywovgm": {
+    "sumall0": {
       "id": "bd1a9bbb-6129-4031-b7e9-aec351d847d9"
     },
-    "mfopnseah": {
+    "sumall1": {
       "id": "bd1a9bbb-6129-4031-b7e9-aec351d847d9"
     },
-    "esopvvb": {
+    "triplet": {
       "id": "91536c82-8e5f-4542-8138-a1a4eb2e5f4d"
     }
   },
   "merges": {
-    "qvpyeawq": {
-      "zkotzntwd": {
+    "0": {
+      "multiply": {
         "input": {
           "a": true
         }
       },
-      "pckybqxm": {
+      "multiply1": {
         "input": {
           "a": true
         }
       },
-      "kpvelfewp": {
+      "multiply0": {
         "input": {
           "a": true
         }
       }
     },
-    "sbbmfrhan": {
-      "kpvelfewp": {
+    "1": {
+      "multiply0": {
         "output": {
           "ab": true
         }
       },
-      "dvmkrmbh": {
+      "sumall": {
         "input": {
           "a": true
         }
       }
     },
-    "rpgjca": {
-      "pckybqxm": {
+    "2": {
+      "multiply1": {
         "output": {
           "ab": true
         }
       },
-      "hxywovgm": {
+      "sumall0": {
         "input": {
           "a": true
         }
       }
     },
-    "auuhzosph": {
-      "zkotzntwd": {
+    "3": {
+      "multiply": {
         "output": {
           "ab": true
         }
       },
-      "mfopnseah": {
+      "sumall1": {
         "input": {
           "a": true
         }
       }
     },
-    "huuqtjxa": {
-      "mfopnseah": {
+    "4": {
+      "sumall1": {
         "output": {
           "sum": true
         }
       },
-      "esopvvb": {
+      "triplet": {
         "input": {
-          "tfqgrevuj": true
+          "2": true
         }
       }
     },
-    "jjh": {
-      "hxywovgm": {
+    "5": {
+      "sumall0": {
         "output": {
           "sum": true
         }
       },
-      "esopvvb": {
+      "triplet": {
         "input": {
-          "aegky": true
+          "0": true
         }
       }
     },
-    "tbmmrgpdy": {
-      "dvmkrmbh": {
+    "6": {
+      "sumall": {
         "output": {
           "sum": true
         }
       },
-      "esopvvb": {
+      "triplet": {
         "input": {
-          "hbqzi": true
+          "1": true
         }
       }
     }
   },
   "metadata": {
     "icon": "palette",
-    "description": "no description",
-    "complexity": 9,
-    "tags": [
-      "platform",
-      "core",
-      "color"
-    ]
+    "description": "convert RGB color to XYZ",
+    "tags": ["platform", "core", "color"]
   },
   "inputs": {
     "RGB": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
-          "mergeId": "qvpyeawq"
+          "mergeId": "0"
         }
       },
-      "type": "number[]"
+      "functional": true
     }
   },
   "outputs": {
-    "rdpajk": {
-      "pin": {
+    "XYZ": {
+      "plug": {
         "0": {
-          "unitId": "esopvvb",
-          "pinId": "gylhlifcp"
+          "unitId": "triplet",
+          "pinId": "a"
         }
-      },
-      "type": "number[]"
+      }
     }
   },
   "id": "73193df9-d5f4-4689-92ce-d804cf30ee20",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

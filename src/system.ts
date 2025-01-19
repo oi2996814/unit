@@ -1,218 +1,131 @@
-import { Callback } from './Callback'
-import { Component } from './client/component'
+import {
+  API,
+  ServerInterceptor,
+  ServerListener,
+  ServerRequest,
+  ServerResponse,
+  ServerSocket,
+} from './API'
+import { Graph } from './Class/Graph'
+import { EventEmitter_ } from './EventEmitter'
+import { Object_ } from './Object'
+import { Registry } from './Registry'
+import { Waiter } from './Waiter'
+import { IOElement } from './client/IOElement'
 import { Context } from './client/context'
-import { IOPointerEvent } from './client/event/pointer'
-import {
-  ISpeechGrammarList,
-  ISpeechGrammarListOpt,
-  ISpeechRecognition,
-  ISpeechRecognitionOpt,
-} from './api/speech'
-import { Gamepad } from './client/gamepad'
-import { Keyboard } from './client/keyboard'
-import { Point } from './client/util/geometry'
-import { C } from './interface/C'
-import { G } from './interface/G'
-import { J } from './interface/J'
-import { PO } from './interface/PO'
-import { U } from './interface/U'
-import NOOP from './NOOP'
-import {
-  IHTTPServer,
-  IHTTPServerOpt,
-} from './system/platform/api/http/HTTPServer'
-import { IChannel, IChannelOpt } from './system/platform/api/local/LocalChannel'
-import { IPod, IPodOpt } from './system/platform/method/process/Pod'
-import { Classes, GraphSpecs, Specs } from './types'
+import { UnitPointerEvent } from './client/event/pointer'
+import { Theme } from './client/theme'
+import { Point } from './client/util/geometry/types'
+import { AllTypes } from './interface'
+import { WebSocketShape } from './system/platform/api/network/WebSocket'
+import { Classes, Specs } from './types'
 import { Dict } from './types/Dict'
-import { Unlisten } from './Unlisten'
-import { randomId } from './util/id'
-import { EventEmitter2 } from 'eventemitter2'
+import { Unlisten } from './types/Unlisten'
+import { KeyboardState } from './types/global/KeyboardState'
+import { PointerState } from './types/global/PointerState'
+import { S } from './types/interface/S'
 
-export type IOINIT<T, K> = (opt: K) => T
-
-export type IOAPI<T, K> = {
-  tab: IOINIT<T, K> | null
-  session: IOINIT<T, K> | null
-  local: IOINIT<T, K> | null
-  cloud: IOINIT<T, K> | null
-}
-
-export type IOInput = {
-  keyboard: Keyboard
-  gamepad: Gamepad[]
-}
-
-export type IOMethod = Dict<Function>
-
-export type IOStorage = IOAPI<J, undefined>
-export type IOHTTP = IOAPI<IHTTPServer, IHTTPServerOpt>
-export type IOChannel = IOAPI<IChannel, IChannelOpt>
-export type IOPod = IOAPI<IPod, IPodOpt>
-
-export interface System {
-  hostname: string
-  mounted: boolean
-  root: HTMLElement
+export interface System extends S, Registry {
+  parent: System | null
+  path: string
+  emitter: EventEmitter_
+  root: HTMLElement | null
   customEvent: Set<string>
   context: Context[]
+  theme: Theme
+  color: string
+  async: AllTypes<(unit: any) => any>
   cache: {
     dragAndDrop: Dict<any>
     pointerCapture: Dict<any>
-    spriteSheetMap: Dict<boolean>
-  }
-  id: {
-    pbkey: {
-      tab: Dict<string>
-      session: Dict<string>
-      local: Dict<string>
-      cloud: Dict<string>
-    }
+    servers: Dict<ServerListener>
+    events: Dict<any>
+    requests: Dict<ServerRequest>
+    responses: Dict<Waiter<ServerResponse>>
+    ws: Dict<WebSocketShape>
+    wss: Dict<ServerSocket>
+    interceptors: ServerInterceptor[]
   }
   feature: Dict<boolean>
   foreground: {
     sprite?: SVGSVGElement
     app?: HTMLElement
+    html?: HTMLDivElement
     svg?: SVGSVGElement
-    canvas?: HTMLCanvasElement
+    layout?: HTMLDivElement
+    void?: HTMLElement
   }
   input: {
-    keyboard: Keyboard
-    gamepad: Gamepad[]
+    keyboard: KeyboardState
+    gamepads: Gamepad[]
+    pointers: Dict<PointerState>
   }
+  specs_: Object_<Specs>
   specs: Specs
+  specsCount: Dict<number>
   classes: Classes
   components: ComponentClasses
+  style: Dict<Dict<string>>
+  icons: Dict<string>
   global: {
+    data: Object_<any>
     ref: Dict<any>
-    component: Dict<Component>
+    graph: Dict<Dict<Graph>>
+    scope: Dict<any>
   }
-  api: {
-    storage: IOStorage
-    http: IOHTTP
-    channel: IOChannel
-    pod: IOPod
-    speech: {
-      SpeechGrammarList: IOINIT<ISpeechGrammarList, ISpeechGrammarListOpt>
-      SpeechRecognition: IOINIT<ISpeechRecognition, ISpeechRecognitionOpt>
+  api: API
+  flags: {
+    defaultInputModeNone?: boolean
+  }
+  boot: (opt?: BootOpt) => System
+  getLocalComponents: (remoteGlobalId: string) => any[]
+  registerLocalComponent: (component: any, remoteGlobalId: string) => void
+  unregisterLocalComponent: (component: any, remoteGlobalId: string) => void
+  registerUnit(id: string): void
+  unregisterUnit(id: string): void
+  showLongPress?: (
+    screenX: number,
+    screenY: number,
+    opt: {
+      stroke?: string
+      direction?: 'in' | 'out'
     }
-  }
-  method: {
-    encodeURI?: (str: string) => string
-    showLongPress?: (
-      screenX: number,
-      screenY: number,
-      opt: {
-        stroke?: string
-        direction?: 'in' | 'out'
-      }
-    ) => void
-    captureGesture?: (
-      event: IOPointerEvent,
-      opt: {
-        lineWidth?: number
-        strokeStyle?: string
-      },
-      callback: (event: PointerEvent, track: Point[]) => void
-    ) => void
-    showSaveFilePicker?: (opt: {
-      suggestedName?: string
-      startIn?: string
-      id?: string
-      excludeAcceptAllOption?: boolean
-      types?: {
-        description: string
-        accept: Dict<string[]>
-      }[]
-    }) => Promise<any> // TODO
-    showOpenFilePicker?: (opt: {
-      suggestedName?: string
-      startIn?: string
-      id?: string
-      excludeAcceptAllOption?: boolean
-      types?: {
-        description: string
-        accept: Dict<string[]>
-      }[]
-      multiple?: boolean
-    }) => Promise<any> // TODO
-  }
+  ) => void
+  captureGesture?: (
+    event: UnitPointerEvent,
+    opt: {
+      lineWidth?: number
+      strokeStyle?: string
+    },
+    callback: (event: PointerEvent, track: Point[]) => void
+  ) => Unlisten
 }
 
-export interface Host {
-  tabStorage?: Storage
-  localStorage?: Storage
-  sessionStorage?: Storage
-  cloudStorage?: Storage
-  location?: Location
+export type IFilePickerOpt = {
+  suggestedName?: string
+  startIn?: string
+  id?: string
+  excludeAcceptAllOption?: boolean
+  types?: {
+    description: string
+    accept: Dict<string[]>
+  }[]
+  multiple?: boolean
+  capture?: string
+  accept?: string
 }
 
-export type ComponentClass = {
+export type ComponentClass<T = any> = {
   id: string
-  new ($props: any, $system: System): Component
+  new ($props: T, $system: System, $element?: IOElement): any
 }
 
 export type ComponentClasses = Dict<ComponentClass>
 
 export interface BootOpt {
-  host?: Host
+  path?: string
   specs?: Specs
-  components?: ComponentClasses
   classes?: Classes
-}
-
-export const HTTPServer = (opt: IHTTPServerOpt): IHTTPServer => {
-  return {
-    listen(port: number): Unlisten {
-      return NOOP
-    },
-  }
-}
-
-export const LocalChannel = (opt: IChannelOpt): IChannel => {
-  return {
-    close(): void {},
-    postMessage(message: any): void {},
-    addListener(event: string, callback: Callback): Unlisten {
-      return NOOP
-    },
-  }
-}
-
-export const SpeechRecognition = (
-  opt: ISpeechRecognitionOpt
-): ISpeechRecognition => {
-  return {
-    start() {},
-    stop() {},
-    addListener(event: string, callback: Callback): Unlisten {
-      return NOOP
-    },
-  }
-}
-
-export const SpeechGrammarList = (
-  opt: ISpeechGrammarListOpt
-): ISpeechGrammarList => {
-  return {
-    addFromString(str: string, weight: number): void {},
-  }
-}
-
-export const LocalPod = (opt: IPodOpt): IPod => {
-  return {
-    refUnit(id: string): void {},
-
-    refGraph(id: string): U & C & G {
-      return
-    },
-
-    addGraph(): string {
-      return randomId() //
-    },
-
-    getSpecs(): GraphSpecs {
-      return {} // TODO
-    },
-  }
+  components?: ComponentClasses
+  flags?: System['flags']
 }

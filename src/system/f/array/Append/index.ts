@@ -1,5 +1,7 @@
 import { Functional } from '../../../../Class/Functional'
 import { Done } from '../../../../Class/Functional/Done'
+import { System } from '../../../../system'
+import { ID_APPEND } from '../../../_ids'
 
 export interface I<T> {
   a: T[]
@@ -11,11 +13,16 @@ export interface O<T> {
 }
 
 export default class Append<T> extends Functional<I<T>, O<T>> {
-  constructor() {
-    super({
-      i: ['a', 'b'],
-      o: ['a'],
-    })
+  constructor(system: System) {
+    super(
+      {
+        i: ['a', 'b'],
+        o: ['a'],
+      },
+      {},
+      system,
+      ID_APPEND
+    )
   }
 
   f({ a, b }: I<T>, done: Done<O<T>>): void {

@@ -24,36 +24,32 @@
   },
   "inputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "length",
           "pinId": "a"
         }
       },
-      "type": "<A>[]"
+      "metadata": {
+        "examples": ["[0,1,2,3]"]
+      }
     }
   },
   "outputs": {
     "i": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "randomnaturallte",
           "pinId": "i"
         }
-      },
-      "type": "number"
+      }
     }
   },
   "metadata": {
     "icon": "random",
     "description": "random element of the array",
-    "complexity": 4,
-    "tags": [
-      "core",
-      "common"
-    ]
+    "tags": ["core", "common"]
   },
   "id": "e2325503-40a7-4c7e-b06c-d3833c8856e5",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

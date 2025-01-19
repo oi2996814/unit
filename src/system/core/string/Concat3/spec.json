@@ -25,53 +25,44 @@
   "metadata": {
     "icon": "plus",
     "description": "concat `a`, `b` and `c`",
-    "complexity": 5.655745603469043,
-    "tags": [
-      "core",
-      "string"
-    ]
+    "tags": ["core", "string"]
   },
   "inputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "concat",
           "pinId": "a"
         }
-      },
-      "type": "string"
+      }
     },
     "b": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "concat0",
           "pinId": "a"
         }
-      },
-      "type": "string"
+      }
     },
     "c": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "concat0",
           "pinId": "b"
         }
-      },
-      "type": "string"
+      }
     }
   },
   "outputs": {
     "abc": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "concat",
           "pinId": "ab"
         }
-      },
-      "type": "string"
+      }
     }
   },
   "id": "bb28c9d9-0afd-4ef2-8c5b-41815ea65bf1",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

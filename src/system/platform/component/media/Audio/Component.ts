@@ -1,78 +1,93 @@
-import applyStyle from '../../../../../client/applyStyle'
-import { Element } from '../../../../../client/element'
+import HTMLElement_ from '../../../../../client/html'
 import { System } from '../../../../../system'
 import { Dict } from '../../../../../types/Dict'
+import { CS } from '../../../../../types/interface/CS'
+import { $MS } from '../../../../../types/interface/async/$MS'
 
 export interface Props {
-  className?: string
   style?: Dict<string>
   src?: string
   controls?: boolean
   stream?: MediaStream
 }
 
-export const DEFAULT_STYLE = {
-  display: 'block',
-  height: '100%',
-  width: '100%',
-  boxSizing: 'border-box',
-  // outline: 'none',
-}
-
-export default class Audio extends Element<HTMLAudioElement, Props> {
-  private _audio_el: HTMLAudioElement
+export default class Audio_
+  extends HTMLElement_<HTMLAudioElement, Props>
+  implements CS
+{
+  public $input: Dict<string[]> = {
+    stream: ['MS'],
+  }
 
   constructor($props: Props, $system: System) {
-    super($props, $system)
+    super(
+      $props,
+      $system,
+      $system.api.document.createElement('audio'),
+      $system.style['audio'],
+      {
+        controls: true,
+      },
+      {
+        src: (src: string | undefined) => {
+          if (src === undefined) {
+            this.$element.pause()
+            this.$element.removeAttribute('src') // empty source
+            this.$element.load()
+          } else {
+            this.$element.src = src
+          }
+        },
+        stream: (stream: $MS | undefined): void => {
+          if (stream === undefined) {
+            this.$element.srcObject = null
+          } else {
+            stream.$mediaStream({}, (_stream: MediaStream) => {
+              this.$element.srcObject = _stream
+            })
+          }
+        },
+        controls: (controls: boolean | undefined): void => {
+          if (controls === undefined) {
+            this.$element.removeAttribute('controls')
+          } else {
+            this.$element.controls = controls
+          }
+        },
+      }
+    )
 
-    const { className, style = {}, src, controls = true } = this.$props
-    const audio_element = document.createElement('audio')
-    audio_element.controls = controls
-    if (className) {
-      audio_element.className = className
-    }
+    const { src, controls = true } = this.$props
+
+    this.$element.controls = controls
+
     if (src) {
-      audio_element.src = src
+      this.$element.src = src
     }
-    applyStyle(audio_element, { ...DEFAULT_STYLE, ...style })
-    this._audio_el = audio_element
-
-    this.$element = audio_element
   }
 
-  private propHandler = {
-    className: (className: string | undefined = ''): void => {
-      this._audio_el.className = className
-    },
-    style: (style: Dict<any>): void => {
-      applyStyle(this._audio_el, { ...DEFAULT_STYLE, ...style })
-    },
-    src: (src: string | undefined) => {
-      if (src === undefined) {
-        this._audio_el.pause()
-        this._audio_el.removeAttribute('src') // empty source
-        this._audio_el.load()
-      } else {
-        this._audio_el.src = src
-      }
-    },
-    stream: (stream: MediaStream | undefined): void => {
-      if (stream === undefined) {
-        this._audio_el.srcObject = null
-      } else {
-        this._audio_el.srcObject = stream
-      }
-    },
-    controls: (controls: boolean | undefined): void => {
-      if (controls === undefined) {
-        this._audio_el.removeAttribute('controls')
-      } else {
-        this._audio_el.controls = controls
-      }
-    },
+  play(): void {
+    this.$element.play()
   }
 
-  onPropChanged(prop: string, current: any): void {
-    this.propHandler[prop](current)
+  pause(): void {
+    this.$element.pause()
+  }
+
+  reset(): void {
+    super.reset()
+
+    this.$element.pause()
+    this.$element.currentTime = 0
+  }
+
+  captureStream(opt: { frameRate: number }): Promise<MediaStream> {
+    // @ts-ignore
+    if (this.$element.captureStream) {
+      // @ts-ignore
+      return this.$element.captureStream()
+    }
+
+    return null
   }
 }

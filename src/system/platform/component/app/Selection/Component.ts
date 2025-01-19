@@ -1,10 +1,11 @@
-import mergePropStyle from '../../../../../client/component/mergeStyle'
-import parentElement from '../../../../../client/parentElement'
+import { mergePropStyle } from '../../../../../client/component/mergeStyle'
 import { Element } from '../../../../../client/element'
+import { parentElement } from '../../../../../client/platform/web/parentElement'
+import { SVGElement_ } from '../../../../../client/svg'
 import { System } from '../../../../../system'
 import SVGCircle from '../../svg/Circle/Component'
-import SVGSVG from '../../svg/SVG/Component'
 import SVGRect from '../../svg/Rect/Component'
+import SVGSVG from '../../svg/SVG/Component'
 
 export interface Props {
   className?: string
@@ -21,8 +22,8 @@ export interface Props {
 }
 
 export default class Selection extends Element<HTMLDivElement, Props> {
-  private _selection: SVGSVG
-  private _selection_shape: SVGCircle | SVGRect
+  public _selection: SVGSVG
+  public _selection_shape: SVGElement_
 
   constructor($props: Props, $system: System) {
     super($props, $system)
@@ -51,6 +52,7 @@ export default class Selection extends Element<HTMLDivElement, Props> {
           top: `calc(50% + ${y}px)`,
           left: `calc(50% + ${x}px)`,
           transform: 'translate(-50%, -50%)',
+          userSelect: 'none',
           stroke,
         },
       },
@@ -59,15 +61,16 @@ export default class Selection extends Element<HTMLDivElement, Props> {
     selection.appendChild(selection_shape)
     this._selection = selection
 
-    const $element = parentElement()
+    const $element = parentElement($system)
 
     this.$element = $element
+    this.$unbundled = false
     this.$slot = selection.$slot
 
     this.registerRoot(selection)
   }
 
-  private _render_selection_shape = (): SVGCircle | SVGRect => {
+  private _render_selection_shape = (): SVGElement_ => {
     const {
       width = 0,
       height = 0,
@@ -89,6 +92,7 @@ export default class Selection extends Element<HTMLDivElement, Props> {
           y: height / 2 + y,
           r: width / 2,
           style: {
+            fill: 'none',
             stroke: '',
             strokeDasharray,
             strokeWidth: `${strokeWidth}`,
@@ -105,6 +109,7 @@ export default class Selection extends Element<HTMLDivElement, Props> {
           x,
           y,
           style: {
+            fill: 'none',
             stroke: '',
             strokeDasharray,
             strokeWidth: `${strokeWidth}`,
@@ -131,10 +136,12 @@ export default class Selection extends Element<HTMLDivElement, Props> {
       })
 
       if (shape === 'circle') {
-        this._selection_shape.setProp('x', width / 2 + 0.5 * strokeWidth)
-        this._selection_shape.setProp('r', width / 2)
+        const selection_shape = this._selection_shape as SVGCircle
+        selection_shape.setProp('x', width / 2 + 0.5 * strokeWidth)
+        selection_shape.setProp('r', width / 2)
       } else {
-        this._selection_shape.setProp('width', current)
+        const selection_shape = this._selection_shape as SVGRect
+        selection_shape.setProp('width', current)
       }
     } else if (prop === 'height') {
       const { shape, height, strokeWidth = 1 } = this.$props
@@ -144,9 +151,11 @@ export default class Selection extends Element<HTMLDivElement, Props> {
       })
 
       if (shape === 'circle') {
-        this._selection_shape.setProp('y', height / 2 + 0.5 * strokeWidth)
+        const selection_shape = this._selection_shape as SVGCircle
+        selection_shape.setProp('y', height / 2 + 0.5 * strokeWidth)
       } else {
-        this._selection_shape.setProp('height', current)
+        const selection_shape = this._selection_shape as SVGRect
+        selection_shape.setProp('height', current)
       }
     } else if (prop === 'strokeDasharray') {
       mergePropStyle(this._selection_shape, {

@@ -1,36 +1,12 @@
-import { isValidKeyStr } from './parser'
+import { $ } from '../Class/$'
+import { escape } from './escape'
+import { globalUrl } from './globalUrl'
 
-export function escape(str: string): string {
-  let res = ''
-  for (let i = 0; i < str.length; i++) {
-    const char = str[i]
-    const next_char = str[i + 1]
-    if (char === '\\' && next_char !== '\\') {
-      res += '\\\\'
-    } else if (char === '\n') {
-      res += '\\n'
-    } else if (char === '\r') {
-      res += '\\r'
-    } else if (char === "'") {
-      res += "\\'"
-    }
-    // else if (char === '"') {
-    //   res += '\\"'
-    // }
-    else if (char === '&') {
-      res += '\\&'
-    } else {
-      res += char
-    }
-  }
-  return res
-}
-
-export function stringify(value: any): string {
+export function stringify(value: any, deref: boolean = false): string | null {
   const t = typeof value
   switch (t) {
     case 'string':
-      return `'${escape(value)}'`
+      return `"${escape(value)}"`
     case 'number':
     case 'boolean':
       return `${value}`
@@ -38,31 +14,36 @@ export function stringify(value: any): string {
       if (value === null) {
         return 'null'
       } else if (Array.isArray(value)) {
-        return `[${value.map(stringify).join(',')}]`
+        return `[${value.map((v) => stringify(v, deref)).join(',')}]`
       } else {
-        if (value.constructor.name === 'Object') {
+        if (!value.constructor || value.constructor.name === 'Object') {
           return `{${Object.entries(value)
             .filter(([key, value]) => {
               return value !== undefined
             })
-            .map(
-              ([key, value]) =>
-                `${isValidKeyStr(key) ? key : `"${key}"`}:${stringify(value)}`
-            )
+            .map(([key, value]) => `${`"${escape(key)}"`}:${stringify(value)}`)
             .join(',')}}`
         } else {
-          // AD HOC
-          return '`U`'
+          if (deref) {
+            if ((value as $).__.includes('U')) {
+              return stringify(value.constructor)
+            } else {
+              return 'null'
+            }
+          } else {
+            return globalUrl(value.__global_id)
+          }
         }
       }
+      break
     case 'function':
-      if (value.__id) {
-        return value.__id
+      if (value.__bundle) {
+        return `$${stringify(value.__bundle, deref)}`
       } else {
-        // AD HOC
-        return `{}`
+        // throw new Error('invalid unit class')
+        return 'null'
       }
     default:
-      throw new Error(`Cannot stringify value ${value}`)
+      throw new Error('cannot stringify value')
   }
 }

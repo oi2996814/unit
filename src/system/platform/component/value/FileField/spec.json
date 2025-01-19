@@ -1,0 +1,38 @@
+{
+  "name": "file field",
+  "inputs": {
+    "value": {
+      "type": "string",
+      "optional": true
+    },
+    "style": {
+      "type": "object",
+      "optional": true
+    },
+    "attr": {
+      "type": "object",
+      "optional": true
+    }
+  },
+  "outputs": {
+    "files": {
+      "type": "`F`[]",
+      "optional": true,
+      "ref": true,
+      "icon": "files"
+    }
+  },
+  "metadata": {
+    "icon": "form-input",
+    "description": "single line text input",
+    "tags": ["platform", "component", "value"]
+  },
+  "id": "e2109627-9783-4664-a70c-858fd8c46ea5",
+  "base": true,
+  "component": {
+    "defaultWidth": 180,
+    "defaultHeight": 45
+  },
+  "type": "`U`&`C`&`V`&`J`",
+  "render": true
+}

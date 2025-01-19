@@ -2,7 +2,7 @@
   "name": "full chalkboard",
   "inputs": {
     "style": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "chalkboard",
           "pinId": "style"
@@ -15,20 +15,18 @@
             "y": 0
           }
         }
-      },
-      "type": "object"
+      }
     }
   },
   "outputs": {
     "canvas": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "chalkboard",
           "pinId": "canvas"
         }
       },
       "ref": true,
-      "type": "`U`&`C`&`V`&`PS`&`CS`",
       "defaultIgnored": true
     }
   },
@@ -44,117 +42,34 @@
             }
           }
         },
-        "width": {},
-        "height": {}
+        "width": {
+          "constant": true,
+          "data": "\"100vw\""
+        },
+        "height": {
+          "constant": true,
+          "data": "\"100vh\""
+        }
       },
-      "output": {},
+      "output": {
+        "canvas": {
+          "ignored": false
+        }
+      },
       "metadata": {
         "position": {
-          "x": 105,
-          "y": -1
+          "x": 0,
+          "y": 0
         },
         "component": {
           "width": 346.2822265625,
           "height": 384.0284118652344
         }
       }
-    },
-    "framewidthvalue": {
-      "id": "4cab1ce1-332d-4296-ad6b-d37a85e74a55",
-      "input": {
-        "any": {
-          "ignored": true,
-          "metadata": {
-            "position": {
-              "x": -168,
-              "y": 40
-            }
-          }
-        },
-        "element": {}
-      },
-      "output": {
-        "width": {}
-      },
-      "metadata": {
-        "position": {
-          "x": -119,
-          "y": 22
-        }
-      }
-    },
-    "frameheightvalue": {
-      "id": "62d92432-9fc2-11eb-86f0-536bb7096e6d",
-      "input": {
-        "any": {
-          "ignored": true,
-          "metadata": {
-            "position": {
-              "x": -168,
-              "y": -41
-            }
-          }
-        },
-        "element": {}
-      },
-      "output": {
-        "height": {}
-      },
-      "metadata": {
-        "position": {
-          "x": -119,
-          "y": -23
-        }
-      }
-    }
-  },
-  "merges": {
-    "gsbymzxcf": {
-      "framewidthvalue": {
-        "input": {
-          "element": true
-        }
-      },
-      "chalkboard": {
-        "output": {
-          "_self": true
-        }
-      },
-      "frameheightvalue": {
-        "input": {
-          "element": true
-        }
-      }
-    },
-    "dnnbflw": {
-      "framewidthvalue": {
-        "output": {
-          "width": true
-        }
-      },
-      "chalkboard": {
-        "input": {
-          "width": true
-        }
-      }
-    },
-    "cgpompnrt": {
-      "frameheightvalue": {
-        "output": {
-          "height": true
-        }
-      },
-      "chalkboard": {
-        "input": {
-          "height": true
-        }
-      }
     }
   },
   "component": {
-    "children": [
-      "chalkboard"
-    ],
+    "children": ["chalkboard"],
     "subComponents": {
       "chalkboard": {
         "children": []
@@ -166,7 +81,6 @@
   "metadata": {
     "icon": "chalkboard",
     "description": "full frame chalkboard",
-    "complexity": 28,
     "position": {
       "merge": {
         "dnnbflw": {
@@ -179,13 +93,9 @@
         }
       }
     },
-    "tags": [
-      "platform",
-      "core",
-      "component"
-    ]
+    "tags": ["platform", "core", "component"]
   },
   "id": "120ff298-ff92-4b7c-b748-9a3c3bdbad2e",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`C`&`G`",
+  "render": true
 }

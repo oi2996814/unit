@@ -1,13 +1,13 @@
-import callAll from '../callAll'
 import { Graph } from '../Class/Graph'
-import { U } from '../interface/U'
-import forEachKeyValue from '../system/core/object/ForEachKeyValue/f'
-import { Unlisten } from '../Unlisten'
+import { Unit } from '../Class/Unit'
+import forEachValueKey from '../system/core/object/ForEachKeyValue/f'
+import { Unlisten } from '../types/Unlisten'
+import { callAll } from '../util/call/callAll'
 import { Moment } from './Moment'
 import { watchUnit } from './watchUnit'
 
 export const watchTree = (
-  unit: U,
+  unit: Unit | Graph,
   events: string[],
   callback: (path: string[], moment: Moment) => void
 ): (() => void) => {
@@ -15,7 +15,7 @@ export const watchTree = (
 }
 
 const _watchTree = (
-  unit: U,
+  unit: Unit | Graph,
   callback: (path: string[], moment: Moment) => void,
   path: string[] = [],
   events: string[]
@@ -31,7 +31,7 @@ const _watchTree = (
     )
   )
   if (unit instanceof Graph) {
-    forEachKeyValue(unit.refUnits(), (unit, id: string) => {
+    forEachValueKey(unit.getUnits(), (unit, id: string) => {
       const p = [...path, id]
       all.push(_watchTree(unit, callback, p, events))
     })

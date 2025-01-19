@@ -61,26 +61,20 @@
   "metadata": {
     "icon": "edit-3",
     "description": "draw a circle to the canvas",
-    "complexity": 6,
-    "tags": [
-      "platform",
-      "core",
-      "canvas"
-    ]
+    "tags": ["platform", "core", "canvas"]
   },
   "inputs": {
     "d": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "beginpath",
           "pinId": "d"
         }
       },
-      "type": "any[][]"
+      "functional": true
     },
     "circle": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "addcircle",
           "pinId": "circle"
@@ -91,16 +85,14 @@
   },
   "outputs": {
     "d": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "stroke",
           "pinId": "d"
         }
-      },
-      "type": "any[][]"
+      }
     }
   },
   "id": "0eb3579e-4645-4e45-a3b1-f3fb1a62ab4d",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

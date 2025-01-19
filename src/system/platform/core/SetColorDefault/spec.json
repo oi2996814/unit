@@ -1,0 +1,70 @@
+{
+  "name": "set color default",
+  "units": {
+    "setifordefault": {
+      "id": "c0b85780-7e99-11ea-9a99-879f3f411ebd",
+      "input": {
+        "key": {
+          "constant": true,
+          "data": "'color'"
+        },
+        "testdefault": {
+          "constant": true,
+          "data": "false"
+        }
+      }
+    }
+  },
+  "merges": {},
+  "inputs": {
+    "default": {
+      "plug": {
+        "0": {
+          "unitId": "setifordefault",
+          "pinId": "default"
+        }
+      }
+    },
+    "test": {
+      "plug": {
+        "0": {
+          "unitId": "setifordefault",
+          "pinId": "test"
+        }
+      }
+    },
+    "value": {
+      "plug": {
+        "0": {
+          "unitId": "setifordefault",
+          "pinId": "value"
+        }
+      }
+    },
+    "obj": {
+      "plug": {
+        "0": {
+          "unitId": "setifordefault",
+          "pinId": "obj"
+        }
+      }
+    }
+  },
+  "outputs": {
+    "obj": {
+      "plug": {
+        "0": {
+          "unitId": "setifordefault",
+          "pinId": "obj"
+        }
+      }
+    }
+  },
+  "metadata": {
+    "icon": "object-set",
+    "description": "set `obj` \"color\" to `value` if `test` is true or to `default` otherwise",
+    "tags": ["platform", "core"]
+  },
+  "id": "7b344491-48a2-46e1-949e-56805bebe3da",
+  "type": "`U`&`G`"
+}

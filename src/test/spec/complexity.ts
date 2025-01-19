@@ -1,21 +1,18 @@
 import { treeComplexityById } from '../../spec/complexity'
-import _specs from '../../system/_specs'
+import _classes from '../../system/_classes'
 import {
   ID_INCREMENT,
   ID_ONE,
-  ID_PRIORITY_MERGE,
   ID_RANGE_ARRAY,
-  ID_SINGLE
-} from './id'
-
-const paths = [
-  ID_INCREMENT,
-  ID_ONE,
   ID_SINGLE,
-  ID_RANGE_ARRAY,
-  ID_PRIORITY_MERGE,
-]
+} from '../../system/_ids'
+import _specs from '../../system/_specs'
 
-// for (const path of paths) {
-//   console.log(path, treeComplexityById(_specs, path))
-// }
+const paths = [ID_INCREMENT, ID_ONE, ID_SINGLE, ID_RANGE_ARRAY]
+
+if (false) {
+  for (const path of paths) {
+    // eslint-disable-next-line no-console
+    console.log(path, treeComplexityById(_specs, _classes, path))
+  }
+}

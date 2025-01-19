@@ -18,7 +18,7 @@
         }
       }
     },
-    "gyyfi": {
+    "lastindex": {
       "id": "f9588979-74e1-477a-8085-594043362fdf"
     }
   },
@@ -53,7 +53,7 @@
           "init": true
         }
       },
-      "gyyfi": {
+      "lastindex": {
         "output": {
           "last": true
         }
@@ -62,44 +62,36 @@
   },
   "inputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
-          "unitId": "gyyfi",
+          "unitId": "lastindex",
           "pinId": "a"
         }
-      },
-      "type": "<A>[]"
+      }
     }
   },
   "outputs": {
     "test": {
-      "pin": {
+      "plug": {
         "0": {
           "mergeId": "0"
         }
-      },
-      "type": "boolean"
+      }
     },
     "i": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "loopdecrement",
           "pinId": "current"
         }
-      },
-      "type": "number"
+      }
     }
   },
   "metadata": {
     "icon": "undo",
-    "description": "...",
-    "complexity": 5,
-    "tags": [
-      "core",
-      "common"
-    ]
+    "description": "loop through array `a` elements in descending order",
+    "tags": ["core", "common"]
   },
   "id": "70f3cdf1-2a78-49b3-9665-39da459cf0dc",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

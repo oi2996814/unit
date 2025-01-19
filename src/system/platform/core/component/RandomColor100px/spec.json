@@ -1,0 +1,83 @@
+{
+  "name": "random color 100px",
+  "inputs": {
+    "style": {
+      "plug": {
+        "0": {
+          "unitId": "mergedefault",
+          "pinId": "a"
+        }
+      }
+    }
+  },
+  "outputs": {},
+  "units": {
+    "randomcolorbox": {
+      "id": "f27cae4e-fea8-11ea-b91e-db41e114c426",
+      "input": {
+        "style": {},
+        "attr": {
+          "ignored": true
+        }
+      },
+      "output": {},
+      "metadata": {
+        "position": {
+          "x": 73,
+          "y": -1
+        }
+      }
+    },
+    "mergedefault": {
+      "id": "304e98ac-bda1-11ea-b416-9746f024148c",
+      "input": {
+        "a": {},
+        "default": {
+          "constant": true,
+          "data": "{width:\"100px\",height:'100px'}"
+        }
+      },
+      "output": {
+        "a": {}
+      },
+      "metadata": {
+        "position": {
+          "x": -74,
+          "y": 0
+        }
+      }
+    }
+  },
+  "merges": {
+    "0": {
+      "mergedefault": {
+        "output": {
+          "a": true
+        }
+      },
+      "randomcolorbox": {
+        "input": {
+          "style": true
+        }
+      }
+    }
+  },
+  "metadata": {
+    "icon": "square",
+    "description": "100px div with random background color"
+  },
+  "id": "5f162826-e925-408f-8eb2-7984ef14c420",
+  "component": {
+    "slots": [["randomcolorbox", "default"]],
+    "subComponents": {
+      "randomcolorbox": {
+        "children": []
+      }
+    },
+    "children": ["randomcolorbox"],
+    "defaultWidth": 120,
+    "defaultHeight": 120
+  },
+  "type": "`U`&`G`&`C`",
+  "render": true
+}

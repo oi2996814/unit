@@ -1,7 +1,7 @@
 {
   "name": "tail",
   "units": {
-    "gfcxzqyjq": {
+    "behead": {
       "id": "3e20a18c-60a3-40cd-bbee-f2f9e289b14d",
       "output": {
         "head": {
@@ -13,36 +13,29 @@
   "merges": {},
   "metadata": {
     "icon": "axe",
-    "description": "no description",
-    "complexity": 4.658228786390675,
-    "tags": [
-      "core",
-      "string"
-    ]
+    "description": "output `tail` of string `a`",
+    "tags": ["core", "string"]
   },
   "inputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
-          "unitId": "gfcxzqyjq",
+          "unitId": "behead",
           "pinId": "a"
         }
-      },
-      "type": "string"
+      }
     }
   },
   "outputs": {
     "tail": {
-      "pin": {
+      "plug": {
         "0": {
-          "unitId": "gfcxzqyjq",
+          "unitId": "behead",
           "pinId": "tail"
         }
-      },
-      "type": "string"
+      }
     }
   },
   "id": "5c9f4a0a-e675-48db-b6c0-5ac6914cdae0",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

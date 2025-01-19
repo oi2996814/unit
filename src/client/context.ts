@@ -1,32 +1,17 @@
-import ResizeObserver from 'resize-observer-polyfill'
 import { System } from '../system'
-import { Dict } from '../types/Dict'
-import { Unlisten } from '../Unlisten'
-import { pull } from '../util/array'
+import { PositionObserver } from '../types/global/PositionObserver'
+import { Unlisten } from '../types/Unlisten'
+import { last, remove } from '../util/array'
 import { Component } from './component'
-import fullwindowElement from './createFullwindow'
-import Listenable from './Listenable'
-import { PositionObserver } from './PositionObserver'
-import { stopByPropagation } from './stopPropagation'
-
-export interface FullwindowOpt {
-  showExitButton?: boolean
-  backgroundOpacity?: number
-  svg?: boolean
-}
-
-export interface Fullwindow {
-  component: Component
-  container: HTMLDivElement
-}
+import { IOElement } from './IOElement'
+import { Listenable } from './Listenable'
+import { Theme } from './theme'
 
 export interface Context extends Listenable {
   $system: System
   $mounted: boolean
-  $listenCount: Dict<number>
   $disabled: boolean
-  $parent: Component | null
-  $parent_unlisten: Unlisten | null
+  $parent: Context | null
   $element: HTMLElement
   $context: Context
   $x: number
@@ -38,34 +23,11 @@ export interface Context extends Listenable {
   $rz: number
   $width: number
   $height: number
-  $theme: 'dark' | 'light'
+  $theme: Theme
   $color: string
-  $fullwindow: Fullwindow[]
-  $fullwindow_i: number
+  $children: Component[]
   $resizeObserver: ResizeObserver
   $positionObserver: PositionObserver
-}
-
-export interface Ref extends Dict<any[]> {}
-
-// TODO
-// move
-function getChildIndex(child: ChildNode): number {
-  let i = 0
-  // @ts-ignore
-  for (i = 0; (child = child.previousSibling); i++) {}
-  return i
-}
-
-// TODO
-// move
-export function _replaceChild($element: Element, $nextElement: Element) {
-  const parent = $element.parentElement
-  if (parent) {
-    const index = getChildIndex($element)
-    parent.insertBefore($nextElement, parent.children[index])
-    parent.removeChild($element)
-  }
 }
 
 export function dispatchContextEvent(
@@ -74,11 +36,12 @@ export function dispatchContextEvent(
   data: any = {}
 ): void {
   const { $element } = $context
+
   dispatchCustomEvent($element, type, data, false)
 }
 
 export function dispatchCustomEvent(
-  $element: Element,
+  $element: IOElement,
   type: string,
   detail: any = {},
   bubbles: boolean = true
@@ -86,26 +49,28 @@ export function dispatchCustomEvent(
   $element.dispatchEvent(new CustomEvent(`_${type}`, { detail, bubbles }))
 }
 
-export function setParent($context: Context, $parent: Component | null): void {
+export function setParent($context: Context, $parent: Context | null): void {
   $context.$parent = $parent
-  const { $fullwindow } = $context
-  for (const fullwindow of $fullwindow) {
-    const { component } = fullwindow
-    component.$parent = $parent
+
+  const { $children } = $context
+
+  for (const component of $children) {
+    // component.$parent = $parent
   }
 }
 
 export function mount($context: Context): void {
-  // console.log('mount')
   $context.$mounted = true
 
   const { $element, $positionObserver, $resizeObserver } = $context
 
   const { width, height } = $element.getBoundingClientRect()
+
   $context.$width = width
   $context.$height = height
 
   const { x, y, sx, sy } = $positionObserver.observe($element)
+
   $context.$x = x
   $context.$y = y
   $context.$sx = sx
@@ -113,30 +78,32 @@ export function mount($context: Context): void {
 
   $resizeObserver.observe($element)
 
-  for (const { component } of $context.$fullwindow) {
+  for (const component of $context.$children) {
     component.mount($context)
   }
 }
 
 export function unmount($context: Context): void {
-  // console.log('unmount')
   $context.$mounted = false
 
-  const { $positionObserver, $resizeObserver } = $context
+  const { $element, $positionObserver, $resizeObserver } = $context
 
   $positionObserver.disconnect()
 
+  $resizeObserver.unobserve($element)
   $resizeObserver.disconnect()
 
-  for (const { component } of $context.$fullwindow) {
+  for (const component of $context.$children) {
     component.unmount()
   }
 }
 
 export function resize($context: Context, width: number, height: number): void {
   // console.log('resize', width, height)
+
   $context.$width = width
   $context.$height = height
+
   dispatchContextEvent($context, 'resize', { width, height })
 }
 
@@ -152,11 +119,16 @@ export function setHeight($context: Context, height: number): void {
   resize($context, $width, height)
 }
 
-export function setTheme($context: Context, $theme: 'light' | 'dark'): void {
+export function setTheme($context: Context, $theme: Theme): void {
   if ($context.$theme === $theme) {
     return
   }
   $context.$theme = $theme
+  // if ($theme === 'light') {
+  //   $context.$element.style.filter = 'auto'
+  // } else {
+  //   $context.$element.style.filter = 'invert'
+  // }
   dispatchContextEvent($context, 'themechanged', {})
 }
 
@@ -173,41 +145,41 @@ export function setColor($context: Context, $color: string): void {
   dispatchContextEvent($context, 'colorchanged', {})
 }
 
-export function enterFullwindow(
-  $$context: Context,
+export function appendChild(
+  $context: Context,
   component: Component,
   { animate }: { animate?: boolean } = { animate: false }
 ): Unlisten {
-  const { $element: $$element, $fullwindow, $system } = $$context
-
   const { $element } = component
 
-  if (component.$mounted) {
-    component.unmount()
+  $context.$element.appendChild($element)
+
+  const base = component.getRootLeaves()
+
+  for (const leaf of base) {
+    $context.$element.appendChild(leaf.$element)
   }
 
-  const container = fullwindowElement()
+  $context.$children.push(component)
 
-  container.appendChild($element)
-  $$element.appendChild(container)
-
-  // the component share $parent
-  component.$parent = $$context.$parent
-
-  if ($$context.$mounted) {
-    component.mount($$context)
+  if ($context.$mounted) {
+    component.mount($context)
   }
-
-  const fullwindow: Fullwindow = {
-    component,
-    container,
-  }
-  $fullwindow.push(fullwindow)
-
-  $$context.$fullwindow_i++
 
   return () => {
-    _removeFullwindow($$context, fullwindow, $$context.$fullwindow_i)
+    if ($context.$mounted) {
+      component.unmount()
+    }
+
+    const base = component.getRootLeaves()
+
+    for (const leaf of base) {
+      $context.$element.removeChild(leaf.$element)
+    }
+
+    remove($context.$children, component)
+
+    return component
   }
 }
 
@@ -225,31 +197,13 @@ export function disableContext($context: Context): void {
 
 export function focusContext($context: Context): void {
   // console.log('focusContext')
-  const { $fullwindow, $fullwindow_i } = $context
-  if ($fullwindow_i > -1) {
-    const fullwindow = $fullwindow[$fullwindow_i]
-    const { component } = fullwindow
+  const { $children } = $context
+  if ($children.length > 0) {
+    const component = last($children)
     component.focus()
   }
 }
 
 export function blurContext($context: Context): void {
   $context.$element.blur()
-}
-
-function _removeFullwindow(
-  $$context: Context,
-  fullwindow: Fullwindow,
-  i: number
-): Component {
-  // console.log('_removeFullwindow')
-  const { $element: $$element } = $$context
-  const { component, container } = fullwindow
-  const { $element } = component
-  $$context.$fullwindow.splice(i, 1)
-  $$context.$fullwindow_i--
-  component.unmount()
-  container.removeChild($element)
-  $$element.removeChild(container)
-  return component
 }

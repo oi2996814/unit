@@ -1,0 +1,21 @@
+{
+  "name": "destroy",
+  "inputs": {
+    "unit": {
+      "type": "`U`",
+      "ref": true
+    },
+    "any": {
+      "type": "any"
+    }
+  },
+  "outputs": {},
+  "metadata": {
+    "icon": "circle-x",
+    "description": "destroy a `unit`",
+    "tags": ["f", "meta"]
+  },
+  "id": "e2c36c21-e293-40df-9238-5c9ae7a20299",
+  "base": true,
+  "type": "`U`"
+}

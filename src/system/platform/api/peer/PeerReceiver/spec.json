@@ -6,29 +6,34 @@
     },
     "close": {
       "type": "any"
+    },
+    "opt": {
+      "type": "{iceServers:{urls:string[]}[]}",
+      "metadata": {
+        "examples": ["{iceServers:[{urls:['stun:stun.l.google.com:19302']}]}"]
+      }
     }
   },
   "outputs": {
     "stream": {
-      "type": "`ST`",
-      "ref": true
+      "type": "`MS`",
+      "ref": true,
+      "icon": "circle-play"
     },
     "answer": {
       "type": "string"
+    },
+    "emitter": {
+      "type": "`EE`",
+      "ref": true
     }
   },
   "metadata": {
     "icon": "link",
     "description": "Peer to Peer (P2P) Receiver",
-    "complexity": 7.997628004373367,
-    "tags": [
-      "platform",
-      "api",
-      "peer"
-    ]
+    "tags": ["platform", "api", "peer"]
   },
   "id": "f079a38e-fb4f-496e-8e5f-d5e03a590cda",
   "base": true,
-  "type": "`U`&``",
-  "system": true
+  "type": "`U`&``"
 }

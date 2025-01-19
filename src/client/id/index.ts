@@ -1,6 +1,6 @@
 import { SELF } from '../../constant/SELF'
 import { Spec, Specs } from '../../types'
-import { Dict } from '../../types/Dict'
+import { IO } from '../../types/IO'
 import { upperCaseFirstLetter } from '../../util/string'
 
 export const SEPARATOR = '/'
@@ -9,15 +9,17 @@ export const LINK_SEPARATOR = '_'
 export const INPUT = 'input'
 export const OUTPUT = 'output'
 
+export const I = 'i'
+export const O = 'o'
+
 export const MERGE = '@'
 export const DATA = '#'
 export const TYPE = '$'
 export const EXTERNAL = '%'
 export const INTERNAL = '^'
-export const COMPONENT = '&'
 export const ERR = '!'
 
-const UNIT_ID_REGEX = `[^${SEPARATOR}${MERGE}${DATA}${TYPE}${EXTERNAL}]+`
+const UNIT_ID_REGEX = `[^${SEPARATOR}${MERGE}${DATA}${TYPE}${EXTERNAL}${INTERNAL}]+`
 const PIN_ID_REGEX = `[^]+`
 
 const UNIT_NODE_ID_REGEX = `^(${UNIT_ID_REGEX})$`
@@ -32,11 +34,14 @@ export const unitIdRegex = new RegExp(UNIT_NODE_ID_REGEX)
 export const pinIdRegex = new RegExp(PIN_NODE_ID_REGEX)
 export const inputIdRegex = new RegExp(INPUT_NODE_ID_REGEX)
 export const outputIdRegex = new RegExp(OUTPUT_NODE_ID_REGEX)
-export const dataRegex = new RegExp(`^${DATA}\/[^#_]+$`)
+export const dataRegex = new RegExp(`^${DATA}/[^#_]+$`)
 export const metadataRegex = new RegExp(`^\\$/[^]+/${UNIT_ID_REGEX}$`)
-export const mergeRegex = new RegExp(`^${MERGE}\/[^/#$]+$`)
+export const mergeRegex = new RegExp(`^${MERGE}/[^/#$]+$`)
 export const externalRegex = new RegExp(
-  `^${EXTERNAL}\/(input|output)\/[^${SEPARATOR}${DATA}${MERGE}]+$`
+  `^${EXTERNAL}/(input|output)/${PIN_ID_REGEX}/[^${SEPARATOR}${DATA}${MERGE}]+$`
+)
+export const internalRegex = new RegExp(
+  `^\\${INTERNAL}/(input|output)/${PIN_ID_REGEX}/[^${SEPARATOR}${DATA}${MERGE}]+$`
 )
 export const linkRegex = new RegExp(`^(.+)${LINK_SEPARATOR}(.+)$`)
 
@@ -52,21 +57,13 @@ function last<T>(array: T[]): T {
   return array[array.length - 1]
 }
 
-export function getUnitIdFromId(id: string): string {
-  return id.split('/')[0] as string
-}
-
 export function getDatumNodeIdFromDatumLinkId(linkId: string): string {
   const { source, target } = segmentLinkId(linkId)
   return isDatumNodeId(source) ? source : target
 }
 
-export function getUnitIdFromPinId(id: string) {
-  return getUnitIdFromId(id)
-}
-
-export function getTypeFromLinkPinNodeId(id: string): 'input' | 'output' {
-  return id.split('/')[1] as 'input' | 'output'
+export function getTypeFromLinkPinNodeId(linkPinNodeId: string): IO {
+  return linkPinNodeId.split('/')[1] as IO
 }
 
 export function getPinIdFromLinkPinNodeId(nodeId: string) {
@@ -74,28 +71,41 @@ export function getPinIdFromLinkPinNodeId(nodeId: string) {
 }
 
 export function getIdFromDatumNodeId(nodeId: string) {
-  const { id } = segmentDatumNodeId(nodeId)
+  const { datumId: id } = segmentDatumNodeId(nodeId)
   return id
 }
 
-export function getPinIdClass(id: string): string {
-  if (isOutputPinId(id)) {
+export function getPinIdClass(pinNodeId: string): string {
+  if (isOutputPinId(pinNodeId)) {
     return 'output'
   }
 
-  if (isInputPinId(id)) {
+  if (isInputPinId(pinNodeId)) {
     return 'input'
   }
 
-  throw `Input with id "${id}" was not found`
+  throw `Input with id "${pinNodeId}" was not found`
 }
 
 export const getPinNodeId = (
   unitId: string,
-  type: 'input' | 'output',
+  type: IO,
   pinId: string
 ): string => {
   return `${unitId}/${type}/${pinId}`
+}
+
+export const getPinNodeId_ = (
+  unitId: string
+): ((type: IO, pinId: string) => string) => {
+  return (type, pinId) => `${unitId}/${type}/${pinId}`
+}
+
+export const getPinNodeId__ = (
+  unitId: string,
+  type: IO
+): ((pinId: string) => string) => {
+  return (pinId) => `${unitId}/${type}/${pinId}`
 }
 
 export function getInputNodeId(unitId: string, pinId: string) {
@@ -110,27 +120,11 @@ export function getSelfPinNodeId(unitId: string): string {
   return getOutputNodeId(unitId, SELF)
 }
 
-export const getComponentNodeId = (unitId: string): string => {
-  return `${COMPONENT}/${unitId}`
-}
-
-export function getBoundaryNodeId(unitId: string, pinId: string) {
-  return `${unitId}/boundary/${pinId}`
-}
-
-export function getNodeLabelId(id: string): string {
-  return `${id}/label`
-}
-
 export function getLinkId(source: string, targetId: string) {
   return `${source}${LINK_SEPARATOR}${targetId}`
 }
 
-export function getPinLinkId(
-  unitId: string,
-  type: 'input' | 'output',
-  pinId: string
-): string {
+export function getPinLinkId(unitId: string, type: IO, pinId: string): string {
   const pinNodeId = getPinNodeId(unitId, type, pinId)
   if (type === 'input') {
     return getLinkId(pinNodeId, unitId)
@@ -139,35 +133,30 @@ export function getPinLinkId(
   }
 }
 
-export function getComponentLinkId(unitId: string): string {
-  const componentNodeId = getComponentNodeId(unitId)
-  return getLinkId(unitId, componentNodeId)
-}
-
 export function getPinLinkIdFromPinNodeId(pinNodeId: string) {
   const { unitId, type, pinId } = segmentLinkPinNodeId(pinNodeId)
   return getPinLinkId(unitId, type, pinId)
 }
 
-export function isNodeId(id: string): boolean {
-  return isUnitNodeId(id) || isPinNodeId(id)
+export function isNodeId(text: string): boolean {
+  return isUnitNodeId(text) || isPinNodeId(text)
 }
 
-export function isInternalNodeId(id: string): boolean {
-  return isUnitNodeId(id) || isMergeNodeId(id) || isLinkPinNodeId(id)
+export function isInternalNodeId(nodeId: string): boolean {
+  return internalRegex.test(nodeId)
 }
 
-export function isOutputPinId(id: string) {
-  return outputIdRegex.test(id)
+export function isOutputPinId(nodeId: string) {
+  return outputIdRegex.test(nodeId)
 }
 
 export function isUnitNodeId(nodeId: string): boolean {
   return !!unitIdRegex.exec(nodeId)
 }
 
-export function isPinId(id: string): boolean {
-  if (id) {
-    return isInputPinId(id) || isOutputPinId(id)
+export function isPinId(nodeId: string): boolean {
+  if (nodeId) {
+    return isInputPinId(nodeId) || isOutputPinId(nodeId)
   } else {
     return false
   }
@@ -182,33 +171,33 @@ export function getUnitIdFromNodeId(nodeId: string): string {
   }
 }
 
-export function isLinkId(id: string) {
-  return !!linkRegex.exec(id)
+export function isLinkId(linkId: string) {
+  return !!linkRegex.exec(linkId)
 }
 
-export function isPinLinkId(id: string) {
-  const [source, target] = id.split(LINK_SEPARATOR)
+export function isPinLinkId(linkId: string) {
+  const [source, target] = linkId.split(LINK_SEPARATOR)
   return (
     (isUnitNodeId(source) && isPinId(target)) ||
     (isPinId(source) && isUnitNodeId(target))
   )
 }
 
-export function isDatumLinkId(id: string) {
-  const [source, target] = id.split(LINK_SEPARATOR)
+export function isDatumLinkId(linkId: string) {
+  const [source, target] = linkId.split(LINK_SEPARATOR)
   return (
     (isPinNodeId(source) && isDatumNodeId(target)) ||
     (isDatumNodeId(source) && isPinNodeId(target))
   )
 }
 
-export function isMetaLinkId(id: string) {
-  const [source, target] = id.split(LINK_SEPARATOR)
+export function isMetaLinkId(linkId: string) {
+  const [source, target] = linkId.split(LINK_SEPARATOR)
   return isMetadataNodeId(source)
 }
 
-export function isExternalLinkId(id: string) {
-  const [source, target] = id.split(LINK_SEPARATOR)
+export function isExternalLinkId(linkId: string) {
+  const [source, target] = linkId.split(LINK_SEPARATOR)
   return (
     isExternalNodeId(source) ||
     isExternalNodeId(target) ||
@@ -231,13 +220,9 @@ export function segmentErrNodeId(errNodeId: string): { unitId: string } {
 export function segmentLinkPinNodeId(pinNodeId: string): {
   unitId: string
   pinId: string
-  type: 'input' | 'output'
+  type: IO
 } {
-  const [unitId, type, pinId] = pinNodeId.split('/') as [
-    string,
-    'input' | 'output',
-    string
-  ]
+  const [unitId, type, pinId] = pinNodeId.split('/') as [string, IO, string]
   return {
     unitId,
     type,
@@ -302,8 +287,8 @@ export function segmentExternalLinkId(linkId: string): {
 } {
   const { source, target } = segmentLinkId(linkId)
   const sourceExternal = isExternalNodeId(source)
-  const externalNodeId = sourceExternal ? source : target
-  const nodeId = sourceExternal ? target : source
+  const externalNodeId = sourceExternal ? target : source
+  const nodeId = sourceExternal ? source : target
   return {
     nodeId,
     externalNodeId,
@@ -320,17 +305,17 @@ export function getUnitIdFromPinLinkId(linkId: string): string {
   return isUnitNodeId(source) ? source : target
 }
 
-export function isInputPinId(id: string) {
-  return inputIdRegex.test(id)
+export function isInputPinId(nodeId: string) {
+  return inputIdRegex.test(nodeId)
 }
 
-export function isPinNodeId(id: string): boolean {
+export function isPinNodeId(nodeId: string): boolean {
   // return isLinkPinNodeId(id) || isMergeNodeId(id) || isExternalNodeId(id)
-  return isLinkPinNodeId(id) || isMergeNodeId(id)
+  return isLinkPinNodeId(nodeId) || isMergeNodeId(nodeId)
 }
 
-export function isLinkPinNodeId(id: string) {
-  return pinIdRegex.test(id)
+export function isLinkPinNodeId(nodeId: string) {
+  return pinIdRegex.test(nodeId)
 }
 
 export function isErrPinId(pinNodeId: string): boolean {
@@ -347,32 +332,27 @@ export function getSelectionId(nodeId: string, type: string) {
   return `${nodeId}/selection/${type}`
 }
 
-export function randomInArray<T>(array: T[]): T {
-  return array[Math.floor(Math.random() * array.length)]
+export function sameUnit(pinId0: string, pinId1: string): boolean {
+  return getUnitIdFromNodeId(pinId0) === getUnitIdFromNodeId(pinId1)
 }
 
-export function sameUnit(id0: string, id1: string): boolean {
-  return getUnitIdFromNodeId(id0) === getUnitIdFromNodeId(id1)
-}
-
-export function getDatumNodeId(id: string): string {
-  return `${DATA}/${id}`
+export function getDatumNodeId(nodeId: string): string {
+  return `${DATA}/${nodeId}`
 }
 
 export function isDatumNodeId(nodeId: string): boolean {
   return !!dataRegex.exec(nodeId)
 }
 
-export function segmentDatumNodeId(datumNodeId: string): { id: string } {
-  // remove /#
+export function segmentDatumNodeId(datumNodeId: string): { datumId: string } {
   const id = datumNodeId.substr(2, datumNodeId.length)
   return {
-    id,
+    datumId: id,
   }
 }
 
-export function getMetadataNodeId(nodeId: string, id: string): string {
-  return `${TYPE}/${nodeId}/${id}`
+export function getMetadataNodeId(nodeId: string, name: string): string {
+  return `${TYPE}/${nodeId}/${name}`
 }
 
 export function getTypeNodeId(nodeId: string): string {
@@ -397,84 +377,92 @@ export function segmentMetadataId(metadataNodeId: string): {
   }
 }
 
-export function getMergeNodeId(id: string): string {
-  return `${MERGE}/${id}`
+export function getMergeNodeId(mergeId: string): string {
+  return `${MERGE}/${mergeId}`
 }
 
-export function isMergeNodeId(id: string): boolean {
-  return mergeRegex.test(id)
+export function isMergeNodeId(nodeId: string): boolean {
+  return mergeRegex.test(nodeId)
 }
 
-export function segmentMergeNodeId(mergeNodeId: string): { id: string } {
+export function segmentMergeNodeId(mergeNodeId: string): { mergeId: string } {
   // remove '@/'
-  const id = mergeNodeId.substr(2, mergeNodeId.length)
+  const mergeId = mergeNodeId.substring(2, mergeNodeId.length)
   return {
-    id,
+    mergeId,
   }
 }
 
 export function getIdFromMergeNodeId(mergeNodeId: string): string {
-  const { id } = segmentMergeNodeId(mergeNodeId)
-  return id
+  const { mergeId } = segmentMergeNodeId(mergeNodeId)
+
+  return mergeId
 }
 
-export function getExternalNodeId(
-  type: 'input' | 'output',
-  id: string,
+export function getExtNodeId(
+  type: IO,
+  pinId: string,
   subPinId: string
 ): string {
-  return `${EXTERNAL}/${type}/${id}/${subPinId}`
+  return `${EXTERNAL}/${type}/${pinId}/${subPinId}`
 }
 
 export function getExtNodeIdFromIntNodeId(intNodeId: string): string {
-  const { type, id, subPinId } = segmentInternalNodeId(intNodeId)
-  return getExternalNodeId(type, id, subPinId)
+  const { type, pinId, subPinId } = segmentInternalNodeId(intNodeId)
+
+  return getExtNodeId(type, pinId, subPinId)
 }
 
-export function getInternalNodeId(
-  type: 'input' | 'output',
-  id: string,
+export function getIntNodeIdFromExtNodeId(ext_node_id: string): string {
+  const { type, pinId: pinId, subPinId } = segmentPlugNodeId(ext_node_id)
+
+  return getIntNodeId(type, pinId, subPinId)
+}
+
+export function getIntNodeId(
+  type: IO,
+  pinId: string,
   subPinId: string
 ): string {
-  return `${INTERNAL}/${type}/${id}/${subPinId}`
+  return `${INTERNAL}/${type}/${pinId}/${subPinId}`
 }
 
-export function isExternalNodeId(id: string): boolean {
-  return externalRegex.test(id)
+export function isExternalNodeId(pinId: string): boolean {
+  return externalRegex.test(pinId)
 }
 
-export function segmentExposedNodeId(exposedNodeId: string): {
-  id: string
-  type: 'input' | 'output'
+export function segmentPlugNodeId(exposedNodeId: string): {
+  pinId: string
+  type: IO
   subPinId: string
 } {
-  const [_, type, id, subPinId] = exposedNodeId.split('/') as [
+  const [_, type, pinId, subPinId] = exposedNodeId.split('/') as [
     string,
-    'input' | 'output',
+    IO,
     string,
-    string
+    string,
   ]
   return {
     type,
-    id,
+    pinId,
     subPinId,
   }
 }
 
 export function segmentInternalNodeId(internalNodeId: string): {
-  id: string
-  type: 'input' | 'output'
+  pinId: string
+  type: IO
   subPinId: string
 } {
-  const [_, type, id, subPinId] = internalNodeId.split('/') as [
+  const [_, type, pinId, subPinId] = internalNodeId.split('/') as [
     string,
-    'input' | 'output',
+    IO,
     string,
-    string
+    string,
   ]
   return {
     type,
-    id,
+    pinId,
     subPinId,
   }
 }
@@ -539,13 +527,21 @@ export function camelToSnake(str: string): string {
   return kebab
 }
 
-export function styleToCSS(style: Dict<any>): string {
-  let str = ''
-  for (let key in style) {
-    const value = style[key]
-    str += `${key}`
-  }
-  return str
+export function snakeToCamel(str: string): string {
+  const segments = str.split(/\s*_\s*/)
+  const first_segment = segments[0]
+  const segments_tail = segments.slice(1)
+  const camelled_segments_tail = segments_tail.map((_str) =>
+    upperCaseFirstLetter(_str)
+  )
+  const camel = first_segment + camelled_segments_tail.join('')
+  return camel
+}
+
+export function camelToDashed(str: string): string {
+  const segments = str.split(/(?=[A-Z])/)
+  const kebab = segments.map((_str) => _str.toLowerCase()).join('-')
+  return kebab
 }
 
 export function kebabCase(str: string): string {

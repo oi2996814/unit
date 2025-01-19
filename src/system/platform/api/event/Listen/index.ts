@@ -1,78 +1,56 @@
-import { Semifunctional } from '../../../../../Class/Semifunctional'
-import { Unit } from '../../../../../Class/Unit'
-import { Unlisten } from '../../../../../Unlisten'
+import { Holder } from '../../../../../Class/Holder'
+import { System } from '../../../../../system'
+import { EE } from '../../../../../types/interface/EE'
+import { Unlisten } from '../../../../../types/Unlisten'
+import { ID_LISTEN } from '../../../../_ids'
 
 export interface I<T> {
-  method: string
-  data: any
+  emitter: EE<any>
   event: string
-  unit: Unit
+  remove: string
 }
 
 export interface O<T> {
   data: any
 }
 
-export default class Listen<T> extends Semifunctional<I<T>, O<T>> {
-  private _listener: ((data: any) => void) | undefined
-
+export default class Listen<T> extends Holder<I<T>, O<T>> {
   private _unlisten: Unlisten | undefined = undefined
 
-  constructor() {
+  constructor(system: System) {
     super(
       {
-        fi: ['unit', 'event'],
+        fi: ['emitter', 'event'],
         fo: [],
-        i: ['remove'],
+        i: [],
         o: ['data'],
       },
       {
         input: {
-          unit: {
+          emitter: {
             ref: true,
           },
         },
-      }
+      },
+      system,
+      ID_LISTEN,
+      'remove'
     )
-
-    this.addListener('destroy', () => {
-      this._remove()
-    })
   }
 
-  private _remove = () => {
-    this._unlisten()
-
-    this._listener = undefined
-    this._unlisten = undefined
-  }
-
-  f({ unit, event }: I<T>) {
-    const listener = (data: any) => {
-      this._output.data.push(data)
+  f({ emitter, event }: I<T>) {
+    const listener = (...data: any[]) => {
+      this._output.data.push(data[0])
     }
-    this._listener = listener
 
-    this._unlisten = unit.listen(event, this._listener)
+    this._unlisten = emitter.addListener(event, listener)
   }
 
   d() {
-    this._remove()
-  }
+    if (this._unlisten) {
+      this._unlisten()
 
-  onIterInputData(name: string, data: any) {
-    // if (name === 'remove') {
-    if (this._listener) {
-      this._remove()
+      this._unlisten = undefined
     }
-    this._input.event.pull()
-    this._input.remove.pull()
-    // }s
-  }
-
-  // TODO
-  onDataInputInvalid(name: string): void {
-    this._remove()
-    this._invalidate()
   }
 }

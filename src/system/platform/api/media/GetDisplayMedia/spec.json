@@ -5,21 +5,21 @@
       "type": "{audio?:boolean,video?:boolean}"
     }
   },
-  "outputs": {},
+  "outputs": {
+    "stream": {
+      "type": "`MS`",
+      "ref": true,
+      "icon": "circle-play"
+    }
+  },
   "id": "6705462c-5b47-11eb-9dfc-2f14c58b2789",
   "base": true,
   "metadata": {
     "icon": "film",
-    "complexity": 11.588254915404999,
-    "tags": [
-      "platform",
-      "api",
-      "media"
-    ],
-    "globals": [
-      "MediaDevices"
-    ]
+    "description": "prompts the user to capture the contents of a display or portion thereof",
+    "tags": ["platform", "api", "media"],
+    "globals": ["MediaDevices"],
+    "href": ""
   },
-  "type": "`U`",
-  "system": true
+  "type": "`U`"
 }

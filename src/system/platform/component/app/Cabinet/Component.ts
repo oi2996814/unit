@@ -1,31 +1,33 @@
 import { addListeners } from '../../../../../client/addListener'
-import classnames from '../../../../../client/classnames'
-import mergePropStyle from '../../../../../client/component/mergeStyle'
+import { classnames } from '../../../../../client/classnames'
+import { mergePropStyle } from '../../../../../client/component/mergeStyle'
+import { Element } from '../../../../../client/element'
 import { makeCustomListener } from '../../../../../client/event/custom'
 import { makeResizeListener } from '../../../../../client/event/resize'
-import { Element } from '../../../../../client/element'
-import parentElement from '../../../../../client/parentElement'
+import { parentElement } from '../../../../../client/platform/web/parentElement'
 import { SimNode, Simulation } from '../../../../../client/simulation'
-import { NONE } from '../../../../../client/theme'
+import { COLOR_NONE } from '../../../../../client/theme'
 import { System } from '../../../../../system'
 import { Dict } from '../../../../../types/Dict'
-import { Unlisten } from '../../../../../Unlisten'
+import { Unlisten } from '../../../../../types/Unlisten'
 import { clamp } from '../../../../core/relation/Clamp/f'
 import Div from '../../Div/Component'
 import Frame from '../../Frame/Component'
-import Drawer, { KNOB_HEIGHT, Props as DrawerProps } from '../Drawer/Component'
+import Drawer, { Props as DrawerProps, KNOB_HEIGHT } from '../Drawer/Component'
 
-export interface CabinetDrawer extends DrawerProps {
+export interface CabinetDrawerProps extends DrawerProps {
   active?: boolean
   state?: {
     y?: number
   }
+  shortcut?: string
 }
 
 export interface Props {
   className?: string
   style?: Dict<string>
   hidden?: boolean
+  dy?: number
 }
 
 export const DEFAULT_STYLE = {
@@ -39,7 +41,7 @@ export const DEFAULT_STYLE = {
 export default class Cabinet extends Element<HTMLDivElement, Props> {
   private _cabinet: Div
 
-  private _drawer: Dict<CabinetDrawer> = {}
+  private _drawer: Dict<CabinetDrawerProps> = {}
   private _drawer_component: Dict<Drawer> = {}
   private _drawer_node: Dict<SimNode> = {}
   private _drawer_active: Set<string> = new Set()
@@ -52,14 +54,16 @@ export default class Cabinet extends Element<HTMLDivElement, Props> {
   private _width: number = 0
   private _height: number = 0
 
-  // z-index
-
   private _z_index: number = 1
+
+  private _dy = 0
 
   constructor($props: Props, $system: System) {
     super($props, $system)
 
-    const { className, style = {} } = $props
+    const { className, style = {}, dy = 0 } = $props
+
+    this._dy = 0
 
     const cabinet = new Div(
       {
@@ -80,18 +84,21 @@ export default class Cabinet extends Element<HTMLDivElement, Props> {
     this._simulation.nodes(this._drawer_node)
     this._simulation.addListener('tick', this._tick)
 
-    const $element = parentElement()
+    const $element = parentElement($system)
 
     this.$element = $element
-    this.$subComponent = {
-      cabinet,
-    }
+
     this.$unbundled = false
+    this.$primitive = true
+
+    this.setSubComponents({
+      cabinet,
+    })
 
     this.registerRoot(cabinet)
   }
 
-  private _setActive(drawerId: string, active: boolean): void {
+  private _memSetActive(drawerId: string, active: boolean): void {
     if (active) {
       this._drawer_active.add(drawerId)
     } else {
@@ -103,9 +110,13 @@ export default class Cabinet extends Element<HTMLDivElement, Props> {
     if (prop === 'className') {
       this._cabinet.setProp('className', current)
     } else if (prop === 'style') {
-      this._cabinet.setProp('style', { ...DEFAULT_STYLE, ...current })
+      this._cabinet.setProp('style', {
+        ...DEFAULT_STYLE,
+        ...current,
+      })
+
       const { style = {} } = this.$props
-      const { color = 'currentColor', backgroundColor = NONE } = style
+      const { color = 'currentColor', backgroundColor = COLOR_NONE } = style
 
       for (const drawerId in this._component_frame) {
         const drawer = this._drawer_component[drawerId]
@@ -114,14 +125,17 @@ export default class Cabinet extends Element<HTMLDivElement, Props> {
           backgroundColor,
         })
       }
-    } else if (prop === 'disabled') {
-      // TODO
-    } else if (prop === 'hidden') {
+    }
+    if (prop === 'hidden') {
       if (this._hidden && !current) {
         this.show(false)
       } else if (!this._hidden && current) {
         this.hide(false)
       }
+    } else if (prop === 'dy') {
+      this._dy = current ?? 0
+
+      this._startSimulation()
     }
   }
 
@@ -138,7 +152,11 @@ export default class Cabinet extends Element<HTMLDivElement, Props> {
     return this._drawer_component[drawerId]
   }
 
-  public setDrawerProp(drawerId: string, name: string, value: any): void {
+  public setDrawerProp<K extends keyof DrawerProps>(
+    drawerId: string,
+    name: K,
+    value: any
+  ): void {
     const drawer_component = this.getDrawer(drawerId)
     drawer_component.setProp(name, value)
   }
@@ -146,14 +164,18 @@ export default class Cabinet extends Element<HTMLDivElement, Props> {
   private _tick = () => {
     for (const drawer_id in this._drawer_node) {
       const { y } = this._drawer_node[drawer_id]
+
       const drawer = this._drawer_component[drawer_id]
+
       drawer.setProp('y', y)
     }
   }
 
   private _force = (alpha: number): void => {
     const entries = Object.entries(this._drawer_node)
+
     const n = entries.length
+
     for (let i = 0; i < n; i++) {
       const a_entry = entries[i]
 
@@ -175,14 +197,21 @@ export default class Cabinet extends Element<HTMLDivElement, Props> {
 
         if (ay + ah <= by) {
           l = by - ay - ah
+
           s = -1
         } else if (ay <= by) {
-          l = ay + ah - by
-          s = -1
+          const l0 = by - ay
+          const l1 = ay + ah - by
+
+          l = Math.min(l0, l1)
+
+          s = l0 < l1 ? 1 : -1
         } else if (by + bh <= ay) {
           l = ay - by - bh
         } else if (by <= ay) {
           l = by + bh - ay
+
+          s = 3
         } else {
           s = -1
         }
@@ -204,8 +233,11 @@ export default class Cabinet extends Element<HTMLDivElement, Props> {
     for (const drawer_id in this._drawer_node) {
       if (!this._drawer_inactivating.has(drawer_id)) {
         const node = this._drawer_node[drawer_id]
+
         const { y, height } = node
-        const dy = y + height / 2 - this._height / 2
+
+        const dy = y + height / 2 - this._height / 2 + this._dy
+
         node.vy -= (dy * alpha) / 10
       }
     }
@@ -216,6 +248,7 @@ export default class Cabinet extends Element<HTMLDivElement, Props> {
     () => {
       // console.log('Cabinet', '_on_context_resize')
       const { $width, $height } = this.$context
+
       this._on_resize($width, $height)
     }
   // , 300)
@@ -223,6 +256,7 @@ export default class Cabinet extends Element<HTMLDivElement, Props> {
   private _on_drawer_drag_start = (drawerId: string, y: number) => {
     // console.log('Cabinet', '_on_drawer_drag_start', y)
     const node = this._drawer_node[drawerId]
+
     if (node) {
       node.hy = y - node.y
       node.fy = node.y
@@ -245,11 +279,14 @@ export default class Cabinet extends Element<HTMLDivElement, Props> {
     const node = this._drawer_node[drawerId]
     if (node) {
       node.hy = 0
-      node.fy = undefined
+
+      if (!this._drawer_active.has(drawerId)) {
+        node.fy = undefined
+      }
     }
   }
 
-  public addDrawers = (drawers: Dict<CabinetDrawer>) => {
+  public addDrawers = (drawers: Dict<CabinetDrawerProps>) => {
     for (const drawerId in drawers) {
       const drawer = drawers[drawerId]
       this.addDrawer(drawerId, drawer)
@@ -258,7 +295,7 @@ export default class Cabinet extends Element<HTMLDivElement, Props> {
 
   private _drawer_inactivating: Set<string> = new Set()
 
-  public addDrawer = (drawerId: string, cabinetDrawer: CabinetDrawer) => {
+  public addDrawer = (drawerId: string, cabinetDrawer: CabinetDrawerProps) => {
     // console.log('Cabinet', 'addDrawer')
 
     // const { $width } = this.$context
@@ -273,10 +310,11 @@ export default class Cabinet extends Element<HTMLDivElement, Props> {
       state = {},
       width = 0,
       height = KNOB_HEIGHT,
+      shortcut,
     } = cabinetDrawer
     const { y = 0 } = state
 
-    const { color = 'currentColor', backgroundColor = NONE } = style
+    const { color = 'currentColor', backgroundColor = COLOR_NONE } = style
 
     this._drawer[drawerId] = cabinetDrawer
 
@@ -295,23 +333,33 @@ export default class Cabinet extends Element<HTMLDivElement, Props> {
           backgroundColor,
           color,
         },
+        shortcut,
       },
       this.$system
     )
     drawer_component.addEventListener(
       makeCustomListener('active', () => {
         // console.log('Cabinet', '_on_drawer_active')
-        // increase zIndex of this drawer on active
-        this._inc_drawer_z_index(drawerId)
 
-        this._setActive(drawerId, true)
+        // increase z-index of this drawer on active
+        this._incDrawerZIndex(drawerId)
+
+        this._memSetActive(drawerId, true)
 
         this._drawer_y[drawerId] = this._drawer_node[drawerId].y
 
         const drawer = this._drawer[drawerId]
+
+        const node = this._drawer_node[drawerId]
+
         const { component } = drawer
+
         if (component) {
-          this._removeDrawerNode(drawerId)
+          this._fixed_drawer_node.add(drawerId)
+
+          node.fy = node.y
+          node.height = drawer.height
+
           this._startSimulation()
         }
 
@@ -322,9 +370,21 @@ export default class Cabinet extends Element<HTMLDivElement, Props> {
       })
     )
     drawer_component.addEventListener(
+      makeCustomListener('activated', () => {
+        // console.log('Cabinet', '_on_drawer_activated')
+      })
+    )
+    drawer_component.addEventListener(
       makeCustomListener('inactive', () => {
         // console.log('Cabinet', '_on_drawer_inactive')
-        this._setActive(drawerId, false)
+
+        const {
+          api: {
+            window: { setTimeout },
+          },
+        } = this.$system
+
+        this._memSetActive(drawerId, false)
 
         const drawer = this._drawer[drawerId]
         const { component } = drawer
@@ -353,7 +413,7 @@ export default class Cabinet extends Element<HTMLDivElement, Props> {
     drawer_component.addEventListener(
       makeCustomListener('dragstart', ({ y }) => {
         // increase this drawer zIndex on dragstart
-        this._inc_drawer_z_index(drawerId)
+        this._incDrawerZIndex(drawerId)
         this._drawer_y[drawerId] = y
         this._on_drawer_drag_start(drawerId, y)
       })
@@ -412,6 +472,8 @@ export default class Cabinet extends Element<HTMLDivElement, Props> {
     delete this._drawer_node[drawerId]
   }
 
+  private _fixed_drawer_node: Set<string> = new Set()
+
   private _startSimulation = (alpha: number = 0.1): void => {
     // console.log('Cabinet', '_startSimulation')
     this._simulation.alpha(alpha)
@@ -456,7 +518,7 @@ export default class Cabinet extends Element<HTMLDivElement, Props> {
     this._context_unlisten()
   }
 
-  private _inc_drawer_z_index = (drawerId: string): void => {
+  private _incDrawerZIndex = (drawerId: string): void => {
     // increase zIndex of this drawer
     const drawer_component = this._drawer_component[drawerId]
 
@@ -484,6 +546,7 @@ export default class Cabinet extends Element<HTMLDivElement, Props> {
       drawer_component.setProp('y', _y)
 
       const node = this._drawer_node[drawer_id]
+
       if (node) {
         node.y += dy
       }
@@ -499,6 +562,7 @@ export default class Cabinet extends Element<HTMLDivElement, Props> {
 
     for (const drawer_id in this._drawer_component) {
       const drawer = this._drawer_component[drawer_id]
+
       drawer.show(animate)
     }
   }
@@ -509,6 +573,23 @@ export default class Cabinet extends Element<HTMLDivElement, Props> {
     for (const drawer_id in this._drawer_component) {
       const drawer = this._drawer_component[drawer_id]
       drawer.hide(animate)
+    }
+  }
+
+  public show_tooltips = (): void => {
+    for (const drawer_id in this._drawer_component) {
+      const drawer = this._drawer_component[drawer_id]
+
+      if (drawer.$props.shortcut) {
+        drawer.show_tooltip()
+      }
+    }
+  }
+
+  public hide_tooltips = (): void => {
+    for (const drawer_id in this._drawer_component) {
+      const drawer = this._drawer_component[drawer_id]
+      drawer.hide_tooltip()
     }
   }
 }

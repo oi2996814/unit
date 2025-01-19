@@ -1,0 +1,38 @@
+{
+  "name": "editable field",
+  "inputs": {
+    "value": {
+      "type": "string",
+      "optional": true
+    },
+    "style": {
+      "type": "object",
+      "optional": true
+    },
+    "attr": {
+      "type": "object",
+      "optional": true,
+      "defaultIgnored": true
+    }
+  },
+  "outputs": {
+    "value": {
+      "type": "string",
+      "optional": true,
+      "defaultIgnored": true
+    }
+  },
+  "metadata": {
+    "icon": "form-input",
+    "description": "single line text input",
+    "tags": ["platform", "component", "value"]
+  },
+  "id": "6309ac3f-4a37-4ab0-86c6-8be70b38e31d",
+  "base": true,
+  "component": {
+    "defaultWidth": 180,
+    "defaultHeight": 45
+  },
+  "type": "`U`&`C`&`V`&`J`",
+  "render": true
+}

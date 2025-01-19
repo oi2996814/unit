@@ -1,25 +1,24 @@
-import ResizeObserver from 'resize-observer-polyfill'
 import { System } from '../system'
-import { _removeChildren } from '../util/element'
-import { Component } from './component'
-import { Context, Fullwindow, resize, setParent } from './context'
-import { PositionObserver } from './PositionObserver'
-import { stopAllPropagation, stopByPropagation } from './stopPropagation'
+import { removeChildren } from '../util/element'
+import { Context, resize } from './context'
+import { stopByPropagation } from './stopPropagation'
 import { defaultThemeColor } from './theme'
 
 export function renderFrame(
   $system: System,
-  $parent: Component | null,
+  $parent: Context | null,
   $root: HTMLElement,
   $init: Partial<Context> = {}
 ): Context {
-  _removeChildren($root)
+  const {
+    api: {
+      document: { ResizeObserver, PositionObserver },
+    },
+  } = $system
+
+  removeChildren($root)
 
   const $element = $root
-
-  stopAllPropagation($element)
-
-  const $fullwindow: Fullwindow[] = []
 
   const $theme = 'dark'
 
@@ -27,22 +26,19 @@ export function renderFrame(
 
   $element.style.color = $color
 
+  $element.tabIndex = -1
+
   const $resizeObserver = new ResizeObserver((entries) => {
     const entry = entries[0]
+
     const { width, height } = entry.contentRect
+
     resize($context, width, height)
   })
 
   const $positionObserver = new PositionObserver(
-    (
-      x: number,
-      y: number,
-      sx: number,
-      sy: number,
-      rx: number,
-      ry: number,
-      rz: number
-    ): void => {
+    $system,
+    (x, y, sx, sy, rx, ry, rz): void => {
       $context.$x = x
       $context.$y = y
       $context.$sx = sx
@@ -53,13 +49,13 @@ export function renderFrame(
     }
   )
 
+  const $children = []
+
   const $context: Context = {
     $system,
     $mounted: false,
     $disabled: false,
-    $listenCount: {},
-    $parent: null,
-    $parent_unlisten: null,
+    $parent,
     $width: 0,
     $height: 0,
     $x: 0,
@@ -70,26 +66,22 @@ export function renderFrame(
     $ry: 0,
     $rz: 0,
     $element,
-    $fullwindow,
     $theme,
     $color,
-    $fullwindow_i: -1,
+    $children,
     get $context() {
       return $context
     },
     $resizeObserver,
     $positionObserver,
-    $listener: [],
-    $unlisten: [],
     ...$init,
   }
-
-  setParent($context, $parent)
 
   $system.context.push($context)
 
   for (const type of $system.customEvent) {
     const _type = `_${type}`
+
     stopByPropagation($element, _type)
   }
 

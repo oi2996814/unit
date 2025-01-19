@@ -18,36 +18,29 @@
   "merges": {},
   "inputs": {
     "n": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "numbertostring",
           "pinId": "n"
         }
-      },
-      "type": "number"
+      }
     }
   },
   "outputs": {
     "hex": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "numbertostring",
           "pinId": "str"
         }
-      },
-      "type": "string"
+      }
     }
   },
   "metadata": {
     "icon": "tilde",
     "description": "convert a number to its hexadecimal string",
-    "complexity": 3,
-    "tags": [
-      "core",
-      "string"
-    ]
+    "tags": ["core", "string"]
   },
   "id": "1a7665a2-2af0-11eb-9fdb-4bdf5feec91c",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

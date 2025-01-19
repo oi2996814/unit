@@ -1,0 +1,71 @@
+{
+  "name": "get a b",
+  "units": {
+    "get": {
+      "id": "9414421d-3376-4438-aa03-7afcd860972c",
+      "input": {
+        "key": {
+          "constant": true,
+          "data": "'a'"
+        }
+      }
+    },
+    "get0": {
+      "id": "9414421d-3376-4438-aa03-7afcd860972c",
+      "input": {
+        "key": {
+          "constant": true,
+          "data": "'b'"
+        }
+      }
+    }
+  },
+  "merges": {
+    "0": {
+      "get0": {
+        "input": {
+          "obj": true
+        }
+      },
+      "get": {
+        "input": {
+          "obj": true
+        }
+      }
+    }
+  },
+  "metadata": {
+    "icon": "object-get",
+    "description": "get `a` and `b` from object `ab`",
+    "tags": ["core", "util"]
+  },
+  "inputs": {
+    "ab": {
+      "plug": {
+        "0": {
+          "mergeId": "0"
+        }
+      }
+    }
+  },
+  "outputs": {
+    "a": {
+      "plug": {
+        "0": {
+          "unitId": "get",
+          "pinId": "value"
+        }
+      }
+    },
+    "b": {
+      "plug": {
+        "0": {
+          "unitId": "get0",
+          "pinId": "value"
+        }
+      }
+    }
+  },
+  "id": "40555189-33ef-48b6-af8a-5ab4805b9a1f",
+  "type": "`U`&`G`"
+}

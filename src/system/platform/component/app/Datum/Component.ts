@@ -1,44 +1,59 @@
-import { System } from '../../../../../system'
+import { DEFAULT_FONT_SIZE } from '../../../../../client/DEFAULT_FONT_SIZE'
 import { Element } from '../../../../../client/element'
-import DataTree from '../DataTree/Component'
-import { _keyUpdateTree } from './keyUpdateTree'
 import { makeCustomListener } from '../../../../../client/event/custom'
-import IOFocusEvent from '../../../../../client/event/focus/FocusEvent'
+import { IOFocusEvent } from '../../../../../client/event/focus/FocusEvent'
 import { IOKeyboardEvent } from '../../../../../client/event/keyboard'
-import parentElement from '../../../../../client/parentElement'
+import { parentElement } from '../../../../../client/platform/web/parentElement'
+import { parseFontSize } from '../../../../../client/util/style/getFontSize'
+import { _evaluate } from '../../../../../spec/evaluate'
 import {
   TreeNode,
-  getParentPath,
-  _getNodeAtPath,
-  _removeNodeAt,
-  getTree,
-  _updateNodeAt,
-  _getLastLeafPath,
   TreeNodeType,
+  _getLastLeafPath,
+  _getNodeAtPath,
   _getParent,
-  _insertNodeAt,
+  _removeNodeAt,
+  _updateNodeAt,
+  getParentPath,
+  getTree,
 } from '../../../../../spec/parser'
+import { stringify } from '../../../../../spec/stringify'
+import { System } from '../../../../../system'
 import { Dict } from '../../../../../types/Dict'
-import isEqual from '../../../../f/comparisson/Equals/f'
+import { _keyUpdateTree } from '../../../../../util/keyUpdateTree'
+import isEqual from '../../../../f/comparison/Equals/f'
+import DataTree from '../DataTree/Component'
 
 export interface Props {
   style: Dict<string>
   data: TreeNode
+  fontSize: number
 }
 
-export default class Datum extends Element<HTMLDivElement, Props> {
-  private _data_tree: DataTree
-  private _root: TreeNode
+export interface _Props {
+  style: Dict<string>
+  value: any
+}
+
+export class Datum extends Element<HTMLDivElement, Props> {
+  public _data_tree: DataTree
+  public _root: TreeNode
 
   private _ignore_blur: boolean = false
 
   constructor($props: Props, $system: System) {
     super($props, $system)
 
-    const { style = {}, data } = $props
+    const { style = {}, data = getTree(''), fontSize } = $props
 
     const data_tree = new DataTree(
-      { style, data, path: [], parent: null },
+      {
+        style: { ...style, fontSize: `${fontSize ?? DEFAULT_FONT_SIZE}px` },
+        data,
+        path: [],
+        parent: null,
+        fontSize,
+      },
       this.$system
     )
 
@@ -62,10 +77,14 @@ export default class Datum extends Element<HTMLDivElement, Props> {
       makeCustomListener('leafpaste', this._onLeafPaste)
     )
 
-    const $element = parentElement()
+    const $element = parentElement($system)
 
     this.$element = $element
     this.$slot = data_tree.$slot
+
+    this.$subComponent = {
+      data_tree,
+    }
 
     this.registerRoot(data_tree)
   }
@@ -74,9 +93,13 @@ export default class Datum extends Element<HTMLDivElement, Props> {
     if (prop === 'data') {
       this._root = current
       this._data_tree.setProp('data', current)
-      this.dispatchEvent('datumchange', { data: current })
     } else if (prop === 'style') {
+      const fontSize =
+        (current.fontSize && parseFontSize(current.fontSize)) ||
+        this.getFontSize()
+
       this._data_tree.setProp('style', current)
+      this._data_tree.setProp('fontSize', fontSize)
     }
   }
 
@@ -141,6 +164,7 @@ export default class Datum extends Element<HTMLDivElement, Props> {
         this._ignore_blur = true
       }
       _event.preventDefault()
+
       this._onChange(
         nextRoot,
         nextPath,
@@ -289,7 +313,8 @@ export default class Datum extends Element<HTMLDivElement, Props> {
   }) => {
     // console.log('Datum', '_onLeafInput')
     const leaf = this._data_tree.getChildAtPath(path)!
-    const { start: selectionStart } = leaf.getSelectionRange()
+    const { start: selectionStart, end: selectionEnd } =
+      leaf.getSelectionRange()
     const parent = _getParent(this._root, path)
     const ignoreKeyword = !!(
       parent &&
@@ -300,17 +325,7 @@ export default class Datum extends Element<HTMLDivElement, Props> {
     let nextRoot = _updateNodeAt(this._root, path, tree)
     let nextPath: number[] = path
 
-    this._onChange(nextRoot, nextPath, selectionStart, selectionStart)
-  }
-
-  private _insert_element_after = (path: number[]): void => {
-    const nextPath = [...path]
-    const parent = _getParent(this._root, path)
-    if (parent) {
-      nextPath[nextPath.length - 1] = nextPath[nextPath.length - 1] + 1
-      const nextRoot = _insertNodeAt(this._root, nextPath, getTree(''))
-      this._onChange(nextRoot, nextPath)
-    }
+    this._onChange(nextRoot, nextPath, selectionStart, selectionEnd)
   }
 
   private _onChange = (
@@ -320,7 +335,15 @@ export default class Datum extends Element<HTMLDivElement, Props> {
     selectionEnd?: number,
     direction?: 'forward' | 'backward' | 'none' | undefined
   ) => {
-    // console.log('Datum', '_onChange')
+    // console.log(
+    //   'Datum',
+    //   '_onChange',
+    //   data,
+    //   focus,
+    //   selectionStart,
+    //   selectionEnd,
+    //   direction
+    // )
     this._root = data
     this._ignore_blur = true
     this._data_tree.setProp('data', data)
@@ -335,5 +358,69 @@ export default class Datum extends Element<HTMLDivElement, Props> {
       )
     }
     this.dispatchEvent('datumchange', { data })
+  }
+}
+
+export default class Datum_ extends Element<HTMLDivElement, _Props> {
+  private _root: Datum
+
+  constructor($props: _Props, $system: System) {
+    super($props, $system)
+
+    const { style = {}, value = undefined } = $props
+
+    const data = this._get_tree(value)
+
+    const root = new Datum({ data, style, fontSize: 12 }, this.$system)
+
+    root.addEventListener(
+      makeCustomListener('datumchange', (event) => {
+        const { data } = event
+
+        try {
+          const data_ = _evaluate(
+            data,
+            this.$system.specs,
+            this.$system.classes
+          )
+
+          this.set('value', data_)
+          this.dispatchEvent('change', data_)
+        } catch (err) {
+          //
+        }
+      })
+    )
+
+    this._root = root
+
+    const $element = parentElement($system)
+
+    this.$element = $element
+    this.$slot = root.$slot
+    this.$unbundled = false
+
+    this.$subComponent = {
+      root,
+    }
+
+    this.registerRoot(root)
+  }
+
+  private _get_tree = (value: any) => {
+    const data_tree =
+      (value !== undefined && getTree(stringify(value))) || getTree('')
+
+    return data_tree
+  }
+
+  onPropChanged(prop: keyof _Props, current: any): void {
+    if (prop === 'value') {
+      const data = this._get_tree(current)
+
+      this._root.setProp('data', data)
+    } else {
+      this._root.setProp(prop, current)
+    }
   }
 }

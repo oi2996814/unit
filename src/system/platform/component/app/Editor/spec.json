@@ -1,0 +1,68 @@
+{
+  "name": "editor",
+  "inputs": {
+    "style": {
+      "type": "object"
+    },
+    "attr": {
+      "type": "object",
+      "defaultIgnored": true
+    },
+    "graph": {
+      "type": "`G`",
+      "ref": true
+    },
+    "disabled": {
+      "type": "boolean",
+      "defaultIgnored": true
+    },
+    "fullwindow": {
+      "type": "boolean",
+      "defaultIgnored": true
+    },
+    "frame": {
+      "type": "`C`",
+      "ref": true,
+      "defaultIgnored": true
+    },
+    "zoom": {
+      "type": "{x:number,y:number,z:number}",
+      "defaultIgnored": true
+    },
+    "controls": {
+      "type": "boolean",
+      "defaultIgnored": true
+    },
+    "config": {
+      "type": "{geometryOverride?:boolean,plugIcons?:boolean,unlinkTake?:boolean,dataCreate?:boolean,dataEdit?:boolean,dataUnlink?:boolean,dataSelect?:boolean,dataCompatible?:boolean,drawing?:boolean,enterGraph?:boolean,highlightCompatible?:boolean,plugReverse?:boolean,plugUnit?:boolean,multiInputMerge?:boolean,edgeDrag?:boolean,plugNames?:boolean,unitNames?:boolean,pinNames?:boolean,zoom?:boolean|{x?:number,y?:number,z?:number,maxZoom?:number,minZoom?:number}}",
+      "optional": true,
+      "defaultIgnored": true
+    }
+  },
+  "outputs": {
+    "graph": {
+      "type": "`G`",
+      "ref": true,
+      "defaultIgnored": true,
+      "icon": "graph"
+    },
+    "state": {
+      "type": "`J`",
+      "defaultIgnored": true,
+      "ref": true
+    }
+  },
+  "metadata": {
+    "icon": "atom-alt",
+    "description": "Recursive Graph Editor",
+    "tags": ["platform", "component", "app", "graph"]
+  },
+  "id": "e80c912e-7508-11ea-966b-436805345ff0",
+  "base": true,
+  "component": {
+    "defaultWidth": 360,
+    "defaultHeight": 360
+  },
+  "type": "`U`&`C`&`V`&`J`",
+  "render": true
+}

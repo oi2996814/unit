@@ -4,7 +4,7 @@
     "getvalue": {
       "id": "d74f12c2-1868-11eb-8136-238c1b1a727f",
       "input": {
-        "unit": {},
+        "obj": {},
         "any": {}
       },
       "output": {
@@ -50,11 +50,11 @@
       },
       "getvalue": {
         "input": {
-          "unit": true
+          "obj": true
         }
       }
     },
-    "fewowjo": {
+    "2": {
       "setvalue": {
         "input": {
           "value": true
@@ -68,9 +68,8 @@
     }
   },
   "inputs": {
-    "state": {
-      "type": "`U`",
-      "pin": {
+    "obj": {
+      "plug": {
         "0": {
           "mergeId": "1"
         }
@@ -78,27 +77,21 @@
       "ref": true
     },
     "any": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "getvalue",
           "pinId": "any"
         }
-      },
-      "type": "any"
+      }
     }
   },
   "outputs": {},
   "metadata": {
     "icon": "toggle-left",
-    "description": "...",
-    "complexity": 5,
-    "tags": [
-      "platform",
-      "core",
-      "component"
-    ]
+    "description": "toggle `obj` boolean property",
+    "tags": ["platform", "core", "component"]
   },
   "id": "dae754da-d773-41b9-bbc8-f72b83b6f03d",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`C`&`G`",
+  "render": false
 }

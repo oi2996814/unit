@@ -45,7 +45,7 @@
     }
   },
   "merges": {
-    "fvhcp": {
+    "0": {
       "set0": {
         "input": {
           "a": true
@@ -62,7 +62,7 @@
         }
       }
     },
-    "yuinh": {
+    "1": {
       "set1": {
         "input": {
           "v": true
@@ -74,7 +74,7 @@
         }
       }
     },
-    "caqns": {
+    "2": {
       "set0": {
         "input": {
           "v": true
@@ -86,7 +86,7 @@
         }
       }
     },
-    "lgkzp": {
+    "3": {
       "set0": {
         "input": {
           "i": true
@@ -98,7 +98,7 @@
         }
       }
     },
-    "tvuhz": {
+    "4": {
       "set0": {
         "output": {
           "a": true
@@ -110,7 +110,7 @@
         }
       }
     },
-    "mwffy": {
+    "5": {
       "at0": {
         "input": {
           "i": true
@@ -125,51 +125,42 @@
   },
   "inputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
-          "mergeId": "fvhcp"
+          "mergeId": "0"
         }
-      },
-      "type": "<A>[]"
+      }
     },
     "i": {
-      "pin": {
+      "plug": {
         "0": {
-          "mergeId": "lgkzp"
+          "mergeId": "3"
         }
-      },
-      "type": "number"
+      }
     },
     "j": {
-      "pin": {
+      "plug": {
         "0": {
-          "mergeId": "mwffy"
+          "mergeId": "5"
         }
-      },
-      "type": "number"
+      }
     }
   },
   "outputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "set1",
           "pinId": "a"
         }
-      },
-      "type": "<A>[]"
+      }
     }
   },
   "metadata": {
     "icon": "brackets",
     "description": "swap elements at position `i` and `j` ",
-    "complexity": 6,
-    "tags": [
-      "core",
-      "array"
-    ]
+    "tags": ["core", "array"]
   },
   "id": "706a0082-1dce-43d5-b629-9b6f8189e45d",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

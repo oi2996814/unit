@@ -9,7 +9,7 @@
     }
   },
   "merges": {
-    "merge0": {
+    "0": {
       "gte": {
         "input": {
           "a": true
@@ -21,7 +21,7 @@
         }
       }
     },
-    "merge1": {
+    "1": {
       "gte": {
         "input": {
           "b": true
@@ -36,52 +36,43 @@
   },
   "inputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
-          "mergeId": "merge0"
+          "mergeId": "0"
         }
-      },
-      "type": "number"
+      }
     },
     "b": {
-      "pin": {
+      "plug": {
         "0": {
-          "mergeId": "merge1"
+          "mergeId": "1"
         }
-      },
-      "type": "number"
+      }
     }
   },
   "outputs": {
     "a < b": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "lt",
           "pinId": "a < b"
         }
-      },
-      "type": "boolean"
+      }
     },
     "a ≥ b": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "gte",
           "pinId": "a ≥ b"
         }
-      },
-      "type": "boolean"
+      }
     }
   },
   "metadata": {
     "icon": "less-than",
     "description": "less than operator",
-    "complexity": 4,
-    "tags": [
-      "core",
-      "common"
-    ]
+    "tags": ["core", "common"]
   },
   "id": "568f2736-8734-464b-9bff-8e706e8d30ca",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

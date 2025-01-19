@@ -1,10 +1,12 @@
 import { addListeners } from '../../../../../client/addListener'
-import { ANIMATION_T_MS } from '../../../../../client/animation'
+import {
+  ANIMATION_T_MS,
+  ifLinearTransition,
+} from '../../../../../client/animation/animation'
+import { classnames } from '../../../../../client/classnames'
+import { debounce } from '../../../../../client/debounce'
 import { Element } from '../../../../../client/element'
-import applyStyle, { mergeStyle } from '../../../../../client/applyStyle'
-import classnames from '../../../../../client/classnames'
-import debounce from '../../../../../client/debounce'
-import { IOPointerEvent } from '../../../../../client/event/pointer'
+import { UnitPointerEvent } from '../../../../../client/event/pointer'
 import { makeClickListener } from '../../../../../client/event/pointer/click'
 import { makePointerCancelListener } from '../../../../../client/event/pointer/pointercancel'
 import { makePointerDownListener } from '../../../../../client/event/pointer/pointerdown'
@@ -13,14 +15,16 @@ import { makePointerLeaveListener } from '../../../../../client/event/pointer/po
 import { makePointerMoveListener } from '../../../../../client/event/pointer/pointermove'
 import { makePointerUpListener } from '../../../../../client/event/pointer/pointerup'
 import { makeResizeListener } from '../../../../../client/event/resize'
-import parentElement from '../../../../../client/parentElement'
-import { NONE } from '../../../../../client/theme'
+import { parentElement } from '../../../../../client/platform/web/parentElement'
+import { applyStyle, mergeStyle } from '../../../../../client/style'
+import { COLOR_NONE } from '../../../../../client/theme'
 import { System } from '../../../../../system'
 import { Dict } from '../../../../../types/Dict'
-import { Unlisten } from '../../../../../Unlisten'
+import { Unlisten } from '../../../../../types/Unlisten'
 import Div from '../../Div/Component'
 import Frame from '../../Frame/Component'
-import IconButton from '../../Icon/Component'
+import Icon from '../../Icon/Component'
+import Tooltip from '../Tooltip/Component'
 
 export interface Props {
   className?: string
@@ -33,6 +37,7 @@ export interface Props {
   active?: boolean
   hidden?: boolean
   y?: number
+  shortcut?: string
 }
 
 export const KNOB_HEIGHT = 35
@@ -51,8 +56,9 @@ export default class Drawer extends Element<HTMLDivElement, Props> {
 
   public frame: Frame
 
-  private _knob: IconButton
-  private _column: Div
+  private _knob: Icon
+
+  private _tooltip: Tooltip
 
   private _active: boolean = false
   private _hidden: boolean = false
@@ -74,6 +80,7 @@ export default class Drawer extends Element<HTMLDivElement, Props> {
       y = 0,
       width = 0,
       height = KNOB_HEIGHT,
+      shortcut,
     } = this.$props
 
     this._active = active
@@ -83,49 +90,53 @@ export default class Drawer extends Element<HTMLDivElement, Props> {
 
     const { backgroundColor = 'inherit' } = style
 
-    const knob = new IconButton(
+    const knob = new Icon(
       {
         className: 'drawer-knob',
         icon,
-        active,
         style: {
           position: 'absolute',
           top: '0',
           padding: '6px',
           transform: 'translateX(-100%)',
-          height: `${KNOB_HEIGHT - 12 - 2}px`,
-          width: `${KNOB_HEIGHT - 12 - 2}px`,
+          height: `${KNOB_HEIGHT - 12 - 1}px`,
+          width: `${KNOB_HEIGHT - 12 - 1}px`,
           touchAction: 'none',
-          boxShadow:
-            'inset 1px 0 0 0 currentColor, inset -1px 0 0 0 #00000000, inset 0 1px 0 0 currentColor, inset 0 -1px 0 0 currentColor',
+          // boxShadow:
+          //   'inset 1px 0 0 0 currentColor, inset -1px 0 0 0 #00000000, inset 0 1px 0 0 currentColor, inset 0 -1px 0 0 currentColor',
           backgroundColor,
+          cursor: 'pointer',
+          borderTopLeftRadius: '3px',
+          borderBottomLeftRadius: '3px',
+          borderWidth: '1px 0px 1px 1px',
+          borderStyle: 'solid',
+          borderColor: 'currentColor',
+          borderBottom: '0',
         },
         title,
       },
       this.$system
     )
-    knob.addEventListener(
-      makeClickListener({
-        onClick: this._on_knob_click,
-      })
-    )
-    knob.addEventListener(makePointerEnterListener(this._on_knob_pointer_enter))
-    knob.addEventListener(makePointerLeaveListener(this._on_knob_pointer_leave))
-    knob.addEventListener(makePointerDownListener(this._on_knob_pointer_down))
-    knob.preventDefault('mousedown')
-    knob.preventDefault('touchdown')
     this._knob = knob
+
+    const tooltip = new Tooltip(
+      {
+        shortcut,
+      },
+      this.$system
+    )
+    this._tooltip = tooltip
 
     const frame = new Frame(
       {
         className: 'drawer-frame',
         style: {
-          position: 'absolute',
+          position: 'relative',
           width: `${width + 2}px`,
           height: `${height + 2}px`,
           borderWidth: '1px',
           borderStyle: 'solid',
-          borderColor: NONE,
+          borderColor: COLOR_NONE,
           borderRadius: '1px',
           boxSizing: 'border-box',
           overflow: 'hidden',
@@ -145,9 +156,10 @@ export default class Drawer extends Element<HTMLDivElement, Props> {
           // borderWidth: component ? '1px' : '0',
           // borderStyle: 'solid',
           // borderColor: 'currentColor',
-          boxShadow:
-            'inset 1px 0 0 0 #00000000, inset -1px 0 0 0 currentColor, inset 0 1px 0 0 currentColor, inset 0 -1px 0 0 currentColor',
+          // boxShadow:
+          //   'inset 1px 0 0 0 #00000000, inset -1px 0 0 0 currentColor, inset 0 1px 0 0 currentColor, inset 0 -1px 0 0 currentColor',
           // borderLeftColor: NONE,
+          borderTop: '1px solid currentColor',
           boxSizing: 'border-box',
           borderRadius: '0px',
           borderBottomLeftRadius: '1px',
@@ -161,6 +173,82 @@ export default class Drawer extends Element<HTMLDivElement, Props> {
     content.registerParentRoot(frame)
     this.content = content
 
+    const container = new Div(
+      {
+        className: 'drawer-column',
+        style: {
+          width: 'fit-content',
+          height: 'fit-content',
+        },
+      },
+      this.$system
+    )
+
+    const notch = new Div(
+      {
+        className: 'drawer-knob-notch-bottom',
+        style: {
+          position: 'absolute',
+          bottom: '0px',
+          left: '-30px',
+          top: '31px',
+          width: '27px',
+          height: '4px',
+          backgroundColor: 'none',
+          borderWidth: '0px 0px 1px 0px',
+          borderStyle: 'solid',
+          borderColor: 'currentColor',
+          boxSizing: 'border-box',
+          cursor: 'pointer',
+        },
+      },
+      this.$system
+    )
+
+    const notch0 = new Div(
+      {
+        className: 'drawer-knob-notch-bottom-left',
+        style: {
+          position: 'absolute',
+          bottom: '0px',
+          left: '-35px',
+          top: '31px',
+          width: '5px',
+          height: '4px',
+          backgroundColor: 'none',
+          borderWidth: '0px 0px 1px 1px',
+          borderBottomLeftRadius: '3px',
+          borderStyle: 'solid',
+          borderColor: 'currentColor',
+          boxSizing: 'border-box',
+          cursor: 'pointer',
+        },
+      },
+      this.$system
+    )
+
+    container.addEventListener(
+      makeClickListener({
+        onClick: this._on_knob_click,
+      })
+    )
+    container.addEventListener(
+      makePointerEnterListener(this._on_knob_pointer_enter)
+    )
+    container.addEventListener(
+      makePointerLeaveListener(this._on_knob_pointer_leave)
+    )
+    container.addEventListener(
+      makePointerDownListener(this._on_knob_pointer_down)
+    )
+
+    container.preventDefault('mousedown')
+    container.preventDefault('touchdown')
+
+    container.registerParentRoot(knob)
+    container.registerParentRoot(notch)
+    container.registerParentRoot(notch0)
+
     const column = new Div(
       {
         className: 'drawer-column',
@@ -168,17 +256,58 @@ export default class Drawer extends Element<HTMLDivElement, Props> {
           position: 'absolute',
           bottom: '0px',
           left: '0px',
-          width: '0px',
-          height: 'calc(100% - 32px)',
+          width: '4px',
+          height: 'calc(100% - 38px)',
           backgroundColor: 'none',
-          borderWidth: '0px 1px 0px 0px',
+          borderWidth: '0px 0px 1px 1px',
           borderStyle: 'solid',
           borderColor: 'currentColor',
+          borderBottomLeftRadius: '3px',
+          boxSizing: 'border-box',
         },
       },
       this.$system
     )
-    this._column = column
+
+    const row = new Div(
+      {
+        className: 'drawer-row',
+        style: {
+          position: 'absolute',
+          bottom: '0px',
+          right: '0px',
+          width: 'calc(100% - 3px)',
+          height: '3px',
+          backgroundColor: 'none',
+          borderWidth: '0px 1px 0px 0px',
+          borderStyle: 'solid',
+          borderColor: 'currentColor',
+          borderBottom: '1px solid currentColor',
+          boxSizing: 'border-box',
+        },
+      },
+      this.$system
+    )
+
+    const notch1 = new Div(
+      {
+        className: 'drawer-armpit-top-right',
+        style: {
+          position: 'absolute',
+          left: '21px',
+          bottom: '-10px',
+          width: '10px',
+          height: '10px',
+          backgroundColor: 'none',
+          borderWidth: '1px 1px 0px 0px',
+          borderTopRightRadius: '3px',
+          borderStyle: 'solid',
+          borderColor: 'currentColor',
+          boxSizing: 'border-box',
+        },
+      },
+      this.$system
+    )
 
     const drawer = new Div(
       {
@@ -191,24 +320,28 @@ export default class Drawer extends Element<HTMLDivElement, Props> {
       this.$system
     )
     this.drawer = drawer
-    drawer.registerParentRoot(knob)
+    drawer.registerParentRoot(container)
     drawer.registerParentRoot(content)
     drawer.registerParentRoot(column)
+    drawer.registerParentRoot(row)
+    notch.registerParentRoot(notch1)
 
-    const $element = parentElement()
-
-    this.$subComponent = {
-      drawer,
-      knob,
-      content,
-      column,
-    }
+    const $element = parentElement($system)
 
     this.$element = $element
     this.$slot = drawer.$slot
     this.$unbundled = false
+    this.$primitive = true
+
+    this.setSubComponents({
+      drawer,
+      knob,
+      content,
+      column,
+    })
 
     this.registerRoot(drawer)
+    this.registerRoot(tooltip)
   }
 
   private _drawer_style = (): Dict<string> => {
@@ -231,12 +364,11 @@ export default class Drawer extends Element<HTMLDivElement, Props> {
 
       applyStyle(this.drawer.$element, style)
 
-      const { backgroundColor = NONE } = style
+      const { backgroundColor = COLOR_NONE } = style
 
       this._knob.$slot['default'].$element.style.backgroundColor =
         backgroundColor
     } else if (prop === 'active') {
-      // this._setActive(current)
       this.setActive(current)
     } else if (prop === 'y') {
       this._y = current
@@ -246,7 +378,6 @@ export default class Drawer extends Element<HTMLDivElement, Props> {
     } else if (prop === 'height') {
       this._resize()
     } else if (prop === 'hidden') {
-      // this._resize()
       this._translate()
     }
   }
@@ -287,16 +418,26 @@ export default class Drawer extends Element<HTMLDivElement, Props> {
     }
 
     if (this._hidden) {
-      translateX = -translateX + 34
+      translateX = -translateX + 34 + 1
     }
 
     return translateX
   }
 
   private _setActive = (active: boolean) => {
+    const {
+      api: {
+        window: { setTimeout },
+      },
+    } = this.$system
+
     this._active = active
-    this._knob.setProp('active', active)
+
     this._animate_transform(true)
+
+    setTimeout(() => {
+      this.dispatchEvent('activated', {})
+    }, ANIMATION_T_MS + 100)
   }
 
   private _translate = (): void => {
@@ -306,7 +447,7 @@ export default class Drawer extends Element<HTMLDivElement, Props> {
   }
 
   private _resize = (): void => {
-    console.log('Drawer', '_resize')
+    // console.log('Drawer', '_resize')
 
     const { $width } = this.$context
     const { width = 0, height = KNOB_HEIGHT, component } = this.$props
@@ -330,15 +471,15 @@ export default class Drawer extends Element<HTMLDivElement, Props> {
     }
   }
 
-  private _on_knob_click = (event: IOPointerEvent) => {
+  private _on_knob_click = (event: UnitPointerEvent) => {
     this.setActive(!this._active)
   }
 
-  private _on_knob_pointer_enter = (event: IOPointerEvent) => {
+  private _on_knob_pointer_enter = (event: UnitPointerEvent) => {
     this._hover = true
   }
 
-  private _on_knob_pointer_leave = (event: IOPointerEvent) => {
+  private _on_knob_pointer_leave = (event: UnitPointerEvent) => {
     this._hover = false
   }
 
@@ -351,7 +492,7 @@ export default class Drawer extends Element<HTMLDivElement, Props> {
     return Math.max(Math.min(top, $height - KNOB_HEIGHT), 0)
   }
 
-  private _on_knob_pointer_down = (event: IOPointerEvent) => {
+  private _on_knob_pointer_down = (event: UnitPointerEvent) => {
     // log('Drawer', '_on_knob_pointer_down')
 
     const { clientY, pointerId } = event
@@ -363,7 +504,7 @@ export default class Drawer extends Element<HTMLDivElement, Props> {
     this._drag_pointer_id = pointerId
 
     const unlisten_knob = this._knob.addEventListeners([
-      makePointerMoveListener((event: IOPointerEvent) => {
+      makePointerMoveListener((event: UnitPointerEvent) => {
         if (this._drag) {
           const { pointerId } = event
           if (this._drag_pointer_id === pointerId) {
@@ -378,7 +519,7 @@ export default class Drawer extends Element<HTMLDivElement, Props> {
           }
         }
       }),
-      makePointerUpListener((event: IOPointerEvent) => {
+      makePointerUpListener((event: UnitPointerEvent) => {
         // log('Drawer', '_on_knob_pointer_up')
         const { pointerId } = event
         if (this._drag_pointer_id === pointerId) {
@@ -399,11 +540,15 @@ export default class Drawer extends Element<HTMLDivElement, Props> {
     this.dispatchEvent('dragstart', { y: this._y })
   }
 
-  private _on_container_resize = debounce(() => {
-    if (this._active) {
-      this._resize()
-    }
-  }, 300)
+  private _on_container_resize = debounce(
+    this.$system,
+    () => {
+      if (this._active) {
+        this._resize()
+      }
+    },
+    300
+  )
 
   private _frame_listener: Unlisten
 
@@ -418,30 +563,51 @@ export default class Drawer extends Element<HTMLDivElement, Props> {
     this._frame_listener()
   }
 
+  private _animation: Animation
+
   private _animate = (style: Dict<string>, animate: boolean): void => {
     const duration = animate ? ANIMATION_T_MS : 0
+
     const fill = 'forwards'
 
-    this.drawer.$element.animate([style], {
+    if (this._animation) {
+      this._animation.pause()
+      this._animation.commitStyles()
+    }
+
+    this._animation = this.drawer.$element.animate?.([style], {
       duration,
       fill,
-    }).onfinish = () => {
+    })
+
+    this._animation.onfinish = () => {
       mergeStyle(this.drawer.$element, style)
+
+      this._animation = undefined
     }
   }
 
   private _animate_transform = (animate: boolean): void => {
+    // console.log('Drawer', '_animate_transform', animate)
+
     const transform = this._transform()
 
-    this._animate(
-      {
-        transform,
-      },
-      animate
-    )
+    // this._animate(
+    //   {
+    //     transform,
+    //   },
+    //   animate
+    // )
+
+    mergeStyle(this.drawer.$element, {
+      transform,
+      transition: ifLinearTransition(animate, 'transform'),
+    })
   }
 
   public show(animate: boolean): void {
+    // console.log('Drawer', 'show', animate)
+
     this._hidden = false
 
     this._animate_transform(animate)
@@ -451,5 +617,15 @@ export default class Drawer extends Element<HTMLDivElement, Props> {
     this._hidden = true
 
     this._animate_transform(animate)
+  }
+
+  public show_tooltip = () => {
+    const bbox = this._knob.getBoundingClientRect()
+
+    this._tooltip.show(bbox.x - 30 - 3, bbox.y + 4.5)
+  }
+
+  public hide_tooltip = () => {
+    this._tooltip.hide()
   }
 }

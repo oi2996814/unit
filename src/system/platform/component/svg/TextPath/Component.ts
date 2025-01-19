@@ -1,64 +1,57 @@
-import applyStyle from '../../../../../client/applyStyle'
-import namespaceURI from '../../../../../client/component/namespaceURI'
-import { Element } from '../../../../../client/element'
+import { namespaceURI } from '../../../../../client/component/namespaceURI'
+import { SVGElement_ } from '../../../../../client/svg'
 import { System } from '../../../../../system'
 import { Dict } from '../../../../../types/Dict'
 
 export interface Props {
   className?: string
   style?: Dict<string>
+  attr?: Dict<string>
   href?: string
   startOffset?: string
   spacing?: string
-  lenghtAdjust?: string
+  lengthAdjust?: string
   textContent?: string
 }
 
-export default class SVGTextPath extends Element<SVGTextPathElement, Props> {
-  private _text_path_el: SVGTextPathElement
-
+export default class SVGTextPath extends SVGElement_<
+  SVGTextPathElement,
+  Props
+> {
   constructor($props: Props, $system: System) {
-    super($props, $system)
+    super(
+      $props,
+      $system,
+      $system.api.document.createElementNS(namespaceURI, 'textPath'),
+      $system.style['textpath'],
+      {},
+      {
+        textContent: (current: string | undefined) => {
+          this.$element.textContent = current
+        },
+      }
+    )
 
-    const {
-      style = {},
-      className,
-      href,
-      startOffset,
-      lenghtAdjust,
-      spacing,
-      textContent,
-    } = this.$props
+    const { className, href, startOffset, lengthAdjust, spacing, textContent } =
+      this.$props
 
-    const text_path_el = document.createElementNS(namespaceURI, 'textPath')
-    applyStyle(text_path_el, style)
     if (className) {
-      text_path_el.classList.add(className)
+      this.$element.classList.add(className)
     }
     if (href !== undefined) {
-      text_path_el.setAttribute('href', href)
+      this.$element.setAttribute('href', href)
     }
     if (startOffset !== undefined) {
-      text_path_el.setAttribute('startOffset', startOffset)
+      this.$element.setAttribute('startOffset', startOffset)
     }
-    if (lenghtAdjust !== undefined) {
-      text_path_el.setAttribute('lenghtAdjust', lenghtAdjust)
+    if (lengthAdjust !== undefined) {
+      this.$element.setAttribute('lengthAdjust', lengthAdjust)
     }
     if (spacing !== undefined) {
-      text_path_el.setAttribute('spacing', spacing)
+      this.$element.setAttribute('spacing', spacing)
     }
     if (textContent !== undefined) {
-      text_path_el.textContent = textContent
-    }
-    this._text_path_el = text_path_el
-
-    this.$element = text_path_el
-  }
-
-  // TODO
-  onPropChanged(prop: string, current: any): void {
-    if (prop === 'textContent') {
-      this._text_path_el.textContent = current
+      this.$element.textContent = textContent
     }
   }
 }

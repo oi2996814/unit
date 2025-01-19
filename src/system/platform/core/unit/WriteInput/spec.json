@@ -1,0 +1,186 @@
+{
+  "name": "write input",
+  "inputs": {
+    "name": {
+      "plug": {
+        "0": {
+          "unitId": "input",
+          "pinId": "name"
+        }
+      },
+      "functional": true,
+      "metadata": {
+        "position": {
+          "0": {
+            "ext": {
+              "x": -118,
+              "y": -33
+            }
+          }
+        }
+      }
+    },
+    "data": {
+      "plug": {
+        "0": {
+          "unitId": "write",
+          "pinId": "data",
+          "kind": "input"
+        }
+      },
+      "functional": true,
+      "metadata": {
+        "position": {
+          "0": {
+            "ext": {
+              "x": 119,
+              "y": -1
+            }
+          }
+        }
+      }
+    },
+    "unit": {
+      "plug": {
+        "0": {
+          "unitId": "input",
+          "pinId": "unit"
+        }
+      },
+      "ref": true,
+      "metadata": {
+        "position": {
+          "0": {
+            "ext": {
+              "x": -119,
+              "y": 33
+            }
+          }
+        }
+      }
+    }
+  },
+  "outputs": {
+    "done": {
+      "plug": {
+        "0": {
+          "unitId": "input",
+          "pinId": "done"
+        }
+      },
+      "defaultIgnored": true
+    }
+  },
+  "units": {
+    "write": {
+      "id": "98ab5ee1-0997-4ad2-bc77-776208b6bb25",
+      "input": {
+        "value": {},
+        "data": {
+          "metadata": {
+            "position": {
+              "x": 96,
+              "y": 0
+            }
+          }
+        }
+      },
+      "output": {
+        "done": {
+          "ignored": false
+        }
+      },
+      "metadata": {
+        "position": {
+          "x": 47,
+          "y": 1
+        }
+      }
+    },
+    "input": {
+      "id": "4ae69887-a087-4d37-8743-d83ca48184d1",
+      "input": {
+        "unit": {
+          "metadata": {
+            "position": {
+              "x": -101,
+              "y": 18
+            }
+          }
+        },
+        "name": {
+          "metadata": {
+            "position": {
+              "x": -100,
+              "y": -17
+            }
+          }
+        },
+        "done": {
+          "ignored": false
+        }
+      },
+      "output": {
+        "pin": {
+          "metadata": {
+            "position": {
+              "x": -2,
+              "y": 19
+            }
+          }
+        }
+      },
+      "metadata": {
+        "position": {
+          "x": -54,
+          "y": 1
+        }
+      }
+    }
+  },
+  "merges": {
+    "0": {
+      "write": {
+        "input": {
+          "value": true
+        }
+      },
+      "input": {
+        "output": {
+          "pin": true
+        }
+      }
+    },
+    "1": {
+      "write": {
+        "output": {
+          "done": true
+        }
+      },
+      "input": {
+        "input": {
+          "done": true
+        }
+      }
+    }
+  },
+  "component": {},
+  "metadata": {
+    "icon": "object-set",
+    "description": "write `data` to `unit` input `name`",
+    "tags": ["platform", "core", "unit"],
+    "position": {
+      "merge": {
+        "1": {
+          "x": -2,
+          "y": -11
+        },
+        "2": {
+          "x": -80,
+          "y": -13
+        }
+      }
+    }
+  },
+  "id": "04953fed-157a-479d-91ac-005174b9b85e"
+}

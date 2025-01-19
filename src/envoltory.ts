@@ -4,6 +4,7 @@ import { Dict } from './types/Dict'
 
 export function envolve(
   system: System,
+
   interf: Dict<(...args: any[]) => any>,
   __: string[]
 ): $ {

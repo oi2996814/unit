@@ -1,8 +1,9 @@
 import * as assert from 'assert'
 import { watchUnitAndLog } from '../../../../debug'
-import Substr from '../../../../system/f/string/Substr'
+import Substring from '../../../../system/f/string/Substr'
+import { system } from '../../../util/system'
 
-const substr = new Substr()
+const substr = new Substring(system)
 
 substr.play()
 

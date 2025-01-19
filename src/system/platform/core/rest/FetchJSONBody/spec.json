@@ -1,73 +1,122 @@
 {
   "name": "fetch JSON body",
   "units": {
-    "vryyfsgqw": {
+    "fetchbody": {
       "id": "7ba3db14-6f80-434b-b9dc-bd38462b20fc",
       "input": {
-        "avbejlrtg": {},
-        "qumzdhh": {}
+        "url": {},
+        "opt": {}
+      },
+      "output": {
+        "body": {}
+      },
+      "metadata": {
+        "position": {
+          "x": 2,
+          "y": 6
+        }
       }
     },
-    "fygewemc": {
-      "id": "563e92be-ad5e-4a61-a718-9249c3eac51d"
+    "parse": {
+      "id": "563e92be-ad5e-4a61-a718-9249c3eac51d",
+      "input": {
+        "string": {}
+      },
+      "output": {
+        "json": {}
+      },
+      "metadata": {
+        "position": {
+          "x": 105,
+          "y": 2
+        }
+      }
+    },
+    "deepset": {
+      "id": "419e468e-e4d4-11ea-8efb-2b9d815b1798",
+      "input": {
+        "path": {
+          "constant": true,
+          "data": "['headers','Content-Type']"
+        },
+        "value": {
+          "constant": true,
+          "data": "'application/json'"
+        },
+        "obj": {}
+      },
+      "output": {
+        "result": {}
+      },
+      "metadata": {
+        "position": {
+          "x": -109,
+          "y": -9
+        }
+      }
     }
   },
   "merges": {
-    "xeqgpphp": {
-      "vryyfsgqw": {
+    "0": {
+      "fetchbody": {
         "output": {
-          "scaqz": true
+          "body": true
         }
       },
-      "fygewemc": {
+      "parse": {
         "input": {
           "string": true
         }
       }
+    },
+    "1": {
+      "deepset": {
+        "output": {
+          "result": true
+        }
+      },
+      "fetchbody": {
+        "input": {
+          "opt": true
+        }
+      }
     }
   },
+  "render": false,
+  "component": {},
   "metadata": {
     "icon": "send",
-    "description": "no description",
-    "complexity": 4,
-    "tags": [
-      "platform",
-      "core",
-      "rest"
-    ]
+    "description": "fetch JSON",
+    "tags": ["platform", "core", "rest"]
   },
   "inputs": {
     "url": {
-      "pin": {
+      "plug": {
         "0": {
-          "unitId": "vryyfsgqw",
-          "pinId": "avbejlrtg"
+          "unitId": "fetchbody",
+          "pinId": "url"
         }
-      },
-      "type": "string"
+      }
     },
     "options": {
-      "pin": {
+      "plug": {
         "0": {
-          "unitId": "vryyfsgqw",
-          "pinId": "qumzdhh"
+          "unitId": "deepset",
+          "pinId": "obj"
         }
-      },
-      "type": "{body?:string|null,headers?:object,method?:string}"
+      }
     }
   },
   "outputs": {
     "json": {
-      "pin": {
+      "plug": {
         "0": {
-          "unitId": "fygewemc",
+          "unitId": "parse",
           "pinId": "json"
         }
-      },
-      "type": "any"
+      }
     }
   },
   "id": "00a8a078-91bf-4676-aa32-c9cfacdfd527",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

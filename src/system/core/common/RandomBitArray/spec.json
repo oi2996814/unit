@@ -35,7 +35,7 @@
     }
   },
   "merges": {
-    "etjbu": {
+    "0": {
       "randombit": {
         "input": {
           "any": true
@@ -47,7 +47,7 @@
         }
       }
     },
-    "mxzbr": {
+    "1": {
       "narraybuilder": {
         "input": {
           "a": true
@@ -59,7 +59,7 @@
         }
       }
     },
-    "fulew": {
+    "2": {
       "range": {
         "input": {
           "b": true
@@ -74,35 +74,28 @@
   },
   "inputs": {
     "n": {
-      "type": "number",
-      "pin": {
+      "plug": {
         "0": {
-          "mergeId": "fulew"
+          "mergeId": "2"
         }
       }
     }
   },
   "outputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "narraybuilder",
           "pinId": "a[]"
         }
-      },
-      "type": "number[]"
+      }
     }
   },
   "metadata": {
     "icon": "brackets",
     "description": "random array of bits of size `n`",
-    "complexity": 8,
-    "tags": [
-      "core",
-      "common"
-    ]
+    "tags": ["core", "common"]
   },
   "id": "33ec13e7-5a30-4029-af21-07ee422a8a2d",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

@@ -25,66 +25,56 @@
   "metadata": {
     "icon": "brackets-curly",
     "description": "merge objects `a`, `b`, `c` and `d` into `abcd`",
-    "complexity": 7,
-    "tags": [
-      "core",
-      "object"
-    ]
+    "tags": ["core", "object"]
   },
   "inputs": {
     "d": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "merge",
           "pinId": "b"
         }
       },
-      "type": "object"
+      "functional": true
     },
     "c": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "merge",
           "pinId": "a"
         }
       },
-      "type": "object"
+      "functional": true
     },
     "a": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "merge3",
           "pinId": "a"
         }
       },
-      "type": "object"
+      "functional": true
     },
     "b": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "merge3",
           "pinId": "b"
         }
       },
-      "type": "object"
+      "functional": true
     }
   },
   "outputs": {
     "abcd": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "merge3",
           "pinId": "abc"
         }
-      },
-      "type": "object"
+      }
     }
   },
   "id": "1f1b065a-937b-4630-be80-54edf795eb19",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

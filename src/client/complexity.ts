@@ -1,5 +1,5 @@
 import { treeComplexityById } from '../spec/complexity'
-import { Specs } from '../types'
+import { Classes, Specs } from '../types'
 import { Dict } from '../types/Dict'
 import { getSpec } from './spec'
 
@@ -9,38 +9,44 @@ const _specComplexityCache: Dict<number> = {}
 
 export const getSpecComplexity = (
   specs: Specs,
-  path: string,
+  classes: Classes,
+  id: string,
   useCache: boolean = true
 ): number => {
   let c: number
   if (useCache) {
-    if (!_specComplexityCache[path]) {
-      c = getSpecComplexity(specs, path, false)
+    if (!_specComplexityCache[id]) {
+      c = getSpecComplexity(specs, classes, id, false)
     }
-    c = _specComplexityCache[path]
+    c = _specComplexityCache[id]
   } else {
-    c = _treeComplexityByPath(specs, path)
+    c = _treeComplexityByPath(specs, classes, id)
   }
-  _specComplexityCache[path] = c
+  _specComplexityCache[id] = c
   return c
 }
 
 export const getSpecRadius = (
   specs: Specs,
-  path: string,
+  classes: Classes,
+  id: string,
   useCache: boolean = true
 ): number => {
-  const c: number = getSpecComplexity(specs, path, useCache)
+  const c: number = getSpecComplexity(specs, classes, id, useCache)
   const R = UNIT_MIN_RADIUS + Math.log2(c) / 3
   const _R = Math.round(R) // important to return an integer
   return _R
 }
 
-export const _treeComplexityByPath = (specs: Specs, path: string): number => {
+export const _treeComplexityByPath = (
+  specs: Specs,
+  classes: Classes,
+  path: string
+): number => {
   const spec = getSpec(specs, path)
   let c = spec.metadata && spec.metadata.complexity
   if (c === undefined) {
-    c = treeComplexityById(specs, path)
+    c = treeComplexityById(specs, classes, path)
   }
   return c
 }

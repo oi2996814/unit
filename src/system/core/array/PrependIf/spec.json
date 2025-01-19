@@ -9,7 +9,7 @@
     }
   },
   "merges": {
-    "kajgjbzz": {
+    "0": {
       "prepend": {
         "input": {
           "a": true
@@ -21,7 +21,7 @@
         }
       }
     },
-    "jlayrqhpi": {
+    "1": {
       "prepend": {
         "output": {
           "a": true
@@ -37,55 +37,46 @@
   "metadata": {
     "icon": "chevrons-left",
     "description": "prepend element `b` to `a` if `test`",
-    "complexity": 5.656005040490706,
-    "tags": [
-      "core",
-      "array"
-    ]
+    "tags": ["core", "array"]
   },
   "inputs": {
     "test": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "pick",
           "pinId": "c"
         }
       },
-      "type": "boolean"
+      "functional": true
     },
     "b": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "prepend",
           "pinId": "b"
         }
       },
-      "type": "<A>"
+      "functional": true
     },
     "a": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
-          "mergeId": "kajgjbzz"
+          "mergeId": "0"
         }
       },
-      "type": "<A>[]"
+      "functional": true
     }
   },
   "outputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "pick",
           "pinId": "a"
         }
-      },
-      "type": "<A>[]"
+      }
     }
   },
   "id": "5a8e4250-ad00-40a8-ae32-9f4aeeb8ab2e",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

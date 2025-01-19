@@ -12,7 +12,7 @@
     "0": {
       "plan0": {
         "output": {
-          "second": true
+          "1": true
         }
       },
       "plan": {
@@ -25,53 +25,44 @@
   "metadata": {
     "icon": "list-ordered",
     "description": "output `a` on `0`, then `1`, then `2`",
-    "complexity": 5.577803309675147,
-    "tags": [
-      "core",
-      "control"
-    ]
+    "tags": ["core", "control"]
   },
   "inputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "plan0",
           "pinId": "a"
         }
-      },
-      "type": "<A>"
+      }
     }
   },
   "outputs": {
     "0": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "plan0",
-          "pinId": "first"
+          "pinId": "0"
         }
-      },
-      "type": "<A>"
+      }
     },
     "1": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "plan",
-          "pinId": "first"
+          "pinId": "0"
         }
-      },
-      "type": "<A>"
+      }
     },
     "2": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "plan",
-          "pinId": "second"
+          "pinId": "1"
         }
-      },
-      "type": "<A>"
+      }
     }
   },
   "id": "0c78466f-f682-4aca-9a15-d4d2eac5e26d",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

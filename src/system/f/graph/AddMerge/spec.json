@@ -1,0 +1,24 @@
+{
+  "name": "add merge",
+  "inputs": {
+    "merge": {
+      "type": "object{}"
+    },
+    "graph": {
+      "type": "`G`",
+      "ref": true
+    },
+    "id": {
+      "type": "string"
+    }
+  },
+  "outputs": {},
+  "metadata": {
+    "icon": "circle",
+    "description": "add merge to `graph`",
+    "tags": ["f", "graph"]
+  },
+  "id": "8fb78908-6b6c-4781-acf1-77632361e48f",
+  "base": true,
+  "type": "`U`"
+}

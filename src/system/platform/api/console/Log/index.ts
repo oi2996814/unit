@@ -1,5 +1,7 @@
 import { Functional } from '../../../../../Class/Functional'
 import { Done } from '../../../../../Class/Functional/Done'
+import { System } from '../../../../../system'
+import { ID_LOG_0 } from '../../../../_ids'
 
 export interface I<T> {
   message: string
@@ -8,15 +10,22 @@ export interface I<T> {
 export interface O<T> {}
 
 export default class Log<T> extends Functional<I<T>, O<T>> {
-  constructor() {
-    super({
-      i: ['message'],
-      o: [],
-    })
+  constructor(system: System) {
+    super(
+      {
+        i: ['message'],
+        o: [],
+      },
+      {},
+      system,
+      ID_LOG_0
+    )
   }
 
   f({ message }: I<T>, done: Done<O<T>>): void {
+    // eslint-disable-next-line no-console
     console.log(message)
-    done({})
+
+    done()
   }
 }

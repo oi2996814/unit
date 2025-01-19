@@ -116,53 +116,43 @@
   "metadata": {
     "icon": "edit-3",
     "description": "adds a rotation to the transformation matrix",
-    "complexity": 7,
-    "tags": [
-      "platform",
-      "core",
-      "canvas"
-    ]
+    "tags": ["platform", "core", "canvas"]
   },
   "inputs": {
     "d": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "translate0",
           "pinId": "d"
         }
       },
-      "type": "(number|string)[][]"
+      "functional": true
     },
     "y": {
-      "pin": {
+      "plug": {
         "0": {
           "mergeId": "3"
         }
-      },
-      "type": "number"
+      }
     },
     "x": {
-      "pin": {
+      "plug": {
         "0": {
           "mergeId": "2"
         }
-      },
-      "type": "number"
+      }
     }
   },
   "outputs": {
     "d": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "translate",
           "pinId": "d"
         }
-      },
-      "type": "(number|string)[][]"
+      }
     }
   },
   "id": "389f41b1-0a1d-4b02-ab30-53446c2e13e2",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

@@ -1,9 +1,9 @@
 import * as assert from 'assert'
 import { watchUnitAndLog } from '../../../../debug'
-import { verifyAuthToken } from '../../../../server/middleware/auth'
 import Loop from '../../../../system/f/control/Loop'
+import { system } from '../../../util/system'
 
-const loop = new Loop()
+const loop = new Loop(system)
 
 loop.play()
 
@@ -124,7 +124,7 @@ assert.equal(loop.peak('final'), 1)
 loop.push('test', true)
 
 assert.equal(loop.peak('current'), 1)
-assert.equal(loop.peak('final'), undefined)
+assert.equal(loop.getOutput('final').invalid(), true)
 
 loop.push('init', 1)
 
@@ -199,7 +199,11 @@ assert.equal(loop.take('current'), 1)
 assert.equal(loop.peak('current'), undefined)
 loop.push('next', 1)
 assert.equal(loop.take('current'), 1)
-assert.equal(loop.peak('current'), undefined, 'current should not be overriden')
+assert.equal(
+  loop.peak('current'),
+  undefined,
+  'current should not be overridden'
+)
 loop.push('next', 1)
 assert.equal(loop.peakInput('next'), undefined)
 loop.setOutputIgnored('local', false)
@@ -257,7 +261,7 @@ loop.setInputConstant('init', false)
 loop.setInputConstant('next', false)
 loop.setInputConstant('test', false)
 
-const loop0 = new Loop()
+const loop0 = new Loop(system)
 
 loop0.play()
 
@@ -274,4 +278,5 @@ loop0.getInput('test').invalidate()
 loop0.push('test', true)
 loop0.push('init', 1)
 
-assert.equal(loop0.peak('final'), undefined)
+assert.equal(loop0.peak('final'), 0)
+assert.equal(loop0.getOutput('final').invalid(), true)

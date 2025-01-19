@@ -6,33 +6,31 @@
       "optional": true
     },
     "width": {
-      "type": "number",
+      "type": "number|string",
       "optional": true
     },
     "height": {
-      "type": "number",
+      "type": "number|string",
       "optional": true
     },
     "d": {
       "type": "any[][]",
       "optional": true
+    },
+    "attr": {
+      "type": "object",
+      "optional": true,
+      "defaultIgnored": true,
+      "metadata": {
+        "examples": ["{tabIndex:1}", "{title:'hello'}", "{draggable:true}"]
+      }
     }
   },
-  "outputs": {
-    "ctx": {
-      "type": "`CA`",
-      "ref": true
-    }
-  },
+  "outputs": {},
   "metadata": {
     "icon": "chalkboard",
     "description": "for painting",
-    "complexity": 6.624835535459482,
-    "tags": [
-      "platform",
-      "component",
-      "canvas"
-    ]
+    "tags": ["platform", "component", "canvas"]
   },
   "id": "94243ec4-8967-4907-8cdd-7223fe256cf6",
   "base": true,
@@ -40,7 +38,6 @@
     "defaultWidth": 200,
     "defaultHeight": 200
   },
-  "type": "`U`&`C`&`V`&`J`&`PS`&`CS`",
-  "system": true,
+  "type": "`U`&`C`&`V`&`J`&`PS`&`CS`&`CA`",
   "render": true
 }

@@ -4,38 +4,42 @@
     "url": {
       "type": "string",
       "metadata": {
-        "examples": [
-          "'/'"
-        ]
+        "examples": ["'/'"]
       }
     },
-    "options": {
+    "opt": {
       "type": "{body?:string|null,headers?:object,method?:string}",
       "metadata": {
-        "examples": [
-          "{method:'GET'}"
-        ]
+        "examples": ["{method:'GET'}"]
       }
+    },
+    "body": {
+      "type": "`BO`",
+      "metadata": {},
+      "ref": true
+    },
+    "done": {
+      "type": "any",
+      "defaultIgnored": true
     }
   },
   "outputs": {
-    "response": {
-      "type": "{status:number,body:string}"
+    "res": {
+      "type": "`RES`",
+      "ref": true
+    },
+    "done": {
+      "type": "any",
+      "defaultIgnored": true
     }
   },
   "metadata": {
     "icon": "send",
-    "description": "interface for fetching resources across the network",
+    "description": "fetch a resource across the network through HTTP",
     "link": "https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API",
-    "complexity": 2.6674202694438782,
-    "tags": [
-      "platform",
-      "api",
-      "network"
-    ]
+    "tags": ["platform", "api", "network"]
   },
-  "id": "c5856fdc-5154-46ab-a414-47f37af39da1",
+  "id": "b97c0133-6c87-4b69-af4e-354c0b590ece",
   "base": true,
-  "type": "`U`",
-  "system": true
+  "type": "`U`"
 }

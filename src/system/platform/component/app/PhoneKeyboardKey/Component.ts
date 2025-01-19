@@ -1,21 +1,21 @@
+import { mergePropStyle } from '../../../../../client/component/mergeStyle'
 import { Element } from '../../../../../client/element'
-import {
-  emitKeyboardEvent,
-  keyToIcon,
-} from '../../../../../client/event/keyboard'
-import {
-  isChar,
-  keyToCode,
-  keyToKeyCode,
-} from '../../../../../client/event/keyboard/keyCode'
+import { keyToIcon } from '../../../../../client/event/keyboard'
+import { isChar, keyToCode } from '../../../../../client/event/keyboard/key'
+import { emitKeyboardEvent } from '../../../../../client/event/keyboard/write'
 import { makeClickListener } from '../../../../../client/event/pointer/click'
-import parentElement from '../../../../../client/parentElement'
-import { userSelect } from '../../../../../client/style/userSelect'
-import { Dict } from '../../../../../types/Dict'
-import Div from '../../../component/Div/Component'
-import Icon from '../../../component/Icon/Component'
+import { makePointerCancelListener } from '../../../../../client/event/pointer/pointercancel'
+import { makePointerDownListener } from '../../../../../client/event/pointer/pointerdown'
+import { makePointerEnterListener } from '../../../../../client/event/pointer/pointerenter'
+import { makePointerLeaveListener } from '../../../../../client/event/pointer/pointerleave'
+import { makePointerUpListener } from '../../../../../client/event/pointer/pointerup'
+import { parentElement } from '../../../../../client/platform/web/parentElement'
+import { userSelect } from '../../../../../client/util/style/userSelect'
 import { System } from '../../../../../system'
-import TextDiv from '../TextDiv/Component'
+import { Dict } from '../../../../../types/Dict'
+import Icon from '../../../component/Icon/Component'
+import TextBox from '../../../core/component/TextBox/Component'
+import Div from '../../Div/Component'
 
 export interface Props {
   style?: Dict<string>
@@ -23,6 +23,7 @@ export interface Props {
   alt?: string
   shiftKey?: boolean
   altKey?: boolean
+  active?: boolean
 }
 
 export const DEFAULT_STYLE = {
@@ -32,7 +33,6 @@ export const DEFAULT_STYLE = {
   height: `calc(100%)`,
   width: `calc(100%)`,
   overflow: 'hidden',
-  ...userSelect('none'),
   color: 'currentColor',
   borderWidth: '1px',
   borderStyle: 'solid',
@@ -47,8 +47,11 @@ export const DEFAULT_STYLE = {
 }
 
 export default class PhoneKeyboardKey extends Element<HTMLDivElement, Props> {
-  private _key_text: TextDiv
+  private _key_text: TextBox
   private _key: Div
+
+  private _pointer_in = false
+  private _pointer_down = false
 
   constructor($props: Props, $system: System) {
     super($props, $system)
@@ -59,7 +62,7 @@ export default class PhoneKeyboardKey extends Element<HTMLDivElement, Props> {
 
     const icon = keyToIcon[key]
 
-    const key_text = new TextDiv(
+    const key_text = new TextBox(
       {
         value: key_text_value,
         style: {
@@ -72,7 +75,7 @@ export default class PhoneKeyboardKey extends Element<HTMLDivElement, Props> {
     )
     this._key_text = key_text
 
-    const alt_key_text = new TextDiv(
+    const alt_key_text = new TextBox(
       {
         value: icon ? undefined : alt,
         style: {
@@ -94,27 +97,78 @@ export default class PhoneKeyboardKey extends Element<HTMLDivElement, Props> {
       },
       this.$system
     )
-    key_component.appendChild(key_text)
-    key_component.appendChild(alt_key_text)
-    key_component.addEventListener(
+
+    const releasePointer = (pointerId: number) => {
+      this._pointer_down = false
+
+      if (this._key.hasPointerCapture(pointerId)) {
+        this._key.releasePointerCapture(pointerId)
+      }
+    }
+
+    key_component.addEventListeners([
       makeClickListener({
         onClick: () => {
           // console.log('PhoneKeyboardKey', 'onClick')
+
           const { key } = this.$props
+
           if (key !== undefined) {
             this._emit_key(key)
           }
         },
         onLongPress: () => {
-          // log('PhoneKeyboardKey', 'onLongPress')
+          // console.log('PhoneKeyboardKey', 'onLongPress')
+
           const { alt } = this.$props
+
           if (alt === undefined) {
+            //
           } else {
             this._emit_key(alt)
           }
         },
-      })
-    )
+      }),
+      makePointerEnterListener(() => {
+        this._pointer_in = true
+
+        this._refresh_background()
+      }),
+      makePointerDownListener((event) => {
+        const { pointerId } = event
+
+        this._key.setPointerCapture(pointerId)
+
+        this._pointer_down = true
+
+        this._refresh_background()
+      }),
+      makePointerUpListener((event) => {
+        const { pointerId } = event
+
+        releasePointer(pointerId)
+
+        this._refresh_background()
+      }),
+      makePointerLeaveListener((event) => {
+        const { pointerId } = event
+
+        if (this._pointer_down) {
+          releasePointer(pointerId)
+        }
+
+        this._pointer_in = false
+
+        this._refresh_background()
+      }),
+      makePointerCancelListener((event) => {
+        const { pointerId } = event
+
+        if (this._pointer_down) {
+          releasePointer(pointerId)
+        }
+      }),
+    ])
     key_component.preventDefault('mousedown')
     key_component.preventDefault('touchstart')
     this._key = key_component
@@ -132,16 +186,20 @@ export default class PhoneKeyboardKey extends Element<HTMLDivElement, Props> {
       )
 
       key_component.setChildren([icon_component])
+    } else {
+      key_component.setChildren([key_text, alt_key_text])
     }
 
-    const $element = parentElement()
+    const $element = parentElement($system)
 
     this.$element = $element
     this.$slot = key_component.$slot
-    this.$subComponent = {
-      key: key_component,
-    }
     this.$unbundled = false
+    this.$primitive = true
+
+    this.setSubComponents({
+      key: key_component,
+    })
 
     this.registerRoot(key_component)
   }
@@ -154,10 +212,10 @@ export default class PhoneKeyboardKey extends Element<HTMLDivElement, Props> {
     const key_text_value = icon
       ? undefined
       : isChar(key)
-      ? shiftKey
-        ? key.toUpperCase()
-        : key
-      : ''
+        ? shiftKey
+          ? key.toUpperCase()
+          : key
+        : ''
 
     return key_text_value
   }
@@ -169,6 +227,43 @@ export default class PhoneKeyboardKey extends Element<HTMLDivElement, Props> {
     }
   }
 
+  private _refresh_background = () => {
+    // console.log('PhoneKeyboardKey', '_refresh_background')
+
+    const { $theme, $color } = this.$context
+
+    const { active, style = {} } = this.$props
+
+    const background = this._pointer_in
+      ? $theme === 'dark'
+        ? '#00000066'
+        : '#00000011'
+      : style.backgroundColor ?? '#00000022'
+
+    if (active) {
+      mergePropStyle(this._key, {
+        backgroundImage: `radial-gradient(currentColor 20%, transparent 20%)`,
+        backgroundSize: '3px 3px',
+        background,
+      })
+    } else {
+      if (this._pointer_down) {
+        mergePropStyle(this._key, {
+          backgroundImage: `radial-gradient(circle, currentColor 15%, transparent 10%)`,
+          backgroundSize: '6px 6px',
+          backgroundPosition: '0.75px 0px',
+          background,
+        })
+      } else {
+        mergePropStyle(this._key, {
+          background,
+          backgroundImage: '',
+          backgroundSize: '',
+        })
+      }
+    }
+  }
+
   onPropChanged(prop: string, current: any): void {
     if (prop === 'style') {
       this._key.setProp('style', { ...DEFAULT_STYLE, ...current })
@@ -176,27 +271,29 @@ export default class PhoneKeyboardKey extends Element<HTMLDivElement, Props> {
       this._refresh_key_text_value()
     } else if (prop === 'altKey') {
       this._refresh_key_text_value()
+    } else if (prop === 'active') {
+      this._refresh_background()
     }
   }
 
   private _emit_key = (key: string) => {
     const { shiftKey = false, altKey = false } = this.$props
     const _key = shiftKey && isChar(key) ? key.toUpperCase() : key
-    emitPhoneKey(_key, shiftKey, altKey)
+    emitPhoneKey(this.$system, _key, shiftKey, altKey)
+    this.dispatchEvent('key', key)
   }
 }
 
 export function emitPhoneKey(
+  system: System,
   key: string,
   shiftKey: boolean,
   altKey: boolean
 ): void {
-  const keyCode = keyToKeyCode[key]
   const code = keyToCode[key]
-  emitKeyboardEvent('keydown', {
+
+  emitKeyboardEvent(system, 'keydown', {
     key,
-    // @ts-ignore
-    keyCode,
     code,
     shiftKey,
     altKey,
@@ -204,11 +301,10 @@ export function emitPhoneKey(
     metaKey: false,
     bubbles: true,
   })
+
   // TODO 'keypress' should not be fired if key is a control key (e.g. ALT, CTRL, SHIFT, ESC)
-  emitKeyboardEvent('keypress', {
+  emitKeyboardEvent(system, 'keypress', {
     key,
-    // @ts-ignore
-    keyCode,
     code,
     shiftKey,
     altKey,
@@ -216,10 +312,8 @@ export function emitPhoneKey(
     metaKey: false,
     bubbles: true,
   })
-  emitKeyboardEvent('keyup', {
+  emitKeyboardEvent(system, 'keyup', {
     key,
-    // @ts-ignore
-    keyCode,
     code,
     shiftKey,
     altKey,
@@ -227,7 +321,4 @@ export function emitPhoneKey(
     metaKey: false,
     bubbles: true,
   })
-  if (navigator && navigator.vibrate) {
-    navigator.vibrate([10])
-  }
 }

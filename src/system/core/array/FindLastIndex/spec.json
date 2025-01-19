@@ -29,84 +29,72 @@
   "merges": {},
   "inputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "findlastindexfrom",
           "pinId": "a"
         }
-      },
-      "type": "<A>[]"
+      }
     },
     "test": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "findlastindexfrom",
           "pinId": "test"
         }
-      },
-      "type": "boolean"
+      }
     }
   },
   "outputs": {
     "i": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "findlastindexfrom",
           "pinId": "i"
         }
       },
-      "defaultIgnored": true,
-      "type": "number"
+      "defaultIgnored": true
     },
     "result": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "findlastindexfrom",
           "pinId": "result"
         }
-      },
-      "type": "number"
+      }
     },
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "findlastindexfrom",
           "pinId": "a"
         }
       },
-      "defaultIgnored": true,
-      "type": "<A>[]"
+      "defaultIgnored": true
     },
     "a[i]": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "findlastindexfrom",
           "pinId": "a[i]"
         }
-      },
-      "type": "<A>"
+      }
     },
     "test": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "findlastindexfrom",
           "pinId": "test"
         }
       },
-      "defaultIgnored": true,
-      "type": "boolean"
+      "defaultIgnored": true
     }
   },
   "metadata": {
     "icon": "brackets",
-    "description": "...",
-    "complexity": 3,
-    "tags": [
-      "core",
-      "array"
-    ]
+    "description": "find index `i` of last element in array `a` for which `test` is true",
+    "tags": ["core", "array"]
   },
   "id": "411fbf6c-d5e2-42ba-8827-251233fb5bef",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

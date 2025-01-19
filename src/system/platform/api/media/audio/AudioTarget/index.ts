@@ -1,9 +1,12 @@
 import { Functional } from '../../../../../../Class/Functional'
-import { ST } from '../../../../../../interface/ST'
+import { Done } from '../../../../../../Class/Functional/Done'
+import { System } from '../../../../../../system'
+import { MS } from '../../../../../../types/interface/MS'
+import { ID_AUDIO_TARGET } from '../../../../../_ids'
 
 export type I = {
   id: string
-  stream: ST
+  stream: MS
 }
 
 export type O = {}
@@ -11,7 +14,7 @@ export type O = {}
 export default class AudioTarget extends Functional<I, O> {
   private _audio: HTMLAudioElement
 
-  constructor() {
+  constructor(system: System) {
     super(
       {
         i: ['id', 'stream'],
@@ -23,28 +26,37 @@ export default class AudioTarget extends Functional<I, O> {
             ref: true,
           },
         },
-      }
+      },
+      system,
+      ID_AUDIO_TARGET
     )
-
-    this._audio = new Audio()
   }
 
-  async f({ stream, id }: I) {
-    stream.stream((_stream) => {
-      this._audio.srcObject = _stream
-    })
+  async f({ stream, id }: I, done: Done<O>) {
+    const {
+      api: {
+        window: { Audio },
+      },
+    } = this.__system
 
-    this._audio
-      // @ts-ignore
-      .setSinkId(id)
-      .catch((err) => {
-        this.err(err.message)
-      })
+    this._audio = new Audio()
+
+    this._audio.srcObject = await stream.mediaStream()
+
+    try {
+      await this._audio.setSinkId(id)
+    } catch (err) {
+      done(undefined, err.message.toLowerCase())
+
+      this.err(err.message)
+    }
 
     this._audio.play()
   }
 
   d() {
-    this._audio.pause()
+    if (this._audio) {
+      this._audio.pause()
+    }
   }
 }

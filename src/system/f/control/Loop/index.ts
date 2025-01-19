@@ -1,4 +1,7 @@
 import { Primitive } from '../../../../Primitive'
+import { System } from '../../../../system'
+import { Dict } from '../../../../types/Dict'
+import { ID_LOOP } from '../../../_ids'
 
 export interface I<T> {
   init: T
@@ -16,15 +19,19 @@ export default class Loop<T> extends Primitive<I<T>, O<T>> {
   private _current: T | undefined = undefined
   private _next: T | undefined = undefined
   private _test: boolean | undefined = undefined
-
   private _looping: boolean = false
   private _nexting: boolean = false
 
-  constructor() {
-    super({
-      i: ['init', 'next', 'test'],
-      o: ['local', 'current', 'final'],
-    })
+  constructor(system: System) {
+    super(
+      {
+        i: ['init', 'next', 'test'],
+        o: ['local', 'current', 'final'],
+      },
+      {},
+      system,
+      ID_LOOP
+    )
 
     this.addListener('reset', this._reset)
   }
@@ -32,6 +39,7 @@ export default class Loop<T> extends Primitive<I<T>, O<T>> {
   private _reset() {
     this._current = undefined
     this._next = undefined
+    this._test = undefined
     this._nexting = false
     this._looping = false
   }
@@ -51,10 +59,6 @@ export default class Loop<T> extends Primitive<I<T>, O<T>> {
         this._pull_next()
       }
     } else if (name === 'test') {
-      if (this._test === false && data === true) {
-        this._forward_empty('final')
-      }
-
       this._test = data as boolean
 
       if (this._current !== undefined) {
@@ -133,7 +137,7 @@ export default class Loop<T> extends Primitive<I<T>, O<T>> {
 
   private _loop(): void {
     this._looping = true
-    this._current = this._next as T
+    this._current = this._next
     this._next = undefined
     this._backward('test')
     if (this._looping && this._output.local.empty()) {
@@ -162,7 +166,6 @@ export default class Loop<T> extends Primitive<I<T>, O<T>> {
 
   private _done(): void {
     this._reset()
-
     this._backward('init')
   }
 
@@ -179,5 +182,28 @@ export default class Loop<T> extends Primitive<I<T>, O<T>> {
     ) {
       this._iterate()
     }
+  }
+
+  public snapshotSelf(): Dict<any> {
+    return {
+      ...super.snapshotSelf(),
+      ...(this._current !== undefined ? { _current: this._current } : {}),
+      ...(this._next !== undefined ? { _next: this._next } : {}),
+      ...(this._test !== undefined ? { _test: this._test } : {}),
+      ...(this._nexting ? { _nexting: true } : {}),
+      ...(this._looping ? { _looping: true } : {}),
+    }
+  }
+
+  public restoreSelf(state: Dict<any>): void {
+    const { _current, _next, _test, _nexting, _looping, ...rest } = state
+
+    super.restoreSelf(rest)
+
+    this._current = _current
+    this._next = _next
+    this._test = _test
+    this._nexting = _nexting
+    this._looping = _looping
   }
 }

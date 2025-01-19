@@ -1,0 +1,24 @@
+{
+  "name": "push",
+  "inputs": {
+    "a": {
+      "type": "<T>"
+    },
+    "b": {
+      "type": "any"
+    }
+  },
+  "outputs": {
+    "a": {
+      "type": "<T>"
+    }
+  },
+  "metadata": {
+    "icon": "filter",
+    "description": "consume `b`, let pass `a` if present",
+    "tags": ["f", "control"]
+  },
+  "id": "0f1c7d8c-87a7-44ad-bee5-de37d4800e8f",
+  "base": true,
+  "type": "`U`"
+}

@@ -1,65 +1,61 @@
-import { ION, Opt, Unit } from './Class/Unit'
+import { ION, Opt, Unit, UnitEvents } from './Class/Unit'
 import { Pin } from './Pin'
 import { PinOpt } from './PinOpt'
 import { Pins } from './Pins'
 import { System } from './system'
-import forEachKeyValue from './system/core/object/ForEachKeyValue/f'
+import forEachValueKey from './system/core/object/ForEachKeyValue/f'
 import { Dict } from './types/Dict'
+import { IO } from './types/IO'
+import { Key } from './types/Key'
+import { Unlisten } from './types/Unlisten'
 
-export class Primitive<I = any, O = any> extends Unit<I, O> {
+export type Primitive_EE = {}
+
+export type PrimitiveEvents<_EE extends Dict<any[]>> = UnitEvents<
+  _EE & Primitive_EE
+> &
+  Primitive_EE
+
+export class Primitive<
+  I extends Dict<any> = any,
+  O extends Dict<any> = any,
+  _EE extends PrimitiveEvents<_EE> &
+    Dict<any[]> = PrimitiveEvents<Primitive_EE>,
+> extends Unit<I, O, _EE> {
   protected _i: Partial<I> = {}
-  protected _o: Partial<O> = {}
 
-  protected _active_i_count: number = 0
-  protected _active_o_count: number = 0
+  public _o_active: Set<Key> = new Set()
+  public _i_active: Set<Key> = new Set()
 
-  protected _i_start_count: number = 0
-  protected _i_start: Dict<boolean> = {}
+  public _i_start: Set<Key> = new Set()
 
-  protected _o_invalid_count: number = 0
-  protected _o_invalid: Dict<boolean> = {}
+  public _o_invalid: Set<keyof O> = new Set()
+  public _i_invalid: Set<keyof I> = new Set()
 
-  protected _i_invalid_count: number = 0
-  protected _i_invalid: Dict<boolean> = {}
+  public _forwarding: boolean = false
+  public _backwarding: boolean = false
+  public _forwarding_empty: boolean = false
 
-  protected _forwarding: boolean = false
-  protected _backwarding: boolean = false
-  protected _forwarding_empty: boolean = false
-
-  private _inputListeners: {
-    data: Dict<(name: string, data: any) => void>
-    drop: Dict<(name: string, data: any) => void>
-    invalid: Dict<(name: string) => void>
-    start: Dict<(name: string) => void>
-    end: Dict<(name: string) => void>
-  } = {
-    data: {},
-    drop: {},
-    invalid: {},
-    start: {},
-    end: {},
-  }
-
-  private _outputListeners: {
-    data: Dict<(name: string, data: any) => void>
-    drop: Dict<(name: string, data: any) => void>
-    invalid: Dict<(name: string) => void>
-  } = {
-    data: {},
-    drop: {},
-    invalid: {},
-  }
+  private _inputUnlisten: Partial<Record<keyof I, Unlisten>> = {}
+  private _outputUnlisten: Partial<Record<keyof O, Unlisten>> = {}
 
   private __buffer: {
-    name: string
-    type: 'input' | 'output'
-    event: 'data' | 'drop'
+    name: Key
+    type: IO
+    event: 'data' | 'drop' | 'invalid' | 'start'
     ref: boolean
     data?: any
   }[] = []
 
-  constructor({ i, o }: ION = {}, opt: Opt = {}, system: System = null) {
-    super({ i, o }, opt, system)
+  private _replaying: boolean = false
+
+  constructor(
+    { i, o }: ION<I, O> = {},
+    opt: Opt = {},
+    system: System,
+    id: string
+  ) {
+    super({ i, o }, opt, system, id)
 
     this._setupInputs(this._input)
     this._setupOutputs(this._output)
@@ -71,10 +67,10 @@ export class Primitive<I = any, O = any> extends Unit<I, O> {
     this.addListener('rename_input', this._onInputRenamed)
     this.addListener('rename_output', this._onOutputRenamed)
     this.addListener('destroy', () => {
-      forEachKeyValue(this._input, (input: Pin<any>, name: string) => {
+      forEachValueKey(this._input, (input: Pin<any>, name: keyof I) => {
         this._plunkInput(name, input)
       })
-      forEachKeyValue(this._output, (output: Pin<any>, name: string) => {
+      forEachValueKey(this._output, (output: Pin<any>, name: keyof O) => {
         this._plunkOutput(name, output)
       })
     })
@@ -82,28 +78,71 @@ export class Primitive<I = any, O = any> extends Unit<I, O> {
       this._backwarding = false
       this._forwarding = false
       this._forwarding_empty = false
+
+      this.__buffer = []
     })
+
     this.addListener('play', () => {
       while (this.__buffer.length > 0) {
+        this._replaying = true
+
         const { name, type, event, data } = this.__buffer.shift()!
+
+        if (!this.__buffer.length) {
+          this._replaying = false
+        }
+
         if (type === 'input') {
-          const { ref } = this.getInputOpt(name)
+          const { ref } = this.getInputOpt(name as keyof I)
+
           if (event === 'data') {
+            this._activateInput(name as keyof I, data)
+
             if (ref) {
-              this.onRefInputData(name, data)
+              this.__onRefInputData(name as keyof I, data)
             } else {
-              this.onDataInputData(name, data)
+              this.onDataInputData(name as keyof I, data)
             }
-          } else {
+          } else if (event === 'drop') {
+            this._deactivateInput(name as keyof I)
+
             if (ref) {
-              this.onRefInputDrop(name)
+              this.__onRefInputDrop(name as keyof I, data)
             } else {
-              this.onDataInputDrop(name)
+              this.onDataInputDrop(name as keyof I, data)
             }
+          } else if (event === 'invalid') {
+            if (ref) {
+              this._onRefInputInvalid(name as keyof I)
+            } else {
+              this._onDataInputInvalid(name as keyof I)
+            }
+          } else if (event === 'start') {
+            this._onInputStart(name as keyof I)
           }
         } else {
-          if (event === 'drop') {
-            this.onDataOutputDrop(name)
+          const { ref } = this.getOutputOpt(name as keyof O)
+
+          if (event === 'data') {
+            this._activateOutput(name as keyof O)
+
+            if (ref) {
+              this._onRefOutputData(name as keyof O, data)
+            } else {
+              this.onDataOutputData(name as keyof O, data)
+            }
+          } else if (event === 'drop') {
+            this._deactivateOutput(name as keyof O)
+
+            if (ref) {
+              this._onRefOutputDrop(name as keyof O)
+            } else {
+              this.onDataOutputDrop(name as keyof O)
+            }
+          } else if (event === 'invalid') {
+            this._onOutputInvalid(name as string)
+          } else if (event === 'start') {
+            //
           }
         }
       }
@@ -111,49 +150,33 @@ export class Primitive<I = any, O = any> extends Unit<I, O> {
   }
 
   public getActiveInputCount(): number {
-    return this._active_i_count
+    return this._i_active.size
   }
 
   public getActiveOutputCount(): number {
-    return this._active_o_count
+    return this._o_active.size
   }
 
-  public getOutputData(): Partial<O> {
-    return this._o
+  private _plunkOutput<K extends keyof O>(name: K, output: Pin<O[K]>): void {
+    const unlisten = this._outputUnlisten[name]
+
+    unlisten && unlisten()
+
+    delete this._outputUnlisten[name]
   }
 
-  private _plunkOutput(name: string, output: Pin<O[keyof O]>): void {
-    const dataListener = this._outputListeners.data[name]
-    const dropListener = this._outputListeners.drop[name]
-    const invalidListener = this._outputListeners.invalid[name]
+  private _plunkInput<K extends keyof I>(name: K, input: Pin<I[K]>): void {
+    const unlisten = this._inputUnlisten[name]
 
-    delete this._outputListeners.data[name]
-    delete this._outputListeners.drop[name]
-    delete this._outputListeners.invalid[name]
+    unlisten && unlisten()
 
-    dataListener && output.removeListener('_data', dataListener)
-    dropListener && output.removeListener('_drop', dropListener)
-    invalidListener && output.removeListener('_invalid', invalidListener)
-  }
+    delete this._inputUnlisten[name]
 
-  private _plunkInput(name: string, input: Pin<I[keyof I]>): void {
-    const dataListener = this._inputListeners.data[name]
-    const dropListener = this._inputListeners.drop[name]
-    const invalidListener = this._inputListeners.invalid[name]
-    const startListener = this._inputListeners.start[name]
-    const endListener = this._inputListeners.end[name]
+    delete this._i[name]
 
-    delete this._inputListeners.data[name]
-    delete this._inputListeners.drop[name]
-    delete this._inputListeners.invalid[name]
-    delete this._inputListeners.start[name]
-    delete this._inputListeners.end[name]
-
-    dataListener && input.removeListener('_data', dataListener)
-    dropListener && input.removeListener('_drop', dropListener)
-    invalidListener && input.removeListener('_invalid', invalidListener)
-    startListener && input.removeListener('_start', startListener)
-    endListener && input.removeListener('_end', endListener)
+    this._i_active.delete(name)
+    this._i_start.delete(name)
+    this._i_invalid.delete(name)
   }
 
   private _setupInputs = (inputs: Pins<I>) => {
@@ -166,45 +189,61 @@ export class Primitive<I = any, O = any> extends Unit<I, O> {
     }
   }
 
-  private _setupDataInput = (name: string, input: Pin<I[keyof I]>): void => {
+  private _setupDataInput = <K extends keyof I>(
+    name: K,
+    input: Pin<I[keyof I]>
+  ): void => {
     const dataListener = this._onDataInputData.bind(this, name)
     const dropListener = this._onDataInputDrop.bind(this, name)
     const invalidListener = this._onDataInputInvalid.bind(this, name)
     const startListener = this._onInputStart.bind(this, name)
     const endListener = this._onInputEnd.bind(this, name)
 
-    this._inputListeners.data[name] = dataListener
-    this._inputListeners.start[name] = startListener
-    this._inputListeners.invalid[name] = invalidListener
-    this._inputListeners.drop[name] = dropListener
-    this._inputListeners.end[name] = endListener
-
     input.addListener('_data', dataListener)
-    input.addListener('_start', startListener)
-    input.addListener('_invalid', invalidListener)
+    input.addListener('data', dataListener)
+    input.addListener('start', startListener)
+    input.addListener('invalid', invalidListener)
 
-    input.prependListener('_drop', dropListener)
-    input.prependListener('_end', endListener)
+    input.prependListener('drop', dropListener)
+    input.prependListener('end', endListener)
+
+    const unlisten = () => {
+      input.removeListener('_data', dataListener)
+      input.removeListener('data', dataListener)
+      input.removeListener('start', startListener)
+      input.removeListener('invalid', invalidListener)
+      input.removeListener('drop', dropListener)
+      input.removeListener('end', endListener)
+    }
+
+    this._inputUnlisten[name] = unlisten
   }
 
-  private _setupRefInput = (name: string, input: Pin<I[keyof I]>): void => {
+  private _setupRefInput = <K extends keyof I>(
+    name: K,
+    input: Pin<I[keyof I]>
+  ): void => {
     const dataListener = this._onRefInputData.bind(this, name)
     const dropListener = this._onRefInputDrop.bind(this, name)
     const invalidListener = this._onRefInputInvalid.bind(this, name)
 
-    this._inputListeners.data[name] = dataListener
-    this._inputListeners.drop[name] = dropListener
-    this._inputListeners.invalid[name] = invalidListener
+    input.addListener('data', dataListener)
+    input.addListener('invalid', invalidListener)
 
-    input.addListener('_data', dataListener)
-    input.addListener('_invalid', invalidListener)
+    input.prependListener('drop', dropListener)
 
-    input.prependListener('_drop', dropListener)
+    const unlisten = () => {
+      input.removeListener('data', dataListener)
+      input.removeListener('invalid', invalidListener)
+      input.removeListener('drop', dropListener)
+    }
+
+    this._inputUnlisten[name] = unlisten
   }
 
-  private _setupInput = (
-    name: string,
-    input: Pin<I[keyof I]>,
+  private _setupInput = <K extends keyof I>(
+    name: K,
+    input: Pin<I[K]>,
     opt: PinOpt
   ): void => {
     const { ref } = opt
@@ -223,38 +262,56 @@ export class Primitive<I = any, O = any> extends Unit<I, O> {
     }
   }
 
-  private __setupOutput = (name: string, output: Pin<any>): void => {
+  private __setupOutput = <K extends keyof O>(
+    name: K,
+    output: Pin<any>
+  ): void => {
     const dataListener = this._onDataOutputData.bind(this, name)
     const dropListener = this._onDataOutputDrop.bind(this, name)
     const invalidListener = this._onOutputInvalid.bind(this, name)
-    this._outputListeners.data[name] = dataListener
-    this._outputListeners.drop[name] = dropListener
-    this._outputListeners.invalid[name] = invalidListener
-    output.prependListener('_data', dataListener)
-    output.addListener('_drop', dropListener)
-    output.prependListener('_invalid', invalidListener)
+
+    output.addListener('drop', dropListener)
+
+    output.prependListener('data', dataListener)
+    output.prependListener('invalid', invalidListener)
+
+    const unlisten = () => {
+      output.removeListener('data', dataListener)
+      output.removeListener('drop', dropListener)
+      output.removeListener('invalid', invalidListener)
+    }
+
+    this._outputUnlisten[name] = unlisten
   }
 
-  private _setupDataOutput = (name: string, output: Pin<any>): void => {
+  private _setupDataOutput = <K extends keyof O>(
+    name: K,
+    output: Pin<any>
+  ): void => {
     this.__setupOutput(name, output)
 
     if (output.active()) {
       const data = output.peak()
+
       this._onDataOutputData(name, data)
     }
   }
 
-  private _setupRefOutput = (name: string, output: Pin<any>): void => {
+  private _setupRefOutput = <K extends keyof O>(
+    name: K,
+    output: Pin<any>
+  ): void => {
     this.__setupOutput(name, output)
 
     if (output.active()) {
       const data = output.peak()
+
       this._onRefOutputData(name, data)
     }
   }
 
-  private _setupOutput = (
-    name: string,
+  private _setupOutput = <K extends keyof O>(
+    name: K,
     output: Pin<any>,
     opt: PinOpt
   ): void => {
@@ -266,9 +323,18 @@ export class Primitive<I = any, O = any> extends Unit<I, O> {
     }
   }
 
-  private _onDataInputData = (name: string, data: any): void => {
-    this._activateInput(name, data)
+  private _onDataInputData = <K extends keyof I>(
+    name: K,
+    data: any,
+    backpropagation: boolean
+  ): void => {
+    if (backpropagation) {
+      return
+    }
+
     if (!this._paused) {
+      this._activateInput(name, data)
+
       this.onDataInputData(name, data)
     } else {
       this.__buffer.push({
@@ -281,10 +347,19 @@ export class Primitive<I = any, O = any> extends Unit<I, O> {
     }
   }
 
-  private _onRefInputData = (name: string, data: any): void => {
-    this._activateInput(name, data)
+  private _onRefInputData = <K extends keyof I>(
+    name: K,
+    data: any,
+    backpropagation: boolean
+  ): void => {
+    if (backpropagation) {
+      return
+    }
+
     if (!this._paused) {
-      this.onRefInputData(name, data)
+      this._activateInput(name, data)
+
+      this.__onRefInputData(name, data)
     } else {
       this.__buffer.push({
         name,
@@ -296,76 +371,155 @@ export class Primitive<I = any, O = any> extends Unit<I, O> {
     }
   }
 
-  private _onInputSet(name: string, input: Pin<any>, opt: PinOpt): void {
-    this._setupInput(name, input, opt)
-    this.onInputSet(name, input)
+  private __onRefInputData = <K extends keyof I>(name: K, data: any): void => {
+    this.onRefInputData(name, data)
   }
 
-  public onInputSet(name: string, input: Pin<any>): void {
+  private _onInputSet<K extends keyof I>(
+    name: K,
+    input: Pin<any>,
+    opt: PinOpt,
+    propagate: boolean
+  ): void {
+    this._setupInput(name, input, opt)
+
+    this.onInputSet(name, input, opt, propagate)
+  }
+
+  public onInputSet<K extends keyof I>(
+    name: K,
+    input: Pin<any>,
+    opt: PinOpt,
+    propagate: boolean
+  ): void {
     if (!input.empty()) {
-      this._onInputStart(name)
       const data = input.peak()
-      if (this.hasRefInputNamed(name)) {
-        this._onRefInputData(name, data)
-      } else {
-        this._onDataInputData(name, data)
+
+      if (this._paused) {
+        this.__buffer.push({
+          name,
+          type: 'input',
+          event: 'data',
+          data,
+          ref: opt.ref,
+        })
+
+        return
+      }
+
+      this._activateInput(name, data)
+
+      if (propagate) {
+        this._onInputStart(name)
+
+        if (this.hasRefInputNamed(name)) {
+          this._onRefInputData(name, data, false)
+        } else {
+          this._onDataInputData(name, data, false)
+        }
       }
     }
   }
 
-  private _onOutputSet(
-    name: string,
-    output: Pin<O[keyof O]>,
-    opt: PinOpt
+  private _onOutputSet<K extends keyof O>(
+    name: K,
+    output: Pin<O[K]>,
+    opt: PinOpt,
+    propagate: boolean
   ): void {
     this._setupOutput(name, output, opt)
-    this.onOutputSet(name, output)
+    this.onOutputSet(name, output, opt, propagate)
   }
 
-  public onOutputSet(name: string, output: Pin<O[keyof O]>): void {}
+  public onOutputSet<K extends keyof O>(
+    name: K,
+    output: Pin<O[K]>,
+    opt: PinOpt,
+    propagate: boolean
+  ): void {}
 
-  private _onInputRemoved(name: string, input: Pin<any>): void {
+  private _onInputRemoved<K extends keyof I>(
+    name: K,
+    input: Pin<any>,
+    propagate: boolean
+  ): void {
     this._plunkInput(name, input)
+
     if (input.active()) {
       this._deactivateInput(name)
     }
-    this.onInputRemoved(name, input)
+
+    this.onInputRemoved(name, input, propagate)
   }
 
-  public onInputRemoved(name: string, input: Pin<any>): void {
+  public onInputRemoved<K extends keyof I>(
+    name: K,
+    input: Pin<any>,
+    propagate: boolean
+  ): void {
     // console.log(this.constructor.name, 'onInputRemoved', name)
   }
 
-  public _onOutputRemoved(name: string, output: Pin<any>): void {
+  public _onOutputRemoved<K extends keyof O>(
+    name: K,
+    output: Pin<O[K]>,
+    propagate: boolean
+  ): void {
     this._plunkOutput(name, output)
+
     if (!output.empty()) {
       this._deactivateOutput(name)
     }
-    this.onOutputRemoved(name, output)
+
+    this.onOutputRemoved(name, output, propagate)
   }
 
-  public onOutputRemoved(name: string, output: Pin<any>): void {
+  public onOutputRemoved<K extends keyof O>(
+    name: K,
+    output: Pin<O[K]>,
+    propagate: boolean
+  ): void {
     if (!output.empty()) {
       this._onDataOutputDrop(name)
     }
   }
 
-  public onDataInputData(name: string, data: any): void {}
+  public onDataInputData<K extends keyof I>(name: K, data: any): void {}
 
   public onRefInputData(name, data: any): void {}
 
-  private _onInputRenamed(name: string, newName: string): void {
+  private _onInputRenamed<K extends keyof I>(name: K, newName: K): void {
     // console.log('Primitive', '_onInputRenamed', name, newName)
 
     const input = this.getInput(newName)
     const opt = this.getInputOpt(newName)
 
+    const data = this._i[name]
+
+    const active = this._i_active.has(name)
+    const start = this._i_start.has(name)
+    const invalid = this._i_invalid.has(name)
+
     this._plunkInput(name, input)
 
     this._setupInput(newName, input, opt)
+
+    this._i[newName] = data
+
+    if (start) {
+      this._i_start.add(newName)
+    }
+    if (active) {
+      this._i_active.add(newName)
+    }
+    if (invalid) {
+      this._i_invalid.add(newName)
+    }
+
+    this.onInputRenamed(name, newName, opt, opt)
   }
 
-  private _onOutputRenamed(name: string, newName: string) {
+  private _onOutputRenamed<K extends keyof O>(name: K, newName: K) {
     // console.log('Primitive', '_onOutputRenamed', name, newName)
 
     const output = this.getOutput(newName)
@@ -374,99 +528,107 @@ export class Primitive<I = any, O = any> extends Unit<I, O> {
     this._plunkOutput(name, output)
 
     this._setupOutput(newName, output, opt)
+
+    this._o_active.delete(name)
+
+    this.onOutputRenamed(name, newName, opt, opt)
   }
 
-  private _activateInput = (name: string, data: any) => {
-    if (this._i[name] === undefined) {
-      this._active_i_count++
-    }
+  public onInputRenamed<K extends keyof I>(
+    name: K,
+    newName: K,
+    opt: PinOpt,
+    newOpt: PinOpt
+  ): void {
+    //
+  }
+
+  public onOutputRenamed<K extends keyof O>(
+    name: K,
+    newName: K,
+    opt: PinOpt,
+    newOpt: PinOpt
+  ): void {
+    //
+  }
+
+  private _activateInput = <K extends keyof I>(name: K, data: any) => {
+    this._i_active.add(name)
+
     this._i[name] = data
-    if (this._i_invalid[name]) {
-      delete this._i_invalid[name]
-      this._i_invalid_count--
-    }
+
+    this._i_invalid.delete(name)
   }
 
-  private _deactivateInput = (name: string) => {
-    if (this._i[name] !== undefined) {
-      delete this._i[name]
-      this._active_i_count--
-    }
-    if (this._i_invalid[name]) {
-      delete this._i_invalid[name]
-      this._i_invalid_count--
-    }
-    if (this._i_start[name]) {
-      delete this._i_start[name]
-      this._i_start_count--
-    }
+  private _deactivateInput = <K extends keyof I>(name: K) => {
+    delete this._i[name]
+
+    this._i_active.delete(name)
+    this._i_invalid.delete(name)
+    this._i_start.delete(name)
   }
 
-  private _onDataInputDrop = (name: string): void => {
-    this._deactivateInput(name)
+  private _onDataInputDrop = <K extends keyof I>(name: K, data: any): void => {
     if (!this._paused) {
-      this.onDataInputDrop(name)
+      this._deactivateInput(name)
+
+      this.onDataInputDrop(name, data)
     } else {
       this.__buffer.push({ name, type: 'input', event: 'drop', ref: false })
     }
   }
 
-  private _onRefInputDrop = (name: string): void => {
-    this._deactivateInput(name)
+  private _onRefInputDrop = <K extends keyof I>(name: K, data: any): void => {
     if (!this._paused) {
-      this.onRefInputDrop(name)
+      this._deactivateInput(name)
+
+      this.__onRefInputDrop(name, data)
     } else {
       this.__buffer.push({ name, type: 'input', event: 'drop', ref: true })
     }
   }
 
-  private _onRefInputInvalid = (name: string): void => {
-    if (!this._i_invalid[name]) {
-      this._i_invalid[name] = true
-      this._i_invalid_count++
-    }
+  private __onRefInputDrop = <K extends keyof I>(name: K, data: any): void => {
+    this.onRefInputDrop(name, data)
+  }
+
+  private _onRefInputInvalid = <K extends keyof I>(name: K): void => {
+    this._i_invalid.add(name)
+
     this.onRefInputInvalid(name)
   }
 
-  public onDataInputDrop(name: string): void {}
+  public onDataInputDrop<K extends keyof I>(name: K, data: any): void {}
 
-  public onRefInputDrop(name: string): void {}
+  public onRefInputDrop<K extends keyof I>(name: K, data: any): void {}
 
-  private _activateOutput = (name: string) => {
-    if (this._o[name] === undefined) {
-      this._active_o_count++
-    }
-    if (this._o_invalid[name]) {
-      delete this._o_invalid[name]
-      this._o_invalid_count--
-    }
+  private _activateOutput = <K extends keyof O>(name: K) => {
+    this._o_active.add(name)
+    this._o_invalid.delete(name)
   }
 
-  private _deactivateOutput = (name: string) => {
-    if (this._o[name] !== undefined) {
-      this._active_o_count--
-      delete this._o[name]
-    }
-    if (this._o_invalid[name]) {
-      delete this._o_invalid[name]
-      this._o_invalid_count--
-    }
+  private _deactivateOutput = <K extends keyof O>(name: K) => {
+    this._o_active.delete(name)
+    this._o_invalid.delete(name)
   }
 
-  private __onOutputData = (name: string, data: any): void => {
+  private __onOutputData = <K extends keyof O>(name: K, data: any): void => {
     this._activateOutput(name)
-    this._o[name] = data
   }
 
-  private _onDataOutputData = (name: string, data: any): void => {
+  private _onDataOutputData = <K extends keyof O>(name: K, data: any): void => {
     this.__onOutputData(name, data)
+
+    this.onDataOutputData(name, data)
   }
 
-  private _onRefOutputData = (name: string, data: any): void => {
+  private _onRefOutputData = <K extends keyof O>(name: K, data: any): void => {
     this.__onOutputData(name, data)
+
+    this.onRefOutputData(name, data)
   }
 
-  private _onDataOutputDrop = (name: string): void => {
+  private _onDataOutputDrop = <K extends keyof O>(name: K): void => {
     this._deactivateOutput(name)
     if (!this._paused) {
       this.onDataOutputDrop(name)
@@ -475,7 +637,7 @@ export class Primitive<I = any, O = any> extends Unit<I, O> {
     }
   }
 
-  private _onRefOutputDrop = (name: string): void => {
+  private _onRefOutputDrop = <K extends keyof O>(name: K): void => {
     this._deactivateOutput(name)
     if (!this._paused) {
       this.onRefOutputDrop(name)
@@ -484,55 +646,54 @@ export class Primitive<I = any, O = any> extends Unit<I, O> {
     }
   }
 
-  public onDataOutputDrop(name: string): void {}
+  public onDataOutputData<K extends keyof O>(name: K, data: any): void {}
 
-  public onRefOutputDrop(name: string): void {}
+  public onDataOutputDrop<K extends keyof O>(name: K): void {}
+
+  public onRefOutputData<K extends keyof O>(name: K, data: any): void {}
+
+  public onRefOutputDrop<K extends keyof O>(name: K): void {}
+
+  public onOutputInvalid(name: string): void {}
 
   private _onOutputInvalid = (name: string): void => {
-    if (!this._o_invalid[name]) {
-      this._o_invalid[name] = true
-      this._o_invalid_count++
-    }
+    this._o_invalid.add(name)
+
+    this.onOutputInvalid(name)
   }
 
   private _onInputEnd(name: string): void {
-    if (this._i_start[name]) {
-      this._i_start[name] = false
-      this._i_start_count--
-    }
+    this._i_start.delete(name)
+
     this.onDataInputEnd(name)
   }
 
   public onDataInputEnd(name: string): void {}
 
-  private _onInputStart(name: string): void {
-    if (!this._i_start[name]) {
-      this._i_start[name] = true
-      this._i_start_count++
-    }
+  private _onInputStart<K extends keyof I>(name: K): void {
+    this._i_start.add(name)
+
     this.onDataInputStart(name)
   }
 
-  public onDataInputStart(name: string): void {}
+  public onDataInputStart<K extends keyof I>(name: K): void {}
 
-  private _onDataInputInvalid(name: string): void {
-    if (!this._i_invalid[name]) {
-      this._i_invalid[name] = true
-      this._i_invalid_count++
-    }
+  private _onDataInputInvalid<K extends keyof I>(name: K): void {
+    this._i_invalid.add(name)
+
     this.onDataInputInvalid(name)
   }
 
   protected _start() {
-    forEachKeyValue(this._output, (output) => output.start())
+    forEachValueKey(this._output, (output) => output.start())
   }
 
   protected _invalidate() {
-    forEachKeyValue(this._output, (output) => output.invalidate())
+    forEachValueKey(this._output, (output) => output.invalidate())
   }
 
   protected _end() {
-    forEachKeyValue(this._output, (output) => output.end())
+    forEachValueKey(this._output, (output) => output.end())
   }
 
   protected _forward(name: string, data: any): void {
@@ -548,12 +709,11 @@ export class Primitive<I = any, O = any> extends Unit<I, O> {
 
   protected _forward_all_empty(): void {
     this._forwarding_empty = true
-    // forEachKeyValue(this.output, o => o.pull())
-    forEachKeyValue(this._output, (o) => o.take())
+    forEachValueKey(this._output, (o) => o.take())
     this._forwarding_empty = false
   }
 
-  protected _forward_empty(name: string): void {
+  protected _forward_empty(name: keyof O): void {
     this._forwarding_empty = true
     const output = this._output[name]
     output.take()
@@ -562,18 +722,80 @@ export class Primitive<I = any, O = any> extends Unit<I, O> {
 
   protected _backward_all(): void {
     this._backwarding = true
-    forEachKeyValue(this._data_input, (i) => i.pull())
+    forEachValueKey(this._data_input, (i, name) => {
+      if (this._replaying) {
+        this._deactivateInput(name)
+
+        return
+      }
+
+      i.pull()
+    })
     this._backwarding = false
   }
 
-  protected _backward(name: string): void {
+  protected _backward(name: keyof I): void {
     this._backwarding = true
     const input = this._input[name]
     input.pull()
     this._backwarding = false
   }
 
-  public onDataInputInvalid(name: string) {}
+  public onDataInputInvalid<K extends keyof I>(name: K) {}
 
-  public onRefInputInvalid(name: string) {}
+  public onRefInputInvalid<K extends keyof I>(name: K) {}
+
+  public snapshotSelf(): Dict<any> {
+    return {
+      ...super.snapshotSelf(),
+      // __buffer: this.__buffer,
+      ...(this._forwarding ? { _forwarding: true } : {}),
+      ...(this._backwarding ? { _backwarding: true } : {}),
+      ...(this._forwarding_empty ? { _forwarding_empty: true } : {}),
+    }
+  }
+
+  public restoreSelf(state: Dict<any>): void {
+    const { __buffer, _forwarding, _backwarding, _forwarding_empty, ...rest } =
+      state
+
+    super.restoreSelf(rest)
+
+    // this.__buffer = __buffer || []
+
+    this._forwarding = _forwarding
+    this._backwarding = _backwarding
+    this._forwarding_empty = _forwarding_empty
+
+    this._i = {}
+
+    for (let name in this._input) {
+      const input = this._input[name]
+      const data = input.peak()
+
+      this._i[name] = data
+
+      if (data !== undefined) {
+        this._i_active.add(name)
+        this._i_start.add(name)
+
+        if (input.invalid()) {
+          this._i_invalid.add(name)
+        }
+      }
+    }
+
+    for (let name in this._output) {
+      const output = this._output[name]
+      const data = output.peak()
+
+      if (data !== undefined) {
+        this._o_active.add(name)
+
+        if (output.invalid()) {
+          this._o_invalid.add(name)
+        }
+      }
+    }
+  }
 }

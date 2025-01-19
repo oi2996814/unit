@@ -1,36 +1,36 @@
 {
   "name": "pair",
   "units": {
-    "erpkaeoq": {
+    "concat": {
       "id": "f57f5318-f26f-4b9f-b9e2-dcc022ad7728"
     },
-    "ahajqv": {
+    "single": {
       "id": "d2f8bb43-af44-4371-a32e-20b760695e13"
     },
-    "ijqwhhhmg": {
+    "single0": {
       "id": "d2f8bb43-af44-4371-a32e-20b760695e13"
     }
   },
   "merges": {
-    "jkmablfb": {
-      "erpkaeoq": {
+    "0": {
+      "concat": {
         "input": {
           "b": true
         }
       },
-      "ahajqv": {
+      "single": {
         "output": {
           "[a]": true
         }
       }
     },
-    "ybnvmqnh": {
-      "erpkaeoq": {
+    "1": {
+      "concat": {
         "input": {
           "a": true
         }
       },
-      "ijqwhhhmg": {
+      "single0": {
         "output": {
           "[a]": true
         }
@@ -40,44 +40,36 @@
   "metadata": {
     "icon": "brackets",
     "description": "build array with elements `0` and `1`",
-    "complexity": 7,
-    "tags": [
-      "core",
-      "array"
-    ]
+    "tags": ["core", "array"]
   },
   "inputs": {
     "0": {
-      "pin": {
+      "plug": {
         "0": {
-          "unitId": "ijqwhhhmg",
+          "unitId": "single0",
           "pinId": "a"
         }
-      },
-      "type": "<A>"
+      }
     },
     "1": {
-      "pin": {
+      "plug": {
         "0": {
-          "unitId": "ahajqv",
+          "unitId": "single",
           "pinId": "a"
         }
-      },
-      "type": "<A>"
+      }
     }
   },
   "outputs": {
-    "hbsxpnl": {
-      "pin": {
+    "pair": {
+      "plug": {
         "0": {
-          "unitId": "erpkaeoq",
+          "unitId": "concat",
           "pinId": "ab"
         }
-      },
-      "type": "<A>[]"
+      }
     }
   },
   "id": "a7d5c2f3-6134-4248-b9bc-33271c280267",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

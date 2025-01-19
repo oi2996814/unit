@@ -1,5 +1,7 @@
 import { Functional } from '../../../../Class/Functional'
 import { Done } from '../../../../Class/Functional/Done'
+import { System } from '../../../../system'
+import { ID_INIT } from '../../../_ids'
 
 export interface I<T> {
   n: number
@@ -11,11 +13,16 @@ export interface O<T> {
 }
 
 export default class Init<T> extends Functional<I<T>, O<T>> {
-  constructor() {
-    super({
-      i: ['n', 'a'],
-      o: ['a[]'],
-    })
+  constructor(system: System) {
+    super(
+      {
+        i: ['n', 'a'],
+        o: ['a[]'],
+      },
+      {},
+      system,
+      ID_INIT
+    )
   }
 
   f({ a, n }: I<T>, done: Done<O<T>>): void {

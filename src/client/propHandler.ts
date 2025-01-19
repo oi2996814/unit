@@ -1,13 +1,15 @@
-import { Style } from '../system/platform/Props'
+import { Style } from '../system/platform/Style'
 import { Dict } from '../types/Dict'
-import applyAttr from './applyAttr'
-import applyStyle from './applyStyle'
+import { identity } from '../util/identity'
+import { applyAttr } from './attr'
+import { Component } from './component'
+import { applyDynamicStyle, applyStyle } from './style'
 
-export type Handler = (value: any) => void
+export type Handler = (value: any, previous: any) => void
 
 export type PropHandler = Dict<Handler>
 
-export function attrHandler(
+export function makeAttrHandler(
   element: HTMLElement | SVGElement,
   name: string
 ): Handler {
@@ -20,55 +22,121 @@ export function attrHandler(
   }
 }
 
-export function htmlPropHandler(
-  element: HTMLElement,
-  DEFAULT_STYLE: Style
+export function elementPropHandler<T extends HTMLElement | SVGElement>(
+  component: Component<T>,
+  element: T,
+  DEFAULT_STYLE: Style,
+  DEFAULT_ATTR: Dict<any>,
+  CONTROLLED_ATTR_SET: Set<string>
 ): PropHandler {
   return {
-    ...basePropHandler(element, DEFAULT_STYLE),
+    ...basePropHandler(
+      component,
+      element,
+      DEFAULT_STYLE,
+      DEFAULT_ATTR,
+      CONTROLLED_ATTR_SET
+    ),
+    ...stylePropHandler(component, element, DEFAULT_STYLE),
+  }
+}
+
+export function htmlPropHandler<T extends HTMLElement>(
+  component: Component<T>,
+  element: T,
+  DEFAULT_STYLE: Style,
+  DEFAULT_ATTR: Dict<any>,
+  CONTROLLED_ATTR_SET: Set<string>
+): PropHandler {
+  return {
+    ...elementPropHandler(
+      component,
+      element,
+      DEFAULT_STYLE,
+      DEFAULT_ATTR,
+      CONTROLLED_ATTR_SET
+    ),
     innerText: (innerText: string | undefined) => {
       element.innerText = innerText || ''
     },
   }
 }
 
-export function svgPropHandler(
+export function svgPropHandler<P extends Dict<any> = any>(
+  component: Component<SVGElement, P>,
   element: SVGElement,
-  DEFAULT_STYLE: Style
+  DEFAULT_STYLE: Style,
+  DEFAULT_ATTR: Dict<any>,
+  CONTROLLED_ATTR_SET: Set<string>
 ): PropHandler {
   return {
-    ...basePropHandler(element, DEFAULT_STYLE),
+    ...basePropHandler(
+      component,
+      element,
+      DEFAULT_STYLE,
+      DEFAULT_ATTR,
+      CONTROLLED_ATTR_SET
+    ),
+    ...stylePropHandler(component, element, DEFAULT_STYLE),
   }
 }
 
 export function basePropHandler(
+  component: Component,
   element: HTMLElement | SVGElement,
-  DEFAULT_STYLE: Style
+  DEFAULT_STYLE: Style,
+  DEFAULT_ATTR: Dict<any>,
+  CONTROLLED_ATTR_SET: Set<string>
 ): PropHandler {
   return {
-    attr: (attr) => {
-      applyAttr(element, attr)
+    attr: (attr, prev) => {
+      applyAttr(
+        element,
+        { ...DEFAULT_ATTR, ...attr },
+        prev,
+        CONTROLLED_ATTR_SET
+      )
     },
     style: (style: Dict<string> | undefined = {}) => {
       applyStyle(element, { ...DEFAULT_STYLE, ...style })
     },
-    className: attrHandler(element, 'className'),
-    id: attrHandler(element, 'id'),
-    tabIndex: attrHandler(element, 'tabIndex'),
-    title: attrHandler(element, 'title'),
-    draggable: attrHandler(element, 'draggable'),
+    name: makeAttrHandler(element, 'name'),
+    className: makeAttrHandler(element, 'className'),
+    id: makeAttrHandler(element, 'id'),
+    tabIndex: makeAttrHandler(element, 'tabIndex'),
+    title: makeAttrHandler(element, 'title'),
+    draggable: makeAttrHandler(element, 'draggable'),
+  }
+}
+
+export function stylePropHandler(
+  component: Component<HTMLElement | SVGElement>,
+  element: HTMLElement | SVGElement,
+  DEFAULT_STYLE: Style
+): PropHandler {
+  return {
+    style: (style: Dict<string> | undefined = {}) => {
+      applyDynamicStyle(component, element, { ...DEFAULT_STYLE, ...style })
+    },
   }
 }
 
 export function inputPropHandler(
-  element: HTMLElement,
+  element: HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement,
   VALUE_NAME: string,
-  DEFAULT_VALUE: any
+  DEFAULT_VALUE: any,
+  parseValue: (value: string) => string = identity
 ): PropHandler {
   return {
     value: (value: any | undefined) => {
-      element[VALUE_NAME] = value || DEFAULT_VALUE
+      const value_ = parseValue(value)
+
+      element[VALUE_NAME] = value_ || DEFAULT_VALUE
     },
-    disabled: attrHandler(element, 'disabled'),
+    placeholder: (placeholder: string | undefined) => {
+      // @ts-ignore
+      element.placeholder = placeholder ?? ''
+    },
+    disabled: makeAttrHandler(element, 'disabled'),
   }
 }

@@ -13,7 +13,7 @@
       "id": "6db1905f-2343-4c63-97d3-07f4d946ef58",
       "output": {
         "acc": {
-          "ignored": true
+          "ignored": false
         }
       }
     },
@@ -22,7 +22,7 @@
     }
   },
   "merges": {
-    "yhqkcrmnq": {
+    "0": {
       "lengthlessthan": {
         "input": {
           "a": true
@@ -34,7 +34,7 @@
         }
       }
     },
-    "jswlhsl": {
+    "1": {
       "looprepeat": {
         "output": {
           "local": true
@@ -46,10 +46,10 @@
         }
       }
     },
-    "pauzdiil": {
+    "2": {
       "lengthlessthan": {
         "output": {
-          "true": true
+          "test": true
         }
       },
       "looprepeat": {
@@ -67,55 +67,63 @@
   "metadata": {
     "icon": "array",
     "description": "build a list of size n",
-    "complexity": 5,
-    "tags": [
-      "core",
-      "common"
-    ]
+    "tags": ["core", "common"]
   },
   "inputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "arraybuilderfrom",
           "pinId": "a"
         }
-      },
-      "type": "<A>"
+      }
     },
     "from": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "arraybuilderfrom",
           "pinId": "init"
         }
       },
-      "type": "<A>[]"
+      "functional": true
     },
     "n": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "looprepeat",
           "pinId": "init"
         }
       },
-      "type": "number"
+      "functional": true
     }
   },
   "outputs": {
     "a[]": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "arraybuilderfrom",
           "pinId": "a[]"
         }
+      }
+    },
+    "test": {
+      "plug": {
+        "0": {
+          "mergeId": "2"
+        }
       },
-      "type": "<A>[]"
+      "defaultIgnored": true
+    },
+    "acc": {
+      "plug": {
+        "0": {
+          "unitId": "arraybuilderfrom",
+          "pinId": "acc"
+        }
+      },
+      "defaultIgnored": true
     }
   },
   "id": "6c5543a6-d558-490d-8a94-20709375b10f",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

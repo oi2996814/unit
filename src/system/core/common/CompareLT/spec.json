@@ -36,54 +36,45 @@
   },
   "inputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "mergeId": "0"
         }
-      },
-      "type": "number"
+      }
     },
     "b": {
-      "pin": {
+      "plug": {
         "0": {
           "mergeId": "1"
         }
-      },
-      "type": "number"
+      }
     }
   },
   "outputs": {
     "a < b": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "lt",
           "pinId": "a < b"
         }
       },
-      "type": "boolean"
+      "functional": true
     },
     "a ≥ b": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "gte",
           "pinId": "a ≥ b"
         }
       },
-      "type": "boolean"
+      "functional": true
     }
   },
   "metadata": {
-    "icon": null,
-    "description": "...",
-    "complexity": 4,
-    "tags": [
-      "core",
-      "common"
-    ]
+    "icon": "less-than",
+    "description": "less than + greater than equal",
+    "tags": ["core", "common"]
   },
   "id": "e2d48ad6-4212-45f4-940b-c614c44eb59b",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

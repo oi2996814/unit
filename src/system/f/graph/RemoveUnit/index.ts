@@ -1,46 +1,61 @@
 import { Functional } from '../../../../Class/Functional'
 import { Done } from '../../../../Class/Functional/Done'
-import { Graph } from '../../../../Class/Graph'
-import { UnitClass } from '../../../../types/UnitClass'
+import { fromBundle } from '../../../../spec/fromBundle'
+import { System } from '../../../../system'
+import { $G } from '../../../../types/interface/async/$G'
+import { Async } from '../../../../types/interface/async/Async'
+import { UnitBundle } from '../../../../types/UnitBundle'
+import { ID_REMOVE_UNIT } from '../../../_ids'
 
 export interface I<T> {
-  graph: Graph
+  graph: $G
   id: string
 }
 
-export interface O<T> {}
+export interface O<T> {
+  class: UnitBundle
+}
 
 export default class RemoveUnit<T> extends Functional<I<T>, O<T>> {
-  constructor() {
-    super({
-      i: ['id', 'graph'],
-      o: [],
-    }),
+  constructor(system: System) {
+    super(
+      {
+        i: ['id', 'graph'],
+        o: [],
+      },
       {
         input: {
           graph: {
             ref: true,
           },
         },
-      }
+      },
+      system,
+      ID_REMOVE_UNIT
+    )
   }
 
-  f(
-    {
-      id,
-      graph,
-    }: {
-      class: UnitClass<any>
-      graph: Graph
-      id: string
-    },
-    done: Done<O<T>>
-  ): void {
+  f({ id, graph }: I<T>, done: Done<O<T>>): void {
+    graph = Async(graph, ['G'], this.__system.async)
+
+    let Class: UnitBundle
+
     try {
-      graph.removeUnit(id)
-      done({})
+      const unit = graph.$refUnit({ unitId: id, _: ['U'] })
+
+      unit.$getUnitBundleSpec({}, (bundle) => {
+        graph.$removeUnit({ unitId: id })
+
+        Class = fromBundle(bundle, this.__system.specs, this.__system.classes)
+      })
     } catch (err) {
       done(undefined, err.message)
+
+      return
     }
+
+    done({
+      class: Class,
+    })
   }
 }

@@ -28,7 +28,7 @@
       },
       "isempty": {
         "output": {
-          "unutqjyl": true
+          "test": true
         }
       }
     },
@@ -46,43 +46,37 @@
     }
   },
   "metadata": {
-    "icon": null,
-    "description": "no description",
-    "complexity": 6,
-    "tags": [
-      "core",
-      "array"
-    ]
+    "icon": "object-get",
+    "description": "head of array or default",
+    "tags": ["core", "array"]
   },
   "inputs": {
     "a": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "ifelse",
           "pinId": "a"
         },
         "1": {
           "unitId": "isempty",
-          "pinId": "ftwnpzfjy"
+          "pinId": "obj"
         }
       },
-      "type": "<A>[]"
+      "functional": true
     },
     "default": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "if",
           "pinId": "a"
         }
       },
-      "type": "<A>"
+      "functional": true
     }
   },
   "outputs": {
     "head": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "behead",
           "pinId": "head"
@@ -91,11 +85,10 @@
           "unitId": "if",
           "pinId": "a if b"
         }
-      },
-      "type": "<A>"
+      }
     },
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "behead",
           "pinId": "a"
@@ -104,19 +97,16 @@
           "unitId": "ifelse",
           "pinId": "if"
         }
-      },
-      "type": "<A>[]"
+      }
     },
     "empty": {
-      "pin": {
+      "plug": {
         "0": {
           "mergeId": "0"
         }
-      },
-      "type": "boolean"
+      }
     }
   },
   "id": "919d0a60-87cf-451b-a429-435aa70cde45",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

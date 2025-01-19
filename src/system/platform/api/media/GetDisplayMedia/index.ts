@@ -1,68 +1,69 @@
-import { ObjectSource } from '../../../../../ObjectSource'
-import { Primitive } from '../../../../../Primitive'
+import { Functional } from '../../../../../Class/Functional'
+import { Done } from '../../../../../Class/Functional/Done'
+import { System } from '../../../../../system'
+import { MS } from '../../../../../types/interface/MS'
+import { stopMediaStream } from '../../../../../util/stream/stopMediaStream'
+import { wrapMediaStream } from '../../../../../wrap/MediaStream'
+import { ID_GET_DISPLAY_MEDIA } from '../../../../_ids'
 
 export type I = {
   opt: MediaStreamConstraints
 }
 
-export type O = {}
+export type O = {
+  stream: MS
+}
 
-export default class GetDisplayMedia extends Primitive<I, O> {
+export default class GetDisplayMedia extends Functional<I, O> {
   private _stream: MediaStream
 
-  private _stream_source: ObjectSource<MediaStream> = new ObjectSource()
+  constructor(system: System) {
+    super(
+      {
+        i: ['opt'],
+        o: ['stream'],
+      },
+      {},
+      system,
+      ID_GET_DISPLAY_MEDIA
+    )
+  }
 
-  constructor() {
-    super({
-      i: ['opt'],
-      o: [],
-    })
+  async f({ opt }: I, done: Done<O>): Promise<void> {
+    const {
+      api: {
+        media: { getDisplayMedia },
+      },
+    } = this.__system
 
-    this.addListener('destroy', () => {
-      if (this._stream) {
-        this._stream.getTracks().forEach((track) => track.stop())
+    let _stream
+
+    try {
+      _stream = await getDisplayMedia(opt)
+    } catch (err) {
+      if (err.name === 'NotAllowedError') {
+        done(undefined, 'permission denied')
+
+        return
       }
-    })
 
-    this.addListener('take_err', () => {
-      this._input.opt.pull()
-    })
-  }
+      done(undefined, err.message)
 
-  onDataInputInvalid(name: string): void {
-    // if (name === 'opt') {
-    this._stream_source.set(null)
-    // }
-  }
-
-  onDataInputData(name: string, value: any): void {
-    // @ts-ignore
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
-      this.err('Screen Capture API API not supported')
       return
     }
 
-    navigator.mediaDevices
-      // @ts-ignore
-      .getDisplayMedia(value)
-      .then((stream: MediaStream) => {
-        const media_tracks = stream.getTracks()
-        const first_media_track = media_tracks[0]
-        if (first_media_track) {
-          first_media_track.addEventListener('ended', () => {
-            this._stream_source.set(null)
-          })
-          this._stream_source.set(stream)
-        }
-      })
-      .catch((err) => {
-        this.err(err.message)
-      })
+    const stream = wrapMediaStream(_stream, this.__system)
+
+    done({
+      stream,
+    })
   }
 
-  onDataInputDrop() {
-    if (this.hasErr()) {
-      this.takeErr()
+  d() {
+    if (this._stream) {
+      stopMediaStream(this._stream)
+
+      this._stream = undefined
     }
   }
 }

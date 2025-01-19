@@ -1,48 +1,51 @@
-import { IOPointerEvent } from '.'
+import { UnitPointerEvent } from '.'
 import { Dict } from '../../../types/Dict'
-import { Unlisten } from '../../../Unlisten'
-import { addListener } from '../../addListener'
-import Listenable from '../../Listenable'
+import { Unlisten } from '../../../types/Unlisten'
+import { callAll } from '../../../util/call/callAll'
 import { Listener } from '../../Listener'
-import { pointDistance, Position } from '../../util/geometry'
+import { addListener } from '../../addListener'
+import { Component } from '../../component'
+import { stopPropagation } from '../../stopPropagation'
+import { pointDistance } from '../../util/geometry'
+import { Position } from '../../util/geometry/types'
+import { setTimeoutRAF } from '../../util/timer/setTimeoutRAF'
+import {
+  CLICK_TIMEOUT,
+  LONG_CLICK_TIMEOUT,
+  POINTER_CLICK_RADIUS,
+  POINTER_LONG_PRESS_MAX_DELTA,
+} from './constants'
 import { makePointerCancelListener } from './pointercancel'
 import { listenPointerDown } from './pointerdown'
 import { makePointerLeaveListener } from './pointerleave'
 import { makePointerMoveListener } from './pointermove'
 import { makePointerUpListener } from './pointerup'
 
-export const CLICK_TIMEOUT = 300
-export const LONG_CLICK_TIMEOUT = 300
-export const POINTER_CLICK_RADIUS = 15
+export type Handlers = {
+  onClick?: (event: UnitPointerEvent, _event: PointerEvent) => void
+  onClickCancel?: (event: UnitPointerEvent) => void
+  onDoubleClick?: (event: UnitPointerEvent) => void
+  onLongClick?: (event: UnitPointerEvent) => void
+  onLongPress?: (event: UnitPointerEvent, _event: PointerEvent) => void
+  onLongClickCancel?: (event: UnitPointerEvent) => void
+  onClickHold?: (event: UnitPointerEvent) => void
+}
 
-export function makeClickListener(handlers: {
-  onClick?: (event: IOPointerEvent) => void
-  onDoubleClick?: (event: IOPointerEvent) => void
-  onLongClick?: (event: IOPointerEvent) => void
-  onLongPress?: (event: IOPointerEvent, _event: PointerEvent) => void
-  onLongClickCancel?: (event: IOPointerEvent) => void
-  onClickHold?: (event: IOPointerEvent) => void
-}): Listener {
-  return (component) => {
+export function makeClickListener(handlers: Handlers): Listener {
+  return (component: Component) => {
     return listenClick(component, handlers)
   }
 }
 
 export function listenClick(
-  component: Listenable,
-  handlers: {
-    onClick?: (event: IOPointerEvent) => void
-    onDoubleClick?: (event: IOPointerEvent) => void
-    onLongClick?: (event: IOPointerEvent) => void
-    onLongPress?: (event: IOPointerEvent, _event: PointerEvent) => void
-    onLongClickCancel?: (event: IOPointerEvent) => void
-    onClickHold?: (event: IOPointerEvent) => void
-  }
+  component: Component,
+  handlers: Handlers
 ): () => void {
-  const { $element } = component
+  const { $element, $system } = component
 
   const {
     onClick,
+    onClickCancel,
     onDoubleClick,
     onLongPress,
     onLongClickCancel,
@@ -58,19 +61,25 @@ export function listenClick(
   let pointerPosition: Dict<Position> = {}
   let pointerDownMaxDistance: Dict<number> = {}
   let lastTapPosition: Position
-
+  let longClickCancelPointerId = new Set<number>()
   let longPress: Dict<boolean> = {}
 
-  let doubleClickTimeout: NodeJS.Timer | null = null
-  let longClickTimeout: NodeJS.Timer | null = null
+  let doubleClickTimeout: Unlisten = null
+  let longClickTimeout: Unlisten = null
+
+  let unlisten: Unlisten | undefined = undefined
 
   let unlistenPointerMove: Unlisten | undefined = undefined
   let unlistenPointerUp: Unlisten | undefined = undefined
   let unlistenPointerLeave: Unlisten | undefined = undefined
   let unlistenPointerCancel: Unlisten | undefined = undefined
 
-  const pointerDownListener = (event: IOPointerEvent, _event: PointerEvent) => {
+  const pointerDownListener = (
+    event: UnitPointerEvent,
+    _event: PointerEvent
+  ) => {
     // console.log('pointerDownListener')
+
     const { pointerId } = event
 
     if (!pointerDown[pointerId]) {
@@ -95,14 +104,19 @@ export function listenClick(
           component,
           makePointerCancelListener(pointerCancelListener)
         )
+
+        unlisten = callAll([
+          unlistenPointerMove,
+          unlistenPointerUp,
+          unlistenPointerLeave,
+          unlistenPointerCancel,
+        ])
       }
 
       pointerPosition[pointerId] = { x: clientX, y: clientY }
       pointerDown[pointerId] = pointerPosition[pointerId]
       pointerDownMaxDistance[pointerId] = -Infinity
 
-      // set a timeout to capture if pointer has remained close to its initial
-      // pointer down position after a while
       if (pointerDownCount === 1) {
         if (
           tapCount === 0 ||
@@ -111,26 +125,31 @@ export function listenClick(
               POINTER_CLICK_RADIUS)
         ) {
           if (longClickTimeout) {
-            clearTimeout(longClickTimeout)
+            longClickTimeout()
           }
-          longClickTimeout = setTimeout(() => {
-            // if pointer has moved more than the treshold in the mean time,
-            // it is not a long press
-            if (
-              tapCount === 0 &&
-              pointerDown[pointerId] &&
-              pointerDownCount === 1
-            ) {
-              longPress[pointerId] = true
+
+          longClickTimeout = setTimeoutRAF(
+            $system,
+            () => {
               if (
-                pointerDownMaxDistance[pointerId] <
-                POINTER_CLICK_RADIUS / 3
+                tapCount === 0 &&
+                pointerDown[pointerId] &&
+                pointerDownCount === 1
               ) {
-                onLongPress && onLongPress(event, _event)
+                longPress[pointerId] = true
+
+                if (
+                  pointerDownMaxDistance[pointerId] <
+                  POINTER_LONG_PRESS_MAX_DELTA
+                ) {
+                  onLongPress && onLongPress(event, _event)
+                }
               }
-            }
-            longClickTimeout = null
-          }, LONG_CLICK_TIMEOUT)
+
+              longClickTimeout = null
+            },
+            LONG_CLICK_TIMEOUT
+          )
         }
 
         if (
@@ -138,29 +157,34 @@ export function listenClick(
           pointDistance(pointerPosition[pointerId], lastPointerDownPosition) <=
             POINTER_CLICK_RADIUS
         ) {
-          setTimeout(() => {
-            if (
-              pointerDown[pointerId] &&
-              pointerDownMaxDistance[pointerId] < POINTER_CLICK_RADIUS
-            ) {
-              onClickHold && onClickHold(event)
-            }
-          }, LONG_CLICK_TIMEOUT)
+          setTimeoutRAF(
+            $system,
+            () => {
+              if (
+                pointerDown[pointerId] &&
+                pointerDownMaxDistance[pointerId] < POINTER_CLICK_RADIUS
+              ) {
+                onClickHold && onClickHold(event)
+              }
+            },
+            LONG_CLICK_TIMEOUT
+          )
         }
       } else {
         if (longClickTimeout) {
-          clearTimeout(longClickTimeout)
+          longClickTimeout()
+
           longPress = {}
+
           longClickTimeout = null
         }
       }
     }
   }
 
-  const longClickCancelPointerId = new Set<number>()
-
-  const pointerMoveListener = (event: IOPointerEvent) => {
+  const pointerMoveListener = (event: UnitPointerEvent) => {
     // console.log('pointerMoveListener')
+
     const { clientX, clientY, pointerId } = event
 
     pointerPosition[pointerId] = { x: clientX, y: clientY }
@@ -173,7 +197,7 @@ export function listenClick(
 
       if (
         !longClickCancelPointerId.has(pointerId) &&
-        pointerDownMaxDistance[pointerId] >= POINTER_CLICK_RADIUS / 3
+        pointerDownMaxDistance[pointerId] >= POINTER_LONG_PRESS_MAX_DELTA
       ) {
         longClickCancelPointerId.add(pointerId)
         onLongClickCancel && onLongClickCancel(event)
@@ -183,12 +207,14 @@ export function listenClick(
 
   const pointerCancelListener = ({ pointerId }) => {
     // console.log('pointerCancelListener')
+
     releasePointerDown(pointerId)
   }
 
-  const pointerUpListener = (event: IOPointerEvent) => {
+  const pointerUpListener = (event: UnitPointerEvent, _event: PointerEvent) => {
+    // console.log('pointerUpListener', event.pointerId)
+
     const { pointerId, clientX, clientY } = event
-    // console.log('pointerUpListener', pointerId)
 
     const position = { x: clientX, y: clientY }
 
@@ -215,7 +241,7 @@ export function listenClick(
         tapCount = 1
         pointerDownMaxDistance[pointerId] = 0
         if (doubleClickTimeout) {
-          clearTimeout(doubleClickTimeout)
+          doubleClickTimeout()
           doubleClickTimeout = null
         }
       }
@@ -224,10 +250,14 @@ export function listenClick(
 
       if (tapCount > 0 && tapCount % 2 === 1) {
         if (pointerDownMovedDistance < POINTER_CLICK_RADIUS) {
-          doubleClickTimeout = setTimeout(() => {
-            tapCount = 0
-            doubleClickTimeout = null
-          }, CLICK_TIMEOUT)
+          doubleClickTimeout = setTimeoutRAF(
+            $system,
+            () => {
+              tapCount = 0
+              doubleClickTimeout = null
+            },
+            CLICK_TIMEOUT
+          )
         } else {
           tapCount = 0
           doubleClickTimeout = null
@@ -237,8 +267,10 @@ export function listenClick(
           if (longPress[pointerId]) {
             onLongClick && onLongClick(event)
           } else {
-            onClick && onClick(event)
+            onClick && onClick(event, _event)
           }
+        } else {
+          onClickCancel && onClickCancel(event)
         }
       }
 
@@ -251,10 +283,10 @@ export function listenClick(
           if (onDoubleClick) {
             onDoubleClick(event)
           } else if (onClick) {
-            onClick(event)
+            onClick(event, _event)
           }
         } else {
-          onClick && onClick(event)
+          onClick && onClick(event, _event)
         }
       }
 
@@ -264,48 +296,38 @@ export function listenClick(
     }
   }
 
-  const pointerLeaveListener = (event: IOPointerEvent) => {
-    // console.log('pointerLeaveListener')
+  const pointerLeaveListener = (event: UnitPointerEvent) => {
     releasePointerDown(event)
   }
 
-  const releasePointerDown = (event: IOPointerEvent) => {
+  const releasePointerDown = (event: UnitPointerEvent) => {
     const { pointerId } = event
+
     if (pointerDown[pointerId]) {
-      // console.log('releasePointerDown')
       delete pointerDown[pointerId]
+
       pointerDownCount--
 
       if (pointerDownCount === 0) {
-        unlistenPointerMove!()
-        unlistenPointerUp!()
-        unlistenPointerLeave!()
-        unlistenPointerCancel!()
-        unlistenPointerMove = undefined
-        unlistenPointerUp = undefined
-        unlistenPointerLeave = undefined
-        unlistenPointerCancel = undefined
+        unlisten && unlisten()
+        unlisten = undefined
       }
 
       delete longPress[pointerId]
     }
+
+    longClickCancelPointerId.delete(pointerId)
   }
 
-  const ignoreListener = (event: Event) => {
-    event.stopPropagation()
-    // event.preventDefault()
-  }
-
-  $element.addEventListener('click', ignoreListener)
-  $element.addEventListener('dblclick', ignoreListener)
+  $element.addEventListener('click', stopPropagation)
+  $element.addEventListener('dblclick', stopPropagation)
 
   const unlistenPointerDown = listenPointerDown(component, pointerDownListener)
 
   return () => {
     unlistenPointerDown()
-    unlistenPointerMove && unlistenPointerMove()
-    unlistenPointerUp && unlistenPointerUp()
-    unlistenPointerLeave && unlistenPointerLeave()
-    unlistenPointerCancel && unlistenPointerCancel()
+
+    unlisten && unlisten()
+    unlisten = undefined
   }
 }

@@ -1,10 +1,6 @@
-import { GraphUnitSpecBase } from '.'
-import { U } from '../interface/U'
+import { Unit } from '../Class/Unit'
 import { System } from '../system'
 
-export type UnitClass<T extends U = any> = {
-  __id?: string
-  __unit?: GraphUnitSpecBase
-
-  new (system?: System): T
+export interface UnitClass<T extends Unit = any> {
+  new (system: System, id: string, push?: boolean): T
 }

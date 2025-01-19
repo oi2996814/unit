@@ -1,0 +1,24 @@
+{
+  "name": "less than equal",
+  "inputs": {
+    "a": {
+      "type": "number"
+    },
+    "b": {
+      "type": "number"
+    }
+  },
+  "outputs": {
+    "a ≤ b": {
+      "type": "boolean"
+    }
+  },
+  "metadata": {
+    "icon": "less-than-equal",
+    "description": "less than or equal to operator",
+    "tags": ["f", "comparison"]
+  },
+  "id": "e13f3090-62a6-4a3b-8401-c571cbf03526",
+  "base": true,
+  "type": "`U`"
+}

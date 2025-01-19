@@ -10,8 +10,13 @@
     "memory0": {
       "id": "49e11645-c25d-4bf7-923d-56817f67b686"
     },
-    "cgzfvsivu": {
-      "id": "bf8dbe66-5dc6-11ea-8283-971f327da584"
+    "interval": {
+      "id": "42a8023a-0581-4e92-968a-b31584d0ed75",
+      "input": {
+        "done": {
+          "ignored": true
+        }
+      }
     }
   },
   "merges": {
@@ -21,7 +26,7 @@
           "b": true
         }
       },
-      "cgzfvsivu": {
+      "interval": {
         "output": {
           "ms": true
         }
@@ -54,45 +59,37 @@
   },
   "metadata": {
     "icon": "alarm-clock",
-    "description": "no description",
-    "complexity": 8,
-    "tags": [
-      "core",
-      "time"
-    ]
+    "description": "output element from stream every `ms` milliseconds",
+    "tags": ["core", "time"]
   },
   "inputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "memory",
           "pinId": "a"
         }
-      },
-      "type": "<A>"
+      }
     },
     "ms": {
-      "pin": {
+      "plug": {
         "0": {
-          "unitId": "cgzfvsivu",
+          "unitId": "interval",
           "pinId": "ms"
         }
-      },
-      "type": "number"
+      }
     }
   },
   "outputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "memory0",
           "pinId": "a"
         }
-      },
-      "type": "<A>"
+      }
     }
   },
   "id": "2c3c4a2c-7300-4050-a017-ba25e42497b5",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

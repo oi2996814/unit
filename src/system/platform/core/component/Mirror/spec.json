@@ -4,13 +4,15 @@
     "defaultvideo": {
       "id": "68ee3bf2-7d57-4828-92ac-1070e988ffe7",
       "input": {
-        "style": {
-          "constant": true
-        },
+        "style": {},
         "controls": {
           "ignored": false,
           "constant": true,
           "data": "false"
+        },
+        "opt": {
+          "constant": true,
+          "data": "{audio:false}"
         }
       },
       "output": {},
@@ -51,57 +53,43 @@
   },
   "inputs": {
     "style": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "mergedefault",
           "pinId": "a"
         }
-      },
-      "type": "object"
+      }
     }
   },
   "outputs": {
     "video": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "defaultvideo",
           "pinId": "video"
         }
       },
       "ref": true,
-      "type": "`C`&`V`",
       "defaultIgnored": true
     }
   },
   "metadata": {
     "icon": "video",
-    "description": "",
-    "complexity": 7,
-    "tags": [
-      "platform",
-      "core",
-      "component"
-    ]
+    "description": "default user media",
+    "tags": ["platform", "core", "component"]
   },
   "component": {
-    "slots": [
-      [
-        "defaultvideo",
-        "default"
-      ]
-    ],
+    "slots": [["defaultvideo", "default"]],
     "subComponents": {
       "defaultvideo": {
         "children": []
       }
     },
-    "children": [
-      "defaultvideo"
-    ],
+    "children": ["defaultvideo"],
     "defaultWidth": 260,
     "defaultHeight": 195
   },
   "id": "3a56b714-36d3-4a0a-b641-001db6f774e8",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`C`&`G`",
+  "render": true
 }

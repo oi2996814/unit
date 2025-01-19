@@ -4,7 +4,7 @@ import TypeOf from '../../../../system/f/data/TypeOf'
 import { testSISO } from '../../../util'
 import { system } from '../../../util/system'
 
-const typeOf = new TypeOf()
+const typeOf = new TypeOf(system)
 
 typeOf.play()
 

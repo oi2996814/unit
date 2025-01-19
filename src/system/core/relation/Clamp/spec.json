@@ -25,53 +25,44 @@
   "metadata": {
     "icon": "tilde",
     "description": "restricts a number to be within a range",
-    "complexity": 5.655226729425717,
-    "tags": [
-      "core",
-      "relation"
-    ]
+    "tags": ["core", "relation"]
   },
   "inputs": {
     "max": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "min",
           "pinId": "b"
         }
-      },
-      "type": "number"
+      }
     },
     "min": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "max",
           "pinId": "b"
         }
-      },
-      "type": "number"
+      }
     },
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "min",
           "pinId": "a"
         }
-      },
-      "type": "number"
+      }
     }
   },
   "outputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "max",
           "pinId": "max"
         }
-      },
-      "type": "number"
+      }
     }
   },
   "id": "9ef9ff5b-6a1c-444b-8fc0-bfebbec6f4fd",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

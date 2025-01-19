@@ -2,7 +2,7 @@
   "name": "app",
   "inputs": {
     "style": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "gui",
           "pinId": "style"
@@ -23,17 +23,16 @@
             "y": 45
           }
         }
-      },
-      "type": "object"
+      }
     },
     "disabled": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "gui",
           "pinId": "disabled"
         },
-        "nmlrgwuaw": {
-          "unitId": "graph",
+        "1": {
+          "unitId": "editor",
           "pinId": "disabled"
         }
       },
@@ -43,19 +42,18 @@
             "x": -372,
             "y": -304
           },
-          "nmlrgwuaw": {
+          "1": {
             "x": 183,
             "y": 16
           }
         }
-      },
-      "type": "boolean"
+      }
     },
-    "pod": {
-      "pin": {
+    "graph": {
+      "plug": {
         "0": {
-          "unitId": "graph",
-          "pinId": "pod"
+          "unitId": "editor",
+          "pinId": "graph"
         }
       },
       "ref": true,
@@ -70,35 +68,42 @@
       "type": "`G`"
     },
     "fullwindow": {
-      "pin": {
+      "plug": {
         "0": {
-          "unitId": "graph",
+          "unitId": "editor",
           "pinId": "fullwindow"
         }
-      },
-      "type": "boolean"
+      }
     },
     "frame": {
-      "pin": {
+      "plug": {
         "0": {
-          "unitId": "graph",
+          "unitId": "editor",
           "pinId": "frame"
         }
       },
-      "type": "`U`",
       "ref": true
     }
   },
   "outputs": {
     "graph": {
-      "pin": {
+      "plug": {
         "0": {
-          "unitId": "graph",
-          "pinId": "_self"
+          "unitId": "editor",
+          "pinId": "graph"
         }
       },
       "ref": true,
-      "type": "`U`&`G`",
+      "defaultIgnored": true
+    },
+    "state": {
+      "plug": {
+        "0": {
+          "unitId": "editor",
+          "pinId": "state"
+        }
+      },
+      "ref": true,
       "defaultIgnored": true
     }
   },
@@ -115,6 +120,7 @@
           }
         },
         "disabled": {
+          "ignored": false,
           "metadata": {
             "position": {
               "x": -352,
@@ -131,11 +137,11 @@
         }
       }
     },
-    "graph": {
+    "editor": {
       "id": "e80c912e-7508-11ea-966b-436805345ff0",
       "input": {
         "style": {},
-        "pod": {
+        "graph": {
           "metadata": {
             "position": {
               "x": 187,
@@ -170,7 +176,14 @@
           }
         }
       },
-      "output": {},
+      "output": {
+        "graph": {
+          "ignored": false
+        },
+        "state": {
+          "ignored": false
+        }
+      },
       "metadata": {
         "position": {
           "x": 366,
@@ -243,7 +256,7 @@
           "{color}": true
         }
       },
-      "graph": {
+      "editor": {
         "input": {
           "style": true
         }
@@ -264,50 +277,28 @@
   },
   "component": {
     "slots": [
-      [
-        "graph",
-        "default"
-      ],
-      [
-        "graph",
-        "1"
-      ],
-      [
-        "gui",
-        "default"
-      ],
-      [
-        "gui",
-        "1"
-      ]
+      ["gui", "default"],
+      ["gui", "1"],
+      ["gui", "2"]
     ],
     "subComponents": {
       "gui": {
-        "children": [
-          "graph"
-        ],
+        "children": ["editor"],
         "width": 420,
         "height": 420
       },
-      "graph": {
+      "editor": {
         "children": []
       }
     },
-    "children": [
-      "gui"
-    ],
+    "children": ["gui"],
     "defaultWidth": 420,
     "defaultHeight": 420
   },
   "metadata": {
     "icon": "atom-alt",
-    "description": "graph + gui",
-    "complexity": 95.48362767081147,
-    "tags": [
-      "platform",
-      "core",
-      "component"
-    ],
+    "description": "editor + gui",
+    "tags": ["platform", "core", "component"],
     "position": {
       "merge": {
         "0": {
@@ -322,6 +313,6 @@
     }
   },
   "id": "4181691b-4790-4191-9b03-86c6c968d1b8",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`C`&`G`",
+  "render": true
 }

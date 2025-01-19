@@ -5,15 +5,13 @@
       "type": "string"
     },
     "stream": {
-      "type": "`ST`",
+      "type": "`MS`",
       "ref": true
     },
     "opt": {
       "type": "{iceServers:{urls:string[]}[]}",
       "metadata": {
-        "examples": [
-          "{iceServers:[{urls:['stun:ice.ioun.net']}]}"
-        ]
+        "examples": ["{iceServers:[{urls:['stun:stun.l.google.com:19302']}]}"]
       }
     },
     "close": {
@@ -24,23 +22,18 @@
     "offer": {
       "type": "string"
     },
-    "port": {
-      "type": "`P`",
-      "ref": true
+    "channel": {
+      "type": "`CH`",
+      "ref": true,
+      "icon": "arrow-up-down"
     }
   },
   "metadata": {
     "icon": "link",
-    "description": "Peer to Peer (P2P) Transmitter",
-    "complexity": 3.9957378203583938,
-    "tags": [
-      "platform",
-      "api",
-      "peer"
-    ]
+    "description": "output `offer` and input `answer` to stablish a Peer to Peer (P2P) connection with a remote peer",
+    "tags": ["platform", "api", "peer"]
   },
   "id": "7375aad5-50fd-403c-80ae-471b95088f04",
   "base": true,
-  "type": "`U`",
-  "system": true
+  "type": "`U`"
 }

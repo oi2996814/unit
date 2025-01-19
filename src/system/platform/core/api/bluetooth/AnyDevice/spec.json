@@ -1,0 +1,83 @@
+{
+  "name": "any device",
+  "inputs": {
+    "any": {
+      "plug": {
+        "0": {
+          "unitId": "merge",
+          "pinId": "b"
+        }
+      }
+    }
+  },
+  "outputs": {
+    "device": {
+      "plug": {
+        "0": {
+          "unitId": "device",
+          "pinId": "device"
+        }
+      },
+      "ref": true
+    }
+  },
+  "units": {
+    "device": {
+      "id": "4ad5bd0e-e11e-11ea-ad4c-83da30628333",
+      "input": {
+        "opt": {}
+      },
+      "output": {
+        "device": {}
+      },
+      "metadata": {
+        "position": {
+          "x": 51,
+          "y": -1
+        }
+      }
+    },
+    "merge": {
+      "id": "60bdba6d-c670-430f-be72-6f39cf4e8453",
+      "input": {
+        "a": {
+          "constant": true,
+          "data": "{acceptAllDevices:true}"
+        },
+        "b": {}
+      },
+      "output": {
+        "ab": {}
+      },
+      "metadata": {
+        "position": {
+          "x": -52,
+          "y": 0
+        }
+      }
+    }
+  },
+  "merges": {
+    "0": {
+      "merge": {
+        "output": {
+          "ab": true
+        }
+      },
+      "device": {
+        "input": {
+          "opt": true
+        }
+      }
+    }
+  },
+  "render": false,
+  "component": {},
+  "metadata": {
+    "icon": "bluetooth",
+    "description": "select one of all available bluetooth devices",
+    "tags": ["platform", "core", "api", "bluetooth"]
+  },
+  "type": "`U`&`G`",
+  "id": "a08ce854-e13b-11ea-b260-e76cc1643e97"
+}

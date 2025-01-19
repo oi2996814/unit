@@ -15,36 +15,28 @@
   "metadata": {
     "icon": "tag",
     "description": "{end: `end`}",
-    "complexity": 3,
-    "tags": [
-      "platform",
-      "core",
-      "canvas"
-    ]
+    "tags": ["platform", "core", "canvas"]
   },
   "inputs": {
     "end": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "tag",
           "pinId": "v"
         }
-      },
-      "type": "any"
+      }
     }
   },
   "outputs": {
     "end": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "tag",
           "pinId": "kv"
         }
-      },
-      "type": "object"
+      }
     }
   },
   "id": "fe80edec-454f-4e87-ace4-51cdb5b5456f",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

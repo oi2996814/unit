@@ -24,45 +24,37 @@
   },
   "inputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "length",
           "pinId": "a"
         }
-      },
-      "type": "<A>[]"
+      }
     },
     "b": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "equals",
           "pinId": "b"
         }
-      },
-      "type": "number"
+      }
     }
   },
   "outputs": {
     "equals": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "equals",
           "pinId": "a = b"
         }
-      },
-      "type": "boolean"
+      }
     }
   },
   "metadata": {
     "icon": "ruler",
-    "description": "is the size of this `list` equal to `n`?",
-    "complexity": 4,
-    "tags": [
-      "core",
-      "common"
-    ]
+    "description": "check whether the length of `a` is equal to `n`?",
+    "tags": ["core", "common"]
   },
   "id": "175c0cc6-1801-4b5d-9980-e780c10ea745",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

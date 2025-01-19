@@ -1,0 +1,25 @@
+{
+  "name": "deep get",
+  "inputs": {
+    "obj": {
+      "type": "`J`",
+      "ref": true
+    },
+    "path": {
+      "type": "string[]"
+    }
+  },
+  "outputs": {
+    "value": {
+      "type": "any"
+    }
+  },
+  "metadata": {
+    "icon": "object-get",
+    "description": "get `value` `obj` property at `path`",
+    "tags": ["platform", "method", "object"]
+  },
+  "id": "8e6a00bf-2fb7-4252-adb4-7ffedde69b47",
+  "base": true,
+  "type": "`U`"
+}

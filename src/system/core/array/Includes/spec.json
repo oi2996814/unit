@@ -2,28 +2,26 @@
   "name": "includes",
   "inputs": {
     "a[]": {
-      "type": "<A>[]",
-      "pin": {
+      "plug": {
         "0": {
-          "unitId": "kktcqlhms",
+          "unitId": "looprepeat",
           "pinId": "init"
         },
         "1": {
-          "unitId": "yadfnprd",
+          "unitId": "false",
           "pinId": "any"
         },
         "2": {
-          "unitId": "foyauruqj",
+          "unitId": "zero",
           "pinId": "any"
         }
       },
       "functional": true
     },
     "a": {
-      "type": "<A>",
-      "pin": {
+      "plug": {
         "0": {
-          "unitId": "rizvvu",
+          "unitId": "looprepeat0",
           "pinId": "init"
         }
       },
@@ -32,13 +30,12 @@
   },
   "outputs": {
     "found": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "loop",
           "pinId": "final"
         }
-      },
-      "type": "boolean"
+      }
     }
   },
   "units": {
@@ -79,7 +76,7 @@
         }
       }
     },
-    "insarup": {
+    "loopincrement": {
       "id": "4e2c89b2-e9cb-42f6-bb8d-e9d665c21fa7",
       "input": {
         "test": {},
@@ -105,7 +102,7 @@
         }
       }
     },
-    "kktcqlhms": {
+    "looprepeat": {
       "id": "ba8d655b-6014-4eae-bce1-fb8fef9ee535",
       "input": {
         "init": {
@@ -138,7 +135,7 @@
         }
       }
     },
-    "munwxyxy": {
+    "at": {
       "id": "79f01345-4ed7-47e2-8882-fa3bd282c98a",
       "input": {
         "a": {},
@@ -154,14 +151,14 @@
         }
       }
     },
-    "mrmioidmp": {
+    "lessthanlength": {
       "id": "cc422ac4-f29c-419d-8628-f58315bd7660",
       "input": {
         "a": {},
         "b": {}
       },
       "output": {
-        "true": {}
+        "test": {}
       },
       "metadata": {
         "position": {
@@ -170,7 +167,7 @@
         }
       }
     },
-    "gxmdzkpd": {
+    "equals": {
       "id": "85204bf6-6692-4686-a785-23127c0594b5",
       "input": {
         "a": {},
@@ -186,7 +183,7 @@
         }
       }
     },
-    "rizvvu": {
+    "looprepeat0": {
       "id": "ba8d655b-6014-4eae-bce1-fb8fef9ee535",
       "input": {
         "init": {
@@ -243,7 +240,7 @@
         }
       }
     },
-    "yadfnprd": {
+    "false": {
       "id": "b4d20f6f-32dc-4d04-97d6-69518976bdea",
       "input": {
         "any": {
@@ -265,7 +262,7 @@
         }
       }
     },
-    "foyauruqj": {
+    "zero": {
       "id": "618898d6-1167-11eb-bef9-cb053e09c21b",
       "input": {
         "any": {
@@ -290,53 +287,53 @@
   },
   "merges": {
     "0": {
-      "munwxyxy": {
+      "at": {
         "input": {
           "i": true
         }
       },
-      "insarup": {
+      "loopincrement": {
         "output": {
           "current": true
         }
       }
     },
     "1": {
-      "mrmioidmp": {
+      "lessthanlength": {
         "input": {
           "b": true
         }
       },
-      "insarup": {
+      "loopincrement": {
         "output": {
           "local": true
         }
       }
     },
     "2": {
-      "kktcqlhms": {
+      "looprepeat": {
         "output": {
           "local": true
         }
       },
-      "mrmioidmp": {
+      "lessthanlength": {
         "input": {
           "a": true
         }
       }
     },
     "3": {
-      "insarup": {
+      "loopincrement": {
         "input": {
           "test": true
         }
       },
-      "kktcqlhms": {
+      "looprepeat": {
         "input": {
           "test": true
         }
       },
-      "rizvvu": {
+      "looprepeat0": {
         "input": {
           "test": true
         }
@@ -353,36 +350,36 @@
       }
     },
     "4": {
-      "kktcqlhms": {
+      "looprepeat": {
         "output": {
           "current": true
         }
       },
-      "munwxyxy": {
+      "at": {
         "input": {
           "a": true
         }
       }
     },
     "5": {
-      "gxmdzkpd": {
+      "equals": {
         "input": {
           "a": true
         }
       },
-      "munwxyxy": {
+      "at": {
         "output": {
           "a[i]": true
         }
       }
     },
     "6": {
-      "rizvvu": {
+      "looprepeat0": {
         "output": {
           "current": true
         }
       },
-      "gxmdzkpd": {
+      "equals": {
         "input": {
           "b": true
         }
@@ -406,14 +403,14 @@
           "a": true
         }
       },
-      "mrmioidmp": {
+      "lessthanlength": {
         "output": {
-          "true": true
+          "test": true
         }
       }
     },
     "9": {
-      "gxmdzkpd": {
+      "equals": {
         "output": {
           "a = b": true
         }
@@ -425,7 +422,7 @@
       }
     },
     "10": {
-      "yadfnprd": {
+      "false": {
         "output": {
           "false": true
         }
@@ -437,12 +434,12 @@
       }
     },
     "11": {
-      "foyauruqj": {
+      "zero": {
         "output": {
           "0": true
         }
       },
-      "insarup": {
+      "loopincrement": {
         "input": {
           "init": true
         }
@@ -452,11 +449,7 @@
   "metadata": {
     "icon": "info-square",
     "description": "find whether array `a[]` contains an element of value `a`",
-    "complexity": 14,
-    "tags": [
-      "core",
-      "array"
-    ],
+    "tags": ["core", "array"],
     "position": {
       "merge": {
         "0": {
@@ -511,6 +504,5 @@
     }
   },
   "id": "8783e7de-6cde-11eb-bd74-574fd9c8b6aa",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

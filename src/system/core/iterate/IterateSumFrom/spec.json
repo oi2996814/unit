@@ -43,46 +43,38 @@
     }
   },
   "metadata": {
-    "icon": "",
-    "description": "no description",
-    "complexity": 4,
-    "tags": [
-      "core",
-      "iterate"
-    ]
+    "icon": "plus",
+    "description": "iterate `sum` by adding stream `a` starting `from`",
+    "tags": ["core", "iterate"]
   },
   "inputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "add",
           "pinId": "a"
         }
-      },
-      "type": "number"
+      }
     },
     "from": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "iterate",
           "pinId": "init"
         }
-      },
-      "type": "number"
+      }
     }
   },
   "outputs": {
     "sum": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "iterate",
           "pinId": "current"
         }
-      },
-      "type": "number"
+      }
     }
   },
   "id": "72513267-174e-4ea4-9561-b11dea518af5",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

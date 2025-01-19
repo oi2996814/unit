@@ -1,5 +1,7 @@
 import { Functional } from '../../../../Class/Functional'
 import { Done } from '../../../../Class/Functional/Done'
+import { System } from '../../../../system'
+import { ID_SPLIT } from '../../../_ids'
 import split from './f'
 
 export interface I {
@@ -12,11 +14,16 @@ export interface O {
 }
 
 export default class Split extends Functional<I, O> {
-  constructor() {
-    super({
-      i: ['a', 'sep'],
-      o: ['parts'],
-    })
+  constructor(system: System) {
+    super(
+      {
+        i: ['a', 'sep'],
+        o: ['parts'],
+      },
+      {},
+      system,
+      ID_SPLIT
+    )
   }
 
   f({ a, sep }: I, done: Done<O>): void {

@@ -1,14 +1,20 @@
 {
   "name": "div",
-  "type": "`U`&`C`",
+  "type": "`U`&`C`&`V`&`J`",
   "inputs": {
     "style": {
       "type": "object",
       "optional": true,
       "metadata": {
-        "examples": [
-          "{}"
-        ]
+        "examples": ["{}", "{background:'red'}"]
+      }
+    },
+    "attr": {
+      "type": "object",
+      "optional": true,
+      "defaultIgnored": true,
+      "metadata": {
+        "examples": ["{tabIndex:1}", "{title:'hello'}", "{draggable:true}"]
       }
     }
   },
@@ -16,11 +22,7 @@
   "metadata": {
     "icon": "square",
     "description": "HTML div element",
-    "complexity": 6.489483535014733,
-    "tags": [
-      "platform",
-      "component"
-    ]
+    "tags": ["platform", "component"]
   },
   "id": "66698a97-15c5-4602-9925-11a1aeb03710",
   "base": true,
@@ -28,6 +30,5 @@
     "defaultWidth": 120,
     "defaultHeight": 120
   },
-  "system": true,
   "render": true
 }

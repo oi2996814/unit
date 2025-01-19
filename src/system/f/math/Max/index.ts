@@ -1,4 +1,6 @@
 import { Functional } from '../../../../Class/Functional'
+import { System } from '../../../../system'
+import { ID_MAX } from '../../../_ids'
 
 export interface I<T> {
   a: number
@@ -10,11 +12,16 @@ export interface O<T> {
 }
 
 export default class Max<T> extends Functional<I<T>, O<T>> {
-  constructor() {
-    super({
-      i: ['a', 'b'],
-      o: ['max'],
-    })
+  constructor(system: System) {
+    super(
+      {
+        i: ['a', 'b'],
+        o: ['max'],
+      },
+      {},
+      system,
+      ID_MAX
+    )
   }
 
   f({ a, b }: I<T>, done): void {

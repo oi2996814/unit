@@ -42,70 +42,59 @@
   "metadata": {
     "icon": "array",
     "description": "build a list starting `from`",
-    "complexity": 4,
-    "tags": [
-      "core",
-      "array"
-    ]
+    "tags": ["core", "array"]
   },
   "inputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "append",
           "pinId": "b"
         }
-      },
-      "type": "<A>"
+      }
     },
     "test": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "loop",
           "pinId": "test"
         }
-      },
-      "type": "boolean"
+      }
     },
     "init": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "loop",
           "pinId": "init"
         }
-      },
-      "type": "<A>[]"
+      }
     }
   },
   "outputs": {
     "acc": {
-      "pin": {
+      "plug": {
         "0": {
           "mergeId": "1"
         }
-      },
-      "type": "<A>[]"
+      }
     },
     "a[]": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "loop",
           "pinId": "final"
         }
-      },
-      "type": "<A>[]"
+      }
     },
     "local": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "loop",
           "pinId": "local"
         }
-      },
-      "type": "<A>[]"
+      }
     }
   },
   "id": "6db1905f-2343-4c63-97d3-07f4d946ef58",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

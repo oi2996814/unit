@@ -4,18 +4,13 @@
     "message": {
       "type": "string",
       "metadata": {
-        "examples": [
-          "'hello world'",
-          "'welcome to unit!'"
-        ]
+        "examples": ["'hello world'", "'welcome to unit!'"]
       }
     },
     "voice": {
       "type": "number",
       "metadata": {
-        "examples": [
-          "1"
-        ]
+        "examples": ["0"]
       }
     }
   },
@@ -23,15 +18,9 @@
   "metadata": {
     "icon": "message-circle",
     "description": "speak the message",
-    "complexity": 2.694253469970165,
-    "tags": [
-      "platform",
-      "api",
-      "speech"
-    ]
+    "tags": ["platform", "api", "speech"]
   },
   "id": "6db29a62-2035-4cfc-a9d3-03444a8bc2b8",
   "base": true,
-  "type": "`U`",
-  "system": true
+  "type": "`U`"
 }

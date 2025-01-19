@@ -1,0 +1,30 @@
+{
+  "name": "image capture",
+  "inputs": {
+    "track": {
+      "type": "`MST`",
+      "ref": true
+    },
+    "init": {
+      "type": "any"
+    },
+    "done": {
+      "type": "number"
+    }
+  },
+  "outputs": {
+    "camera": {
+      "type": "`IC`",
+      "ref": true
+    }
+  },
+  "id": "a57383a9-5b24-4dbb-a5d1-0e278d036f89",
+  "base": true,
+  "metadata": {
+    "icon": "film",
+    "description": "enable the capture of images or photos from a camera device",
+    "tags": ["platform", "api", "media"],
+    "globals": ["ImageCapture"]
+  },
+  "type": "`U`"
+}

@@ -1,7 +1,7 @@
 {
   "name": "name to color",
   "units": {
-    "prop": {
+    "get": {
       "id": "9414421d-3376-4438-aa03-7afcd860972c",
       "input": {
         "obj": {
@@ -15,36 +15,28 @@
   "metadata": {
     "icon": "palette",
     "description": "turn a color named `name` into its correspondent `hex` string",
-    "complexity": 3,
-    "tags": [
-      "platform",
-      "core",
-      "color"
-    ]
+    "tags": ["platform", "core", "color"]
   },
   "inputs": {
     "name": {
-      "pin": {
+      "plug": {
         "0": {
-          "unitId": "prop",
+          "unitId": "get",
           "pinId": "key"
         }
-      },
-      "type": "number|string"
+      }
     }
   },
   "outputs": {
     "color": {
-      "type": "string",
-      "pin": {
+      "plug": {
         "0": {
-          "unitId": "prop",
+          "unitId": "get",
           "pinId": "value"
         }
       }
     }
   },
   "id": "5f1dfd62-e6ac-4c1d-80e4-c0e99440def9",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

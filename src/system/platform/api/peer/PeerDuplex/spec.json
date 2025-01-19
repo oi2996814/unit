@@ -1,25 +1,8 @@
 {
   "name": "peer duplex",
   "inputs": {
-    "data": {
-      "pin": {
-        "0": {
-          "unitId": "send",
-          "pinId": "data"
-        }
-      },
-      "type": "any",
-      "metadata": {
-        "position": {
-          "0": {
-            "x": -188,
-            "y": -25
-          }
-        }
-      }
-    },
     "offer": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "receiver",
           "pinId": "offer"
@@ -35,7 +18,7 @@
       }
     },
     "answer": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "transmitter",
           "pinId": "answer"
@@ -51,7 +34,7 @@
       }
     },
     "stream": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "transmitter",
           "pinId": "stream"
@@ -68,9 +51,9 @@
       }
     },
     "close": {
-      "pin": {
+      "plug": {
         "0": {
-          "mergeId": "hjpqrffi"
+          "mergeId": "3"
         }
       },
       "metadata": {
@@ -81,13 +64,11 @@
           }
         }
       }
-    }
-  },
-  "outputs": {
-    "data": {
-      "pin": {
+    },
+    "message": {
+      "plug": {
         "0": {
-          "unitId": "ondata",
+          "unitId": "send",
           "pinId": "data"
         }
       },
@@ -95,14 +76,24 @@
       "metadata": {
         "position": {
           "0": {
-            "x": 196,
-            "y": -39
+            "x": -188,
+            "y": -25
           }
         }
       }
     },
+    "opt": {
+      "plug": {
+        "0": {
+          "mergeId": "2"
+        }
+      },
+      "ref": false
+    }
+  },
+  "outputs": {
     "stream": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "receiver",
           "pinId": "stream"
@@ -116,10 +107,11 @@
             "y": 45
           }
         }
-      }
+      },
+      "icon": "circle-play"
     },
     "answer": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "receiver",
           "pinId": "answer"
@@ -135,7 +127,7 @@
       }
     },
     "offer": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "transmitter",
           "pinId": "offer"
@@ -149,35 +141,29 @@
           }
         }
       }
+    },
+    "message": {
+      "plug": {
+        "0": {
+          "unitId": "onmessage",
+          "pinId": "message"
+        }
+      },
+      "type": "any",
+      "metadata": {
+        "position": {
+          "0": {
+            "x": 196,
+            "y": -39
+          }
+        }
+      }
     }
   },
   "units": {
-    "ondata": {
-      "id": "8809ad1e-91bf-11eb-a3ad-dbb373958321",
-      "input": {
-        "unit": {}
-      },
-      "output": {
-        "data": {
-          "metadata": {
-            "position": {
-              "x": 169,
-              "y": -36
-            }
-          }
-        }
-      },
-      "metadata": {
-        "position": {
-          "x": 119,
-          "y": -34
-        }
-      }
-    },
     "send": {
       "id": "b296242e-8b82-11eb-ac6c-0f8d3f9948d0",
       "input": {
-        "unit": {},
         "data": {
           "metadata": {
             "position": {
@@ -190,8 +176,8 @@
       "output": {},
       "metadata": {
         "position": {
-          "x": -115,
-          "y": -6
+          "x": -121,
+          "y": 27
         }
       }
     },
@@ -214,7 +200,8 @@
             }
           }
         },
-        "close": {}
+        "close": {},
+        "opt": {}
       },
       "output": {
         "offer": {
@@ -228,8 +215,8 @@
       },
       "metadata": {
         "position": {
-          "x": -56,
-          "y": 18
+          "x": -57,
+          "y": 54
         }
       }
     },
@@ -244,7 +231,8 @@
             }
           }
         },
-        "close": {}
+        "close": {},
+        "opt": {}
       },
       "output": {
         "stream": {
@@ -253,7 +241,8 @@
               "x": 97,
               "y": 11
             }
-          }
+          },
+          "icon": "circle-play"
         },
         "answer": {
           "metadata": {
@@ -262,42 +251,70 @@
               "y": -56
             }
           }
-        }
+        },
+        "emitter": {}
       },
       "metadata": {
         "position": {
-          "x": 53,
-          "y": -26
+          "x": 26,
+          "y": -36
+        }
+      }
+    },
+    "onmessage": {
+      "id": "23c3952a-ef19-11ea-b80e-3f693508091e",
+      "input": {
+        "emitter": {}
+      },
+      "output": {
+        "message": {}
+      },
+      "metadata": {
+        "position": {
+          "x": 150,
+          "y": -47
         }
       }
     }
   },
   "merges": {
-    "nwplepif": {
-      "send": {
+    "0": {
+      "onmessage": {
         "input": {
-          "unit": true
-        }
-      },
-      "transmitter": {
-        "output": {
-          "_self": true
-        }
-      }
-    },
-    "ykrwbrg": {
-      "ondata": {
-        "input": {
-          "unit": true
+          "emitter": true
         }
       },
       "receiver": {
         "output": {
-          "_self": true
+          "emitter": true
         }
       }
     },
-    "hjpqrffi": {
+    "1": {
+      "send": {
+        "input": {
+          "channel": true
+        }
+      },
+      "transmitter": {
+        "output": {
+          "channel": true
+        }
+      }
+    },
+    "2": {
+      "transmitter": {
+        "input": {
+          "opt": true
+        }
+      },
+      "receiver": {
+        "input": {
+          "opt": true
+        }
+      }
+    },
+    "3": {
       "transmitter": {
         "input": {
           "close": true
@@ -313,21 +330,17 @@
   "component": {},
   "metadata": {
     "icon": "link",
-    "complexity": 19.658747660434003,
-    "tags": [
-      "platform",
-      "api",
-      "peer"
-    ],
+    "description": "peer transmitter + peer receiver",
+    "tags": ["platform", "api", "peer"],
     "position": {
       "merge": {
-        "hjpqrffi": {
+        "3": {
           "x": -3,
           "y": -4
         }
       }
     }
   },
-  "id": "720febf0-cec3-4c21-8e98-be64246122c5",
-  "system": true
+  "id": "755b0a17-1b09-45b4-bb7d-e63d21009efd",
+  "type": "`U`&`G`"
 }

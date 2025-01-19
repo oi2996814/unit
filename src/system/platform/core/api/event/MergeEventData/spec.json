@@ -58,47 +58,37 @@
   },
   "inputs": {
     "data": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "tagdata",
           "pinId": "data"
         }
-      },
-      "type": "any"
+      }
     },
     "event": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "tagevent",
           "pinId": "event"
         }
-      },
-      "type": "string"
+      }
     }
   },
   "outputs": {
     "{event,data}": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "merge",
           "pinId": "ab"
         }
-      },
-      "type": "object"
+      }
     }
   },
   "metadata": {
     "icon": "brackets-curly",
-    "description": "...",
-    "complexity": 5,
-    "tags": [
-      "platform",
-      "core",
-      "api",
-      "event"
-    ]
+    "description": "create object with values `event` and `data`",
+    "tags": ["platform", "core", "api", "event"]
   },
   "id": "bbc52982-4a71-45b8-8521-c0c30260c022",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

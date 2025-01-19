@@ -69,54 +69,45 @@
   "metadata": {
     "icon": "chevrons-left",
     "description": "prepend element `b` to `a` if `test`",
-    "complexity": 15.968163371198784,
-    "tags": [
-      "core",
-      "array"
-    ]
+    "tags": ["core", "array"]
   },
   "inputs": {
     "b": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "if",
           "pinId": "a"
         }
       },
-      "type": "<A>"
+      "functional": true
     },
     "a": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "ifelse",
           "pinId": "a"
         }
       },
-      "type": "<A>[]"
+      "functional": true
     },
     "test": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "mergeId": "0"
         }
       },
-      "type": "boolean"
+      "functional": true
     }
   },
   "outputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "mergeId": "3"
         }
-      },
-      "type": "<A>[]"
+      }
     }
   },
   "id": "765114be-2c5e-4ac8-b04e-27dbcb60ac12",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

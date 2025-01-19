@@ -30,93 +30,80 @@
   "merges": {},
   "inputs": {
     "test": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "findlastindexfromordefault",
           "pinId": "test"
         }
-      },
-      "type": "boolean"
+      }
     },
     "from": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "findlastindexfromordefault",
           "pinId": "from"
         }
-      },
-      "type": "number"
+      }
     },
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "findlastindexfromordefault",
           "pinId": "a"
         }
-      },
-      "type": "<A>[]"
+      }
     }
   },
   "outputs": {
     "a[i]": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "findlastindexfromordefault",
           "pinId": "a[i]"
         }
-      },
-      "type": "<A>"
+      }
     },
     "result": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "findlastindexfromordefault",
           "pinId": "result"
         }
-      },
-      "type": "number"
+      }
     },
     "i": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "findlastindexfromordefault",
           "pinId": "i"
         }
       },
-      "defaultIgnored": true,
-      "type": "number"
+      "defaultIgnored": true
     },
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "findlastindexfromordefault",
           "pinId": "a"
         }
       },
-      "defaultIgnored": true,
-      "type": "<A>[]"
+      "defaultIgnored": true
     },
     "test": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "findlastindexfromordefault",
           "pinId": "test"
         }
       },
-      "defaultIgnored": true,
-      "type": "boolean"
+      "defaultIgnored": true
     }
   },
   "metadata": {
     "icon": "brackets",
-    "description": "...",
-    "complexity": 3,
-    "tags": [
-      "core",
-      "array"
-    ]
+    "description": "find index `i` of last element in array `a` for which `test` is true after index `from`",
+    "tags": ["core", "array"]
   },
   "id": "58e5ab50-dcc9-435a-8d17-87bc96b9b31c",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

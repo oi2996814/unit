@@ -6,6 +6,9 @@
       "output": {
         "current": {
           "ignored": true
+        },
+        "final": {
+          "ignored": false
         }
       }
     },
@@ -22,12 +25,16 @@
       "input": {
         "b": {
           "constant": false
-        }
+        },
+        "a": {}
+      },
+      "output": {
+        "a < b": {}
       }
     }
   },
   "merges": {
-    "merge0": {
+    "0": {
       "looprepeat": {
         "output": {
           "local": true
@@ -39,7 +46,7 @@
         }
       }
     },
-    "merge1": {
+    "1": {
       "loopincrement": {
         "output": {
           "local": true
@@ -51,7 +58,7 @@
         }
       }
     },
-    "merge2": {
+    "2": {
       "lessthan": {
         "output": {
           "a < b": true
@@ -72,65 +79,61 @@
   "metadata": {
     "icon": "list-ordered",
     "description": "count from `a` to `b`, not inclusive",
-    "complexity": 5,
-    "tags": [
-      "core",
-      "loop"
-    ]
+    "tags": ["core", "loop"]
   },
   "inputs": {
     "a": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "loopincrement",
           "pinId": "init"
         }
       },
-      "type": "number",
+      "functional": true,
       "metadata": {
-        "examples": [
-          "0"
-        ]
+        "examples": ["0"]
       }
     },
     "b": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "looprepeat",
           "pinId": "init"
         }
       },
-      "type": "number",
+      "functional": true,
       "metadata": {
-        "examples": [
-          "3"
-        ]
+        "examples": ["3"]
       }
     }
   },
   "outputs": {
     "i": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "loopincrement",
           "pinId": "current"
         }
-      },
-      "type": "number"
+      }
     },
     "test": {
-      "type": "boolean",
-      "pin": {
+      "plug": {
         "0": {
-          "mergeId": "merge2"
+          "mergeId": "2"
+        }
+      },
+      "defaultIgnored": true
+    },
+    "final": {
+      "plug": {
+        "0": {
+          "unitId": "looprepeat",
+          "pinId": "final"
         }
       },
       "defaultIgnored": true
     }
   },
   "id": "29e43ad7-be5e-437f-8f0f-2df996c8b89c",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

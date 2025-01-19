@@ -9,12 +9,7 @@
   "metadata": {
     "icon": "expand",
     "description": "all corner resize handlers",
-    "complexity": 6.6239089746678275,
-    "tags": [
-      "platform",
-      "component",
-      "app"
-    ]
+    "tags": ["platform", "component", "app"]
   },
   "id": "6b18c608-7b5a-11ea-bb6e-2ff12a5cc3f3",
   "base": true,
@@ -22,7 +17,6 @@
     "defaultWidth": 120,
     "defaultHeight": 120
   },
-  "type": "`U`&`C`",
-  "system": true,
+  "type": "`U`&`C`&`V`&`J`",
   "render": true
 }

@@ -1,25 +1,29 @@
+import { $ } from '../../../../../Class/$'
 import { Functional } from '../../../../../Class/Functional'
-import { BD } from '../../../../../interface/BD'
-import { BS } from '../../../../../interface/BS'
-import { BSE } from '../../../../../interface/BSE'
-import { ObjectSource } from '../../../../../ObjectSource'
+import { Done } from '../../../../../Class/Functional/Done'
+import { System } from '../../../../../system'
+import { BluetoothService } from '../../../../../types/global/BluetoothService'
+import { BD } from '../../../../../types/interface/BD'
+import { BS } from '../../../../../types/interface/BS'
+import { BSE } from '../../../../../types/interface/BSE'
+import { ID_BLUETOOTH_SERVER } from '../../../../_ids'
 
 export interface I {
   device: BD
 }
 
-export interface O {}
+export interface O {
+  server: BS
+}
 
 export default class BluetoothServer extends Functional implements BS {
   private _server: any
 
-  private _server_source: ObjectSource<BS> = new ObjectSource()
-
-  constructor() {
+  constructor(system: System) {
     super(
       {
         i: ['device'],
-        o: [],
+        o: ['server'],
       },
       {
         input: {
@@ -27,17 +31,40 @@ export default class BluetoothServer extends Functional implements BS {
             ref: true,
           },
         },
-      }
+        output: {
+          server: {
+            ref: true,
+          },
+        },
+      },
+      system,
+      ID_BLUETOOTH_SERVER
     )
   }
 
-  async f({ device }: I): Promise<void> {
-    device.getServer((server) => {
-      this._server_source.set(server)
-    })
+  async f({ device }: I, done: Done<O>): Promise<void> {
+    let _server: any
+
+    try {
+      _server = await device.getServer()
+    } catch (err) {
+      done(undefined, err.message.toLowerCase())
+
+      return
+    }
+
+    const server = new (class _BluetoothDevice extends $ implements BS {
+      getPrimaryService(name: string): Promise<BluetoothService> {
+        return _server.getPrimaryService(name)
+      }
+    })(this.__system)
+
+    done({ server })
   }
 
   getPrimaryService(uuid: string): Promise<BSE> {
     return this._server.getPrimaryService(uuid)
   }
+
+  d() {}
 }

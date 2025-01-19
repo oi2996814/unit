@@ -1,174 +1,131 @@
-import { EventEmitter2 } from 'eventemitter2'
+import { EventEmitter_ } from '../../../EventEmitter'
+import { System } from '../../../system'
 
-const DEFAULT_TRESHOLD = 0.2
-
-const keysReverse = {
-  buttons: {
-    A: 0,
-    B: 1,
-    X: 2,
-    Y: 3,
-    LB: 4,
-    RB: 5,
-    LT: 6,
-    RT: 7,
-    Back: 8,
-    Start: 9,
-    LS: 10,
-    RS: 11,
-    DPadUp: 12,
-    DPadDown: 13,
-    DPadLeft: 14,
-    DPadRight: 15,
-  },
+export type Gamepad_J = {
+  buttons: boolean[]
+  axes: number[]
 }
 
-const keys = {
-  buttons: [
-    'A',
-    'B',
-    'X',
-    'Y',
-    'LB',
-    'RB',
-    'LT',
-    'RT',
-    'Back',
-    'Start',
-    'LS',
-    'RS',
-    'DPadUp',
-    'DPadDown',
-    'DPadLeft',
-    'DPadRight',
-  ],
-  axes: ['LeftStickX', '-LeftStickY', 'RightStickX', '-RightStickY'],
-  buttonAxis: [
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    'LeftTrigger',
-    'RightTrigger',
-  ],
-}
+export const GAMEPAD_BUTTON_COUNT = 16
+export const GAMEPAD_AXIS_COUNT = 4
+export const GAMEPAD_DEFAULT_THRESHOLD = 0.001
 
-export class Gamepads extends EventEmitter2 {
-  // there can only be four gamepads connected at a time
-  private _gamepads: GamepadInput[] = [
-    new GamepadInput(0),
-    new GamepadInput(1),
-    new GamepadInput(2),
-    new GamepadInput(3),
-  ]
+export class Gamepad_ extends EventEmitter_ {
+  public system: System
+  public gamepad: Gamepad
 
-  constructor() {
+  constructor(system: System, gamepad: Gamepad) {
     super()
 
-    window.addEventListener('gamepadconnected', this._onGamepadConnected)
-    window.addEventListener('gamepaddisconnected', this._onGamepadDisconnected)
+    this.system = system
+    this.gamepad = gamepad
   }
 
-  private _onGamepadConnected = (event: GamepadEvent) => {
-    console.log('device connected', event.gamepad)
-    const index = event.gamepad.index
-    this._gamepads[index].connect()
+  public state: Gamepad_J = {
+    buttons: new Array(GAMEPAD_BUTTON_COUNT).fill(
+      false,
+      0,
+      GAMEPAD_BUTTON_COUNT
+    ),
+    axes: new Array(GAMEPAD_AXIS_COUNT).fill(0, 0, GAMEPAD_AXIS_COUNT),
   }
 
-  public getGamepads(): GamepadInput[] {
-    return this._gamepads
-  }
-
-  public getGamepad(index: number): GamepadInput {
-    return this._gamepads[index]
-  }
-
-  private _onGamepadDisconnected = (event: GamepadEvent) => {
-    const index = event.gamepad.index
-    this._gamepads[index].disconnect()
-  }
-}
-
-// every connected gamepad has it's own animation frame
-
-export class GamepadInput extends EventEmitter2 {
   private _frame: number | null = null
-  private _currentButtonsPressed: boolean[] = [
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-  ]
-  private _currentAxes: number[] = [0, 0, 0, 0]
 
-  constructor(public index: number) {
-    super()
+  async read(): Promise<Gamepad_J> {
+    return this.state
   }
 
-  public getGamepad = (): Gamepad | null => {
-    return window.navigator.getGamepads()[this.index]
+  async write(data: Gamepad_J): Promise<void> {
+    throw new Error('cannot write to gamepad state')
   }
 
-  private _step = (): void => {
-    const gamepad = this.getGamepad()
-    if (gamepad) {
-      const prevButtonsPressed = this._currentButtonsPressed
-      const buttonsPressed = gamepad.buttons.map((b) => b.pressed)
-      this._currentButtonsPressed = buttonsPressed
-      for (let index in buttonsPressed) {
-        const key = keys.buttons[index]
-        if (buttonsPressed[index] && !prevButtonsPressed[index]) {
-          this.emit('buttondown', key)
-        } else if (!buttonsPressed[index] && prevButtonsPressed[index]) {
-          this.emit('buttonup', key)
-        }
-      }
+  private _event_capture_tick = (): void => {
+    const {
+      api: {
+        input: {
+          gamepad: { getGamepad },
+        },
+        animation: { requestAnimationFrame },
+      },
+    } = this.system
 
-      const prevAxes = this._currentAxes
-      const axes = gamepad.axes
-      // @ts-ignore
-      this._currentAxes = axes
-      for (let index in axes) {
-        const key = keys.axes[index]
-        if (Math.abs(axes[index] - prevAxes[index]) >= DEFAULT_TRESHOLD) {
-          this.emit('axischange', key, axes[index])
-        }
-      }
+    this.gamepad = getGamepad(this.gamepad.index)
 
-      window.requestAnimationFrame(this._step)
+    const prevButtonsPressed = [...this.state.buttons]
+
+    const buttonsPressed = this.gamepad.buttons.map((b) => b.pressed)
+
+    this.state.buttons = buttonsPressed
+
+    for (let i = 0; i < GAMEPAD_BUTTON_COUNT; i++) {
+      if (buttonsPressed[i] && !prevButtonsPressed[i]) {
+        this.emit('buttondown', i)
+      } else if (!buttonsPressed[i] && prevButtonsPressed[i]) {
+        this.emit('buttonup', i)
+      }
+    }
+
+    const prevAxes = this.state.axes
+    const axes = this.gamepad.axes.map((a) => a)
+    this.state.axes = axes
+
+    for (let i = 0; i < GAMEPAD_AXIS_COUNT; i++) {
+      if (Math.abs(axes[i] - prevAxes[i]) >= GAMEPAD_DEFAULT_THRESHOLD) {
+        this.emit('axischange', [i, axes[i]])
+      }
+    }
+
+    this._frame = requestAnimationFrame(this._event_capture_tick)
+  }
+
+  private _start_event_capture = (): void => {
+    // console.log('Gamepad_', '_start_event_capture')
+
+    this._event_capture_tick()
+  }
+
+  private _stop_event_capture = (): void => {
+    // console.log('Gamepad_', '_stop_event_capture')
+
+    const {
+      api: {
+        animation: { cancelAnimationFrame },
+      },
+    } = this.system
+
+    if (this._frame !== undefined) {
+      cancelAnimationFrame(this._frame)
+
+      this._frame = undefined
     }
   }
 
-  public connect(): void {
-    this._frame = window.requestAnimationFrame(this._step)
+  private _listenerCount: number = 0
+
+  addListener(event, listener) {
+    // console.log('Gamepad_', 'addListener', event)
+
+    const unlisten = super.addListener(event, listener)
+
+    this._listenerCount++
+
+    if (this._listenerCount >= 1) {
+      this._start_event_capture()
+    }
+
+    return () => {
+      this._listenerCount--
+
+      if (this._listenerCount === 0) {
+        this._stop_event_capture()
+      }
+
+      unlisten()
+    }
   }
 
-  public disconnect(): void {
-    this._frame && window.cancelAnimationFrame(this._frame)
-  }
-
-  public getPressed(): boolean[] {
-    return this._currentButtonsPressed
-  }
-
-  public getAxes(): number[] {
-    return this._currentAxes
-  }
-
-  public isButtonPressed = (key: string) => {
-    const index = keysReverse.buttons[key]
-    return this._currentButtonsPressed[index]
+  disconnect() {
+    this._stop_event_capture()
   }
 }

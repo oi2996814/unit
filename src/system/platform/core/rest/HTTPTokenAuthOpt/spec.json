@@ -1,10 +1,10 @@
 {
   "name": "HTTP token auth opt",
   "units": {
-    "auxqbkphv": {
+    "httptokenauth": {
       "id": "522a9858-02c2-487a-ac04-27d2f5ebe7c3"
     },
-    "uidsobs": {
+    "tag": {
       "id": "5480c89e-31ef-4fdb-b232-60f25b3e36f3",
       "input": {
         "k": {
@@ -13,7 +13,7 @@
         }
       }
     },
-    "dedghul": {
+    "tag0": {
       "id": "5480c89e-31ef-4fdb-b232-60f25b3e36f3",
       "input": {
         "k": {
@@ -24,25 +24,25 @@
     }
   },
   "merges": {
-    "ojyxw": {
-      "auxqbkphv": {
+    "0": {
+      "httptokenauth": {
         "output": {
-          "shglvpnwm": true
+          "auth": true
         }
       },
-      "dedghul": {
+      "tag0": {
         "input": {
           "v": true
         }
       }
     },
-    "dyawjmnjp": {
-      "dedghul": {
+    "1": {
+      "tag0": {
         "output": {
           "kv": true
         }
       },
-      "uidsobs": {
+      "tag": {
         "input": {
           "v": true
         }
@@ -50,38 +50,30 @@
     }
   },
   "metadata": {
-    "icon": null,
-    "description": "no description",
-    "complexity": 7,
-    "tags": [
-      "platform",
-      "core",
-      "rest"
-    ]
+    "icon": "send",
+    "description": "build HTTP token auth header options",
+    "tags": ["platform", "core", "rest"]
   },
   "inputs": {
-    "kqmydk": {
-      "pin": {
+    "token": {
+      "plug": {
         "0": {
-          "unitId": "auxqbkphv",
-          "pinId": "tpbfwhrq"
+          "unitId": "httptokenauth",
+          "pinId": "token"
         }
-      },
-      "type": "string"
+      }
     }
   },
   "outputs": {
-    "nkxeiczlc": {
-      "pin": {
+    "opt": {
+      "plug": {
         "0": {
-          "unitId": "uidsobs",
+          "unitId": "tag",
           "pinId": "kv"
         }
-      },
-      "type": "object"
+      }
     }
   },
   "id": "ba70dd41-d533-4f8f-b476-c76274141468",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

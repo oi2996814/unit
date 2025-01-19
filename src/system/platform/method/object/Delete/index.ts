@@ -1,39 +1,42 @@
 import { Functional } from '../../../../../Class/Functional'
 import { Done } from '../../../../../Class/Functional/Done'
-import { J } from '../../../../../interface/J'
+import { System } from '../../../../../system'
+import { J } from '../../../../../types/interface/J'
+import { ID_DELETE_0 } from '../../../../_ids'
 
 export interface I<T> {
-  unit: J
+  obj: J
   name: string
 }
 
-export interface O<T> {
-  data: any
-}
+export interface O<T> {}
 
 export default class Delete<T> extends Functional<I<T>, O<T>> {
-  constructor() {
+  constructor(system: System) {
     super(
       {
-        i: ['unit', 'name'],
-        o: ['data'],
+        i: ['obj', 'name'],
+        o: [],
       },
       {
         input: {
-          unit: {
+          obj: {
             ref: true,
           },
         },
-      }
+      },
+      system,
+      ID_DELETE_0
     )
   }
 
-  async f({ unit, name }: I<T>, done: Done<O<T>>) {
+  async f({ obj, name }: I<T>, done: Done<O<T>>) {
     try {
-      const data = await unit.delete(name)
-      done({ data })
+      await obj.delete(name)
+
+      done()
     } catch (err) {
-      done(undefined, err)
+      done(undefined, err.message)
     }
   }
 }

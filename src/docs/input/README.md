@@ -13,20 +13,46 @@
 
 ## Shortcut
 
-| Combo                                             | Action            |
-| ------------------------------------------------- | ----------------- |
-| <kbd>Ctrl</kbd> + <kbd>L</kbd>                    | Toggle Layout     |
-| <kbd>Ctrl</kbd> + <kbd>M</kbd>                    | Toggle Map        |
-| <kbd>Ctrl</kbd> + <kbd>P</kbd>                    | Toggle Pallete    |
-| <kbd>Ctrl</kbd> + <kbd>A</kbd>                    | Toggle Select All |
-| <kbd>Ctrl</kbd> + <kbd>;</kbd>                    | Toggle Search     |
-| <kbd>Ctrl</kbd> + <kbd>C</kbd>                    | Copy              |
-| <kbd>Ctrl</kbd> + <kbd>X</kbd>                    | Cut               |
-| <kbd>Ctrl</kbd> + <kbd>V</kbd>                    | Paste             |
-| <kbd>Ctrl</kbd> + <kbd>Z</kbd>                    | Undo              |
-| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Z</kbd> | Redo              |
-| <kbd>Ctrl</kbd> + <kbd>S</kbd>                    | Save              |
-| <kbd>Ctrl</kbd> + <kbd>O</kbd>                    | Open              |
+| Combo                                             | Action              |
+| ------------------------------------------------- | ------------------- |
+| <kbd>Ctrl</kbd>\* + <kbd>L</kbd>                  | Toggle Layout       |
+| <kbd>Ctrl</kbd>\* + <kbd>M</kbd>                  | Toggle Map          |
+| <kbd>Ctrl</kbd>\* + <kbd>P</kbd>                  | Toggle Palette      |
+| <kbd>Ctrl</kbd>\* + <kbd>A</kbd>                  | Toggle Select All   |
+| <kbd>Ctrl</kbd>\* + <kbd>;</kbd>                  | Toggle Search       |
+| <kbd>Ctrl</kbd>\* + <kbd>\</kbd>                  | Toggle Microphone   |
+| <kbd>Ctrl</kbd>\* + <kbd>/</kbd>                  | Toggle Tooltips     |
+| <kbd>Ctrl</kbd> + <kbd>C</kbd>                    | Copy                |
+| <kbd>Ctrl</kbd> + <kbd>X</kbd>                    | Cut                 |
+| <kbd>Ctrl</kbd> + <kbd>V</kbd>                    | Paste               |
+| <kbd>Ctrl</kbd> + <kbd>Z</kbd>                    | Undo                |
+| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Z</kbd> | Redo                |
+| <kbd>Ctrl</kbd> + <kbd>S</kbd>                    | Save                |
+| <kbd>Ctrl</kbd> + <kbd>O</kbd>                    | Open                |
+| <kbd>Ctrl</kbd> + <kbd>R</kbd>                    | Reset               |
+| <kbd>Arrow Up</kbd>                               | Next Unit Up        |
+| <kbd>Arrow Down</kbd>                             | Next Unit Down      |
+| <kbd>Arrow Left</kbd>                             | Next Unit Left      |
+| <kbd>Arrow Right</kbd>                            | Next Unit Right     |
+| <kbd>Shift</kbd> + <kbd>Arrow Up</kbd>            | Next Subgraph Up    |
+| <kbd>Shift</kbd> + <kbd>Arrow Down</kbd>          | Next Subgraph Down  |
+| <kbd>Shift</kbd> + <kbd>Arrow Left</kbd>          | Next Subgraph Left  |
+| <kbd>Shift</kbd> + <kbd>Arrow Right</kbd>         | Next Subgraph Right |
+| <kbd>Space</kbd>                                  | Center Graph        |
+| <kbd>`</kbd>                                      | Enter Fullwindow    |
+
+\* <kbd>Ctrl</kbd> is optional, but required when the editor is not focused (e.g. typing on Search).
+
+## Escape
+
+<kbd>Escape</kbd> key can be used to get out of some focused states such as fullwindow or unlocked.
+
+> [!NOTE]
+> This default behavior can be disabled by the currently focused component.
+
+## Drawing
+
+A <kbd>Click + Long Press</kbd> (sometimes referred to as "Click and Press" or "Click and Hold"), or simply holding <kbd>Alt</kbd>, will start a [Drawing Gesture](/src/docs/start/README.md#drawing).
 
 ## Pointer (Mouse, Touch, Pen)
 
@@ -35,6 +61,8 @@
 | <kbd>Click</kbd>        |                   | <kbd>Node</kbd>          | Select               |
 | <kbd>Click</kbd>        |                   | <kbd>Background</kbd>    | Deselect All         |
 | <kbd>Double Click</kbd> |                   | <kbd>Component</kbd>     | Unlock Component     |
+| <kbd>Double Click</kbd> |                   | <kbd>Background</kbd>    | Edit Empty Datum     |
+| <kbd>Double Click</kbd> | <kbd>Group</kbd>  | <kbd>Background</kbd>    | Toggle Select All    |
 | <kbd>Click</kbd>        | <kbd>Group</kbd>  | <kbd>Node</kbd>          | Multiselect          |
 | <kbd>Click</kbd>        | <kbd>Data</kbd>   | <kbd>Pin</kbd>           | Suggest Pin Data     |
 | <kbd>Click</kbd>        | <kbd>Data</kbd>   | <kbd>Unit</kbd>          | Suggest Unit Data    |

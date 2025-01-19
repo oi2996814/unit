@@ -1,17 +1,37 @@
-import { Element } from '../../../../../Class/Element/Element'
+import { Element_ } from '../../../../../Class/Element'
+import { System } from '../../../../../system'
+import { Dict } from '../../../../../types/Dict'
+import { IM } from '../../../../../types/interface/IM'
+import { ID_IMAGE_1 } from '../../../../_ids'
+import { firstGlobalComponentPromise } from '../../../../globalComponent'
 
 export interface I {
   src: string
   style: object
+  attr: Dict<string>
 }
 
 export interface O {}
 
-export default class Image extends Element<I, O> {
-  constructor() {
-    super({
-      i: ['src', 'style'],
-      o: ['click'],
-    })
+export default class Image extends Element_<I, O> implements IM {
+  constructor(system: System) {
+    super(
+      {
+        i: ['src', 'style', 'attr'],
+        o: [],
+      },
+      {},
+      system,
+      ID_IMAGE_1
+    )
+  }
+
+  async image(): Promise<any> {
+    const localComponent = await firstGlobalComponentPromise(
+      this.__system,
+      this.__global_id
+    )
+
+    return localComponent.$element
   }
 }

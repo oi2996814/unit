@@ -12,16 +12,11 @@
     }
   },
   "metadata": {
-    "icon": "circle",
+    "icon": "circle-alert",
     "description": "catch all `unit` error",
-    "complexity": 2.5505994848322,
-    "tags": [
-      "f",
-      "meta"
-    ]
+    "tags": ["f", "meta"]
   },
   "id": "2520668c-b279-11ea-ace3-5b84eb02bd7f",
   "base": true,
-  "type": "`U`",
-  "system": true
+  "type": "`U`"
 }

@@ -1,7 +1,11 @@
 import { IOElement } from './IOElement'
 
-export default function stopPropagation(event: Event): void {
+export function stopPropagation(event: Event): void {
   event.stopPropagation()
+}
+
+export function stopImmediatePropagation(event: Event): void {
+  event.stopImmediatePropagation()
 }
 
 export function stopByPropagation($element: IOElement, name: string): void {
@@ -17,7 +21,7 @@ export function stopByPropagation($element: IOElement, name: string): void {
   )
 }
 
-const ALL: string[] = [
+export const ALL_EVENTS: string[] = [
   'pointerdown',
   'pointermove',
   'pointerup',
@@ -27,14 +31,19 @@ const ALL: string[] = [
   'pointerover',
   'pointerout',
   'click',
+  'focus',
   'blur',
   'wheel',
   'scroll',
   'keypress',
   'keydown',
   'keyup',
+  'touchstart',
+  'dragover',
+  'drop',
+  'contextmenu',
 ]
 
 export function stopAllPropagation($element: IOElement): void {
-  ALL.forEach((name) => stopByPropagation($element, name))
+  ALL_EVENTS.forEach((name) => stopByPropagation($element, name))
 }

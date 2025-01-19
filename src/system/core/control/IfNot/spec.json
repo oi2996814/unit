@@ -24,45 +24,39 @@
   },
   "inputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "if",
           "pinId": "a"
         }
       },
-      "type": "<A>"
+      "functional": true
     },
     "b": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "not",
           "pinId": "a"
         }
       },
-      "type": "boolean"
+      "functional": true
     }
   },
   "outputs": {
     "a if not b": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "if",
           "pinId": "a if b"
         }
-      },
-      "type": "<A>"
+      }
     }
   },
   "metadata": {
     "icon": "filter",
     "description": "reverse conditional operator",
-    "complexity": 4,
-    "tags": [
-      "core",
-      "control"
-    ]
+    "tags": ["core", "control"]
   },
   "id": "439c6b56-a0b6-4b76-9131-c6dc23375fda",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

@@ -14,36 +14,29 @@
   "merges": {},
   "inputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "if",
           "pinId": "b"
         }
-      },
-      "type": "boolean"
+      }
     }
   },
   "outputs": {
-    "a = false": {
-      "pin": {
+    "test": {
+      "plug": {
         "0": {
           "unitId": "if",
           "pinId": "a if b"
         }
-      },
-      "type": "boolean"
+      }
     }
   },
   "metadata": {
     "icon": "question",
     "description": "true if `a` is true, false otherwise",
-    "complexity": 3,
-    "tags": [
-      "core",
-      "control"
-    ]
+    "tags": ["core", "control"]
   },
   "id": "b6694fbe-4fc9-4779-92c6-4ba91c12718f",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

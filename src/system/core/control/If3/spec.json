@@ -12,7 +12,7 @@
     }
   },
   "merges": {
-    "rsmsjsodm": {
+    "0": {
       "if": {
         "input": {
           "b": true
@@ -32,80 +32,68 @@
   },
   "metadata": {
     "icon": "filter",
-    "description": "no description",
-    "complexity": 5,
-    "tags": [
-      "core",
-      "control"
-    ]
+    "description": "conditionally filter `a`, `b` and `c` based on `test`",
+    "tags": ["core", "control"]
   },
   "inputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "if0",
           "pinId": "a"
         }
-      },
-      "type": "<A>"
+      }
     },
     "b": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "if1",
           "pinId": "a"
         }
-      },
-      "type": "<B>"
+      }
     },
     "c": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "if",
           "pinId": "a"
         }
-      },
-      "type": "<C>"
+      }
     },
     "test": {
-      "pin": {
+      "plug": {
         "0": {
-          "mergeId": "rsmsjsodm"
+          "mergeId": "0"
         }
-      },
-      "type": "boolean"
+      }
     }
   },
   "outputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "if0",
           "pinId": "a if b"
         }
-      },
-      "type": "<A>"
+      }
     },
     "b": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "if1",
           "pinId": "a if b"
         }
-      },
-      "type": "<B>"
+      }
     },
     "c": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "if",
           "pinId": "a if b"
         }
-      },
-      "type": "<C>"
+      }
     }
   },
   "id": "13a16a8a-5dc6-11ea-a3d4-9bda49772976",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

@@ -1,9 +1,10 @@
-import { $makeUnitRemoteRef } from '../../../client/makeUnitRemoteRef'
+import { Graph } from '../../../Class/Graph'
+import { makeUnitRemoteRef } from '../../../client/makeUnitRemoteRef'
 import { RemoteRef } from '../../../client/RemoteRef'
 import { CONNECT, DISCONNECT, EXEC, TERMINATE } from '../../../constant/STRING'
-import { $Graph } from '../../../interface/async/$Graph'
 import { Dict } from '../../../types/Dict'
-import { Unlisten } from '../../../Unlisten'
+import { UCGEE } from '../../../types/interface/UCGEE'
+import { Unlisten } from '../../../types/Unlisten'
 import { uuidNotInLocalStorage } from './uuidNotInLocalStorage'
 
 export const LOCAL_STORAGE_PREFIX_BROADCAST_SOURCE = '__BROADCAST__SOURCE__'
@@ -59,7 +60,7 @@ export function stopBroadcastTarget(id: string): void {
   localStorage.removeItem(_id)
 }
 
-export function shareLocalPod(graph: $Graph): {
+export function shareLocalGraph(graph: Graph): {
   id: string
   terminate: Unlisten
 } {
@@ -77,7 +78,7 @@ export function shareLocalPod(graph: $Graph): {
         {
           const name = _data
           const bc = new BroadcastChannel(name)
-          const ref = $makeUnitRemoteRef(graph, ['$U', '$C', '$G'], (data) => {
+          const ref = makeUnitRemoteRef(graph, UCGEE, (data) => {
             bc.postMessage({ type: EXEC, data })
           })
           bc.addEventListener('message', (event: MessageEvent): void => {
@@ -94,7 +95,7 @@ export function shareLocalPod(graph: $Graph): {
         }
         break
       default:
-        throw new Error('Invalid Message Type')
+        throw new Error('invalid message type')
     }
   })
 

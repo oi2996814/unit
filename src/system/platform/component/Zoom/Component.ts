@@ -1,24 +1,19 @@
-import classnames from '../../../../client/classnames'
+import { classnames } from '../../../../client/classnames'
 import { Element } from '../../../../client/element'
-import parentElement from '../../../../client/parentElement'
-import { getTransform, Zoom } from '../../../../client/zoom'
+import { parentElement } from '../../../../client/platform/web/parentElement'
+import { getTransform, Zoom, ZOOM_IDENTITY } from '../../../../client/zoom'
 import { System } from '../../../../system'
-import { Dict } from '../../../../types/Dict'
+import { Style } from '../../Style'
 import Div from '../Div/Component'
-import SVGG from '../svg/G/Component'
+import SVGG from '../svg/Group/Component'
 import SVGSVG from '../svg/SVG/Component'
 
-export type _Style = Dict<string>
-
-export interface _Props {
+export interface Props {
   className?: string
-  style?: _Style
+  style?: Style
   draggable?: boolean
-}
-
-export interface Props extends _Props {
-  width: number
-  height: number
+  width?: number
+  height?: number
   zoom: Zoom
 }
 
@@ -29,7 +24,10 @@ const DEFAULT_STYLE = {
   top: '0',
 }
 
-export default class ZoomComponent extends Element<HTMLElement, Props> {
+const DEFAULT_WIDTH = 240
+const DEFAULT_HEIGHT = 240
+
+export default class Zoom_ extends Element<HTMLDivElement, Props> {
   public _root: Div
 
   public _html: Div
@@ -39,7 +37,13 @@ export default class ZoomComponent extends Element<HTMLElement, Props> {
   constructor($props: Props, $system: System) {
     super($props, $system)
 
-    const { className, style, width, height, draggable } = this.$props
+    const {
+      className,
+      style,
+      width = DEFAULT_WIDTH,
+      height = DEFAULT_HEIGHT,
+      draggable,
+    } = this.$props
 
     const widthStr = `${width}px`
     const heightStr = `${height}px`
@@ -92,7 +96,7 @@ export default class ZoomComponent extends Element<HTMLElement, Props> {
     zoom.registerParentRoot(html)
     this._html = html
 
-    const $element = parentElement()
+    const $element = parentElement($system)
 
     this.$element = $element
     this.$slot = {
@@ -103,12 +107,15 @@ export default class ZoomComponent extends Element<HTMLElement, Props> {
       default: [],
       svg: [],
     }
-    this.$subComponent = {
+    this.$unbundled = false
+    this.$primitive = true
+
+    this.setSubComponents({
       zoom,
+      html,
       svg,
       svg_g,
-    }
-    this.$unbundled = false
+    })
 
     this.registerRoot(zoom)
 
@@ -116,18 +123,17 @@ export default class ZoomComponent extends Element<HTMLElement, Props> {
   }
 
   private _transform = () => {
-    const { zoom } = this.$props
+    const { zoom = ZOOM_IDENTITY } = this.$props
+
     const transform = getTransform(zoom)
-    // mergeStyle(this._html, { transform })
-    // mergeStyle(this._svg_g, {
-    //   transform,
-    // })
+
     this._html.$element.style.transform = transform
     this._svg_g.$element.style.transform = transform
   }
 
   onPropChanged(prop: string, current: any): void {
     // console.log('Zoom', 'onPropChanged', prop, current)
+
     if (prop === 'className') {
       this._root.setProp('className', current)
     } else if (prop === 'style') {
@@ -135,14 +141,8 @@ export default class ZoomComponent extends Element<HTMLElement, Props> {
     } else if (prop === 'zoom') {
       this._transform()
     } else if (prop === 'width') {
-      // mergeStyle(this._svg, {
-      //   width: `${current}px`,
-      // })
       this._svg.$element.style.width = `${current}px`
     } else if (prop === 'height') {
-      // mergeStyle(this._svg, {
-      //   height: `${current}px`,
-      // })
       this._svg.$element.style.height = `${current}px`
     } else if (prop === 'draggable') {
       this._root.setProp('draggable', current)

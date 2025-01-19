@@ -1,14 +1,12 @@
 {
   "name": "span",
-  "type": "`U`&`C`",
+  "type": "`U`&`C`&`V`&`J`",
   "inputs": {
     "style": {
       "type": "object",
       "optional": true,
       "metadata": {
-        "examples": [
-          "{}"
-        ]
+        "examples": ["{}"]
       }
     }
   },
@@ -16,11 +14,7 @@
   "metadata": {
     "icon": "square",
     "description": "HTML div element",
-    "complexity": 6.487704538294757,
-    "tags": [
-      "platform",
-      "component"
-    ]
+    "tags": ["platform", "component"]
   },
   "id": "c711d540-9de3-437e-854a-b59491af3cf8",
   "base": true,
@@ -28,6 +22,5 @@
     "defaultWidth": 60,
     "defaultHeight": 60
   },
-  "system": true,
   "render": true
 }

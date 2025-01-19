@@ -1,5 +1,12 @@
-import { Position } from '../client/util/geometry'
+import { DataRef } from '../DataRef'
+import { Position } from '../client/util/geometry/types'
+import { BaseSpec } from './BaseSpec'
 import { Dict } from './Dict'
+import { GraphPinSpec } from './GraphPinSpec'
+import { GraphSpec } from './GraphSpec'
+import { IO } from './IO'
+import { IOOf } from './IOOf'
+import { NodeMetadataSpec } from './NodeMetadataSpec'
 import { None } from './None'
 import { UnitClass } from './UnitClass'
 
@@ -7,24 +14,13 @@ export type Type = string
 
 export type Types = Dict<Type>
 
-export type GraphUnitPinSpec = {
-  data?: any
-  constant?: boolean | None
-  ignored?: boolean | None
-  memory?: boolean
-  metadata?: {
-    position?: { x: number; y: number }
-  }
-}
-
-export type GraphUnitPinsSpec = Dict<GraphUnitPinSpec>
-
 export type PinSpecBase = {
   name?: string
   optional?: boolean
   functional?: boolean
   defaultIgnored?: boolean
   ref?: boolean
+  data?: any
   type?: string
   init?: string
   icon?: string
@@ -34,10 +30,10 @@ export type PinSpecBase = {
 
 export type PinBaseMetadataSpec = NodeMetadataSpec & {
   examples?: any[]
-  position?: Dict<Position>
+  r?: number
 }
 
-export type PinSpec = PinSpecBase | GraphExposedPinSpec
+export type PinSpec = PinSpecBase | GraphPinSpec
 
 export type PinsSpecBase = Dict<PinSpecBase>
 
@@ -45,10 +41,12 @@ export type GraphExposedMergeSpec = PinSpecBase & {
   mergeId: string
   unitId?: undefined
   pinId?: undefined
+  kind?: undefined
 }
 
 export type GraphExposedLinkPinSpec = PinSpecBase & {
   unitId: string
+  kind?: IO | undefined
   pinId: string
   mergeId?: undefined
 }
@@ -57,119 +55,32 @@ export type GraphExposedEmptyPinSpec = PinSpecBase & {
   unitId?: undefined
   pinId?: undefined
   mergeId?: undefined
+  kind?: undefined
 }
 
-export type GraphExposedSubPinSpec =
+export type GraphSubPinSpec =
   | GraphExposedMergeSpec
   | GraphExposedLinkPinSpec
   | GraphExposedEmptyPinSpec
 
-export type GraphExposedPinSpec = PinSpecBase & {
-  pin?: Dict<GraphExposedSubPinSpec>
-}
-
-export type GraphExposedPinsSpec = Dict<GraphExposedPinSpec>
+export type GraphPinsSpec = Dict<GraphPinSpec>
 
 export type PinsSpec = Dict<PinSpec>
 
 export type Classes = Dict<UnitClass<any>>
 
-export type GraphUnitSpecBase = {
-  input?: GraphUnitPinsSpec
-  output?: GraphUnitPinsSpec
-  state?: Dict<any>
-  flag?: Dict<any>
-  children?: GraphUnitSpec[] | None
-  reorder?: string[] | None
+export type DatumSpec = {
+  value: string | DataRef<any>
+  metadata?: DatumMetadataSpec
 }
 
-export type GraphUnitSpec = GraphUnitSpecBase & {
-  id: string
-  metadata?: GraphUnitMetadataSpec
+export type DatumMetadataSpec = {
+  position?: Position
 }
-
-export type GraphUnitsSpec = Dict<GraphUnitSpec>
-
-export type GraphMergeSpec = Dict<GraphMergeUnitSpec>
-
-export type GraphMergeUnitSpec = {
-  input?: {
-    [pinId: string]: true
-  }
-  output?: {
-    [pinId: string]: true
-  }
-}
-
-export type GraphMergesSpec = Dict<GraphMergeSpec>
-
-export type DatumSpec = string
 
 export type GraphDataSpec = Dict<DatumSpec>
 
-export type BaseSpec = {
-  base: true
-  type?: string
-  method?: boolean
-  private?: boolean
-  system?: boolean
-  id?: string
-  name: string
-  inputs: PinsSpecBase
-  outputs: PinsSpecBase
-  methods?: Dict<boolean>
-  metadata?: NodeMetadataSpec
-  render?: boolean
-  component?: ComponentSpec
-}
-
-// <T>:<T>
-// <T>:any
-// string:string
-// string:MediaStream
-// number:number
-// number:string
-// (number):number
-// (number,number):number
-// (string,number,number):(string, string)
-export type UnitInterfaceSpec = {
-  inputs: PinsSpecBase
-  outputs: PinsSpecBase
-}
-
 export type Artifact = 'spec' | 'component' | 'dir' | 'data'
-
-export type GraphSpecBase = {
-  merges?: GraphMergesSpec
-  inputs?: GraphExposedPinsSpec
-  outputs?: GraphExposedPinsSpec
-}
-
-export type GraphSpec = GraphSpecBase & {
-  base?: false
-  type?: '`U`&`G`' | '`U`&`G`&`C`'
-  method?: boolean
-  private?: boolean
-  system?: boolean
-  fork?: boolean
-  units?: GraphUnitsSpec
-  name?: string
-  metadata?: GraphMetadataSpec
-  data?: GraphDataSpec
-  render?: boolean
-  component?: GraphComponentSpec
-  methods?: Dict<GraphSpec>
-  self?: string | None
-  id?: string
-}
-
-export type BaseSpecs = {
-  [path: string]: BaseSpec
-}
-
-export type GraphSpecs = {
-  [name: string]: GraphSpec
-}
 
 export type Spec = BaseSpec | GraphSpec
 
@@ -178,40 +89,7 @@ export type Specs = {
 }
 
 export type GraphMetadataSpec = NodeMetadataSpec & {
-  position?: Dict<Dict<{ x: number; y: number }> | None>
-}
-
-export type NodeMetadataSpec = {
-  icon?: string | None
-  tags?: string[]
-  description?: string | None
-  link?: string | None
-  globals?: string[]
-  editor?: {
-    on?: boolean
-    lit?: boolean
-    edit?: boolean
-  }
-  complexity?: number
-}
-
-export type Metadata = {
-  rename: string
-  icon: string
-  description: string
-  complexity?: number
-}
-
-// a spec action is for a specific path
-export type SpecAction = {
-  path: string
-  type: string
-  data: any
-}
-
-export type Action = {
-  type: string
-  data: any
+  position?: Dict<Dict<Position> | None>
 }
 
 export type BaseComponentSpec = {
@@ -232,7 +110,7 @@ export type GraphSubComponentSpec = {
 export type GraphSubComponentSpecs = Dict<GraphSubComponentSpec>
 
 export type GraphComponentSpec = BaseComponentSpec & {
-  slots?: [string, string][]
+  slots?: string[][]
   subComponents?: GraphSubComponentSpecs
   children?: string[]
 }
@@ -261,5 +139,34 @@ export type GraphUnitMetadataSpec = {
   }
   rename?: string | None
   comment?: string | None
-  position?: { x: number; y: number }
+  position?: Position
+}
+
+export type GraphUnitPinOuterSpec = {
+  unitId: string
+  type: IO
+  pinId: string
+}
+
+export type GraphPlugOuterSpec = {
+  type: IO
+  pinId: string
+  kind?: IO
+  subPinId: string
+}
+
+export type GraphPlugSpec = GraphPlugOuterSpec & {
+  pinSpec: GraphPinSpec
+  subPinSpec: GraphSubPinSpec
+}
+
+export type GraphUnitOuterSpec = {
+  merges: IOOf<
+    Dict<{
+      mergeId: string
+      otherPin: GraphUnitPinOuterSpec | null
+      exposedPin: GraphPlugOuterSpec | null
+    }>
+  >
+  exposed: IOOf<Dict<GraphPlugOuterSpec>>
 }

@@ -1,0 +1,72 @@
+{
+  "name": "flex column center",
+  "units": {
+    "flexcolumn": {
+      "id": "435e106b-9ee5-4457-818b-3f41a62992a6",
+      "input": {},
+      "metadata": {
+        "component": {
+          "width": 240,
+          "height": 240
+        }
+      }
+    },
+    "mergedefault": {
+      "id": "304e98ac-bda1-11ea-b416-9746f024148c",
+      "input": {
+        "a": {},
+        "default": {
+          "constant": true,
+          "data": "{flexWrap:'wrap',alignContent:'center',justifyContent:'center'}"
+        }
+      },
+      "output": {
+        "a": {}
+      }
+    }
+  },
+  "merges": {
+    "0": {
+      "mergedefault": {
+        "output": {
+          "a": true
+        }
+      },
+      "flexcolumn": {
+        "input": {
+          "style": true
+        }
+      }
+    }
+  },
+  "inputs": {
+    "style": {
+      "plug": {
+        "0": {
+          "unitId": "mergedefault",
+          "pinId": "a"
+        }
+      }
+    }
+  },
+  "outputs": {},
+  "metadata": {
+    "icon": "square",
+    "description": "column flexbox with centered content",
+    "tags": ["platform", "core", "component"]
+  },
+  "component": {
+    "slots": [["flexcolumn", "default"]],
+    "defaultWidth": 180,
+    "defaultHeight": 270,
+    "subComponents": {
+      "flexcolumn": {
+        "children": []
+      }
+    },
+    "children": ["flexcolumn"]
+  },
+  "id": "59d00328-d61e-4ed2-b4e4-cfa53e0b7fa7",
+  "type": "`U`&`G`&`C`",
+  "render": true
+}

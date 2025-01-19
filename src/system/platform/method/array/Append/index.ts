@@ -1,6 +1,8 @@
 import { Functional } from '../../../../../Class/Functional'
 import { Done } from '../../../../../Class/Functional/Done'
-import { A } from '../../../../../interface/A'
+import { System } from '../../../../../system'
+import { A } from '../../../../../types/interface/A'
+import { ID_APPEND_0 } from '../../../../_ids'
 
 export interface I<T> {
   'a[]': A
@@ -10,7 +12,7 @@ export interface I<T> {
 export interface O<T> {}
 
 export default class Append<T> extends Functional<I<T>, O<T>> {
-  constructor() {
+  constructor(system: System) {
     super(
       {
         i: ['a[]', 'a'],
@@ -18,11 +20,13 @@ export default class Append<T> extends Functional<I<T>, O<T>> {
       },
       {
         input: {
-          arr: {
+          'a[]': {
             ref: true,
           },
         },
-      }
+      },
+      system,
+      ID_APPEND_0
     )
   }
 

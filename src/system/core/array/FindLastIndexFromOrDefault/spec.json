@@ -52,7 +52,7 @@
     }
   },
   "merges": {
-    "5": {
+    "0": {
       "pick": {
         "output": {
           "a": true
@@ -64,7 +64,7 @@
         }
       }
     },
-    "6": {
+    "1": {
       "loop": {
         "output": {
           "current": true
@@ -76,7 +76,7 @@
         }
       }
     },
-    "7": {
+    "2": {
       "foreachfrom": {
         "output": {
           "test": true
@@ -88,7 +88,7 @@
         }
       }
     },
-    "8": {
+    "3": {
       "foreachfrom": {
         "output": {
           "i": true
@@ -103,103 +103,89 @@
   },
   "inputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "foreachfrom",
           "pinId": "a"
         }
       },
-      "functional": true,
-      "type": "<A>[]"
+      "functional": true
     },
     "test": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "pick",
           "pinId": "c"
         }
-      },
-      "type": "boolean"
+      }
     },
     "from": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "foreachfrom",
           "pinId": "from"
         }
       },
-      "functional": true,
-      "type": "number"
+      "functional": true
     },
     "default": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "loop",
           "pinId": "init"
         }
       },
-      "functional": true,
-      "type": "number"
+      "functional": true
     }
   },
   "outputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "foreachfrom",
           "pinId": "a"
         }
       },
-      "defaultIgnored": true,
-      "type": "<A>[]"
+      "defaultIgnored": true
     },
     "i": {
-      "pin": {
+      "plug": {
         "0": {
-          "mergeId": "8"
+          "mergeId": "3"
         }
       },
-      "defaultIgnored": true,
-      "type": "number"
+      "defaultIgnored": true
     },
     "a[i]": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "foreachfrom",
           "pinId": "a[i]"
         }
-      },
-      "type": "<A>"
+      }
     },
     "test": {
-      "pin": {
+      "plug": {
         "0": {
-          "mergeId": "7"
+          "mergeId": "2"
         }
       },
-      "defaultIgnored": true,
-      "type": "boolean"
+      "defaultIgnored": true
     },
     "result": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "loop",
           "pinId": "final"
         }
-      },
-      "type": "number"
+      }
     }
   },
   "metadata": {
     "icon": "brackets",
-    "description": "...",
-    "complexity": 5,
-    "tags": [
-      "core",
-      "array"
-    ]
+    "description": "find index `i` of last element in array `a` for which `test` is true after index `from` or `default` if not found",
+    "tags": ["core", "array"]
   },
   "id": "08d39098-c38f-4a88-9d8c-cc323730b36c",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

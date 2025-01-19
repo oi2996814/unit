@@ -1,7 +1,10 @@
 import * as assert from 'assert'
 import { Primitive } from '../Primitive'
+import { system } from './util/system'
 
-const primitive = new Primitive({})
+const RANDOM_ID = system.newSpecId()
+
+const primitive = new Primitive({}, {}, system, RANDOM_ID)
 
 primitive.play()
 

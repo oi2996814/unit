@@ -44,17 +44,15 @@
   },
   "inputs": {
     "d": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "foreach",
           "pinId": "a"
         }
-      },
-      "type": "(number|string)[][]"
+      }
     },
     "canvas": {
-      "type": "`U`",
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "draw",
           "pinId": "canvas"
@@ -65,16 +63,10 @@
   },
   "outputs": {},
   "metadata": {
-    "icon": "square",
+    "icon": "edit-3",
     "description": "draw step of `d` on `canvas`",
-    "complexity": 5.659896595815651,
-    "tags": [
-      "platform",
-      "core",
-      "canvas"
-    ]
+    "tags": ["platform", "core", "canvas"]
   },
   "id": "62bd0895-8889-40b2-8147-1c690809f4eb",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

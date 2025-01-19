@@ -2,11 +2,10 @@
   "name": "on resize",
   "inputs": {
     "element": {
-      "type": "`U`",
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "listen",
-          "pinId": "unit"
+          "pinId": "emitter"
         }
       },
       "ref": true
@@ -14,8 +13,7 @@
   },
   "outputs": {
     "event": {
-      "type": "{width:number,height:number}",
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "listen",
           "pinId": "data"
@@ -27,7 +25,7 @@
     "listen": {
       "id": "367241d8-ad12-11ea-beed-9777f31699a8",
       "input": {
-        "unit": {
+        "emitter": {
           "metadata": {
             "position": {
               "x": -15,
@@ -77,15 +75,8 @@
   "metadata": {
     "icon": "square",
     "description": "listen to `element` 'resize' event",
-    "complexity": 3,
-    "tags": [
-      "platform",
-      "core",
-      "api",
-      "event"
-    ]
+    "tags": ["platform", "core", "api", "event"]
   },
   "id": "9fd9d2ea-98a7-11eb-8aa3-fbeb43cb1944",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

@@ -1,5 +1,4 @@
 {
-  "artifact": "spec",
   "name": "set if",
   "units": {
     "set": {
@@ -37,71 +36,61 @@
   },
   "inputs": {
     "test": {
-      "name": "test",
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "pick",
           "pinId": "c"
         }
       },
-      "type": "boolean"
+      "name": "test",
+      "functional": true
     },
     "obj": {
-      "name": "obj",
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "mergeId": "1"
         }
       },
-      "type": "object"
+      "name": "obj",
+      "functional": true
     },
     "key": {
-      "name": "key",
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "set",
           "pinId": "key"
         }
       },
-      "type": "number|string"
+      "name": "key",
+      "functional": true
     },
     "value": {
-      "name": "value",
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "set",
           "pinId": "value"
         }
       },
-      "type": "any"
+      "name": "value",
+      "functional": true
     }
   },
   "outputs": {
     "obj": {
-      "name": "obj",
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "pick",
           "pinId": "a"
         }
       },
-      "type": "object"
+      "name": "obj"
     }
   },
   "metadata": {
-    "icon": "brackets-curly",
+    "icon": "object-set",
     "description": "set value at `key` to `value` if `test` is true",
-    "complexity": 4,
-    "tags": [
-      "core",
-      "object"
-    ]
+    "tags": ["core", "object"]
   },
   "id": "946701f6-7dd4-11ea-a1aa-67938c0c6214",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

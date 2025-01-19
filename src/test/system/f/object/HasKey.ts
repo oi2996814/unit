@@ -1,8 +1,9 @@
 import * as assert from 'assert'
 import { watchUnitAndLog } from '../../../../debug'
 import HasKey from '../../../../system/f/object/HasKey'
+import { system } from '../../../util/system'
 
-const hasKey = new HasKey()
+const hasKey = new HasKey(system)
 
 hasKey.play()
 

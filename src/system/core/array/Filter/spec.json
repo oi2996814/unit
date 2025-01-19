@@ -119,80 +119,68 @@
   "metadata": {
     "icon": "brackets",
     "description": "filter a list `a`",
-    "complexity": 25,
-    "tags": [
-      "core",
-      "array"
-    ]
+    "tags": ["core", "array"]
   },
   "inputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "mergeId": "2"
         }
-      },
-      "type": "<A>[]"
+      }
     },
     "test": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "appendif",
           "pinId": "test"
         }
-      },
-      "type": "boolean"
+      }
     }
   },
   "outputs": {
     "a[i]": {
-      "pin": {
+      "plug": {
         "0": {
           "mergeId": "1"
         }
-      },
-      "type": "<A>"
+      }
     },
     "b": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "loop",
           "pinId": "final"
         }
-      },
-      "type": "<A>[]"
+      }
     },
     "test": {
-      "pin": {
+      "plug": {
         "0": {
           "mergeId": "0"
         }
       },
-      "defaultIgnored": true,
-      "type": "boolean"
+      "defaultIgnored": true
     },
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "foreach",
           "pinId": "a"
         }
       },
-      "defaultIgnored": true,
-      "type": "<A>[]"
+      "defaultIgnored": true
     },
     "i": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "foreach",
           "pinId": "i"
         }
       },
-      "defaultIgnored": true,
-      "type": "number"
+      "defaultIgnored": true
     }
   },
   "id": "ea426391-2104-41fd-8963-626d21415d09",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

@@ -2,24 +2,22 @@
   "name": "spec ids",
   "inputs": {
     "any": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "specs",
           "pinId": "any"
         }
-      },
-      "type": "any"
+      }
     }
   },
   "outputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "keys",
           "pinId": "keys"
         }
-      },
-      "type": "string[]"
+      }
     }
   },
   "units": {
@@ -71,13 +69,8 @@
   "id": "4f8c249e-9bbf-11eb-b3ff-e3ecdde1acd1",
   "metadata": {
     "icon": null,
-    "description": "",
-    "complexity": 4,
-    "tags": [
-      "core",
-      "meta"
-    ]
+    "description": "all system spec ids",
+    "tags": ["core", "meta"]
   },
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

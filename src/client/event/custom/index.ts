@@ -1,5 +1,5 @@
 import { _addEventListener } from '..'
-import Listenable from '../../Listenable'
+import { Listenable } from '../../Listenable'
 import { Listener } from '../../Listener'
 import { stopByPropagation } from '../../stopPropagation'
 
@@ -19,21 +19,19 @@ export function listenCustom(
   listener: (data: any, _event: CustomEvent) => void,
   global: boolean = false
 ): () => void {
-  const { $system, $element, $listenCount } = component
+  const { $system, $element } = component
 
   const _type = `_${type}`
 
-  const { customEvent: $customEvent, context: $context } = $system
+  const { customEvent, context } = $system
 
-  if (!$customEvent.has(type)) {
-    for (const $c of $context) {
-      stopByPropagation($c.$element, _type)
+  if (!customEvent.has(type)) {
+    for (const c of context) {
+      stopByPropagation(c.$element, _type)
     }
-    $customEvent.add(type)
-  }
 
-  $listenCount[type] = $listenCount[type] || 0
-  $listenCount[type]++
+    customEvent.add(type)
+  }
 
   const _listener = (_event: CustomEvent) => {
     const { detail } = _event
@@ -42,12 +40,5 @@ export function listenCustom(
 
   const unlisten = _addEventListener(_type, $element, _listener, global)
 
-  return () => {
-    $listenCount[type]--
-    if ($listenCount[type] === 0) {
-      delete $listenCount[type]
-    }
-
-    unlisten()
-  }
+  return unlisten
 }

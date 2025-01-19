@@ -1,8 +1,8 @@
 import { _addEventListener } from '..'
-import { Unlisten } from '../../../Unlisten'
+import { Unlisten } from '../../../types/Unlisten'
 import { Context } from '../../context'
-import Listenable from '../../Listenable'
-import { addVector, rotateVector, subtractVector } from '../../util/geometry'
+import { Listenable } from '../../Listenable'
+import { rotateVector } from '../../util/geometry'
 
 export const POINTER_EVENT_NAMES = [
   'pointerdown',
@@ -15,57 +15,81 @@ export const POINTER_EVENT_NAMES = [
   'pointerout',
 ]
 
-export interface IOPointerEvent {
+export interface IOMouseEvent {
   clientX: number
   clientY: number
   offsetX: number
   offsetY: number
   screenX: number
   screenY: number
+  pageX: number
+  pageY: number
+}
+
+export interface UnitPointerEvent extends IOMouseEvent {
   pointerId: number
   pointerType: string
 }
 
-export function _IOPointerEvent(
-  $context: Context,
-  _event: PointerEvent
-): IOPointerEvent {
-  const { $x, $y, $sx, $sy, $rz, $width, $height } = $context
+export const applyContextTransformToPointerEvent = (
+  context: Context,
+  event: {
+    clientX: number
+    clientY: number
+    offsetX: number
+    offsetY: number
+    pageX: number
+    pageY: number
+  }
+) => {
+  const { $x, $y, $sx, $sy, $rz } = context
 
-  const {
-    pointerId,
-    pointerType,
-    clientX,
-    clientY,
-    offsetX,
-    offsetY,
-    screenX,
-    screenY,
-    target,
-  } = _event
+  const { clientX, clientY, offsetX, offsetY, pageX, pageY } = event
 
-  const tx = clientX - $x
-  const ty = clientY - $y
+  const ctx = clientX - $x
+  const cty = clientY - $y
 
-  const stx = tx / $sx
-  const sty = ty / $sy
+  const cstx = ctx / $sx
+  const csty = cty / $sy
 
-  const t = { x: stx, y: sty }
+  const sox = offsetX / $sx
+  const soy = offsetY / $sy
 
-  const fp = rotateVector(t, -$rz)
+  const c = { x: cstx, y: csty }
+  const o = { x: sox, y: soy }
 
-  const x = fp.x
-  const y = fp.y
+  const rc = rotateVector(c, -$rz)
+  const ro = rotateVector(o, -$rz)
 
   return {
-    clientX: x,
-    clientY: y,
-    offsetX,
-    offsetY,
+    clientX: rc.x,
+    clientY: rc.y,
+    offsetX: ro.x,
+    offsetY: ro.y,
     screenX: clientX,
     screenY: clientY,
-    // screenX,
-    // screenY,
+    pageX,
+    pageY,
+  }
+}
+
+export function makeSyntheticPointerEvent(
+  context: Context,
+  event: {
+    pointerId: number
+    pointerType: string
+    clientX: number
+    clientY: number
+    offsetX: number
+    offsetY: number
+    pageX: number
+    pageY: number
+  }
+): UnitPointerEvent {
+  const { pointerId, pointerType } = event
+
+  return {
+    ...applyContextTransformToPointerEvent(context, event),
     pointerId,
     pointerType,
   }
@@ -74,15 +98,20 @@ export function _IOPointerEvent(
 export function listenPointerEvent(
   type: string,
   component: Listenable,
-  listener: (event: IOPointerEvent, _event: PointerEvent) => void,
+  listener: (event: UnitPointerEvent, _event: PointerEvent) => void,
   _global: boolean = false
 ): Unlisten {
   const { $element } = component
 
   const pointerEventListener = (_event: PointerEvent) => {
-    // console.log(type)
     const { $context } = component
-    const event = _IOPointerEvent($context, _event)
+
+    if (!$context) {
+      return
+    }
+
+    const event = makeSyntheticPointerEvent($context, _event)
+
     listener(event, _event)
   }
 
@@ -93,14 +122,5 @@ export function listenPointerEvent(
     _global
   )
 
-  const { $listenCount } = component
-  $listenCount[type] = $listenCount[type] || 0
-  $listenCount[type]++
-  return () => {
-    $listenCount[type]--
-    if ($listenCount[type] === 0) {
-      delete $listenCount[type]
-    }
-    unlisten()
-  }
+  return unlisten
 }

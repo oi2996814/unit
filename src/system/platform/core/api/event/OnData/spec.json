@@ -5,7 +5,8 @@
       "id": "367241d8-ad12-11ea-beed-9777f31699a8",
       "input": {
         "event": {
-          "data": "'data'"
+          "data": "'data'",
+          "constant": true
         },
         "remove": {
           "ignored": false
@@ -16,11 +17,10 @@
   "merges": {},
   "inputs": {
     "unit": {
-      "type": "`U`",
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "listen",
-          "pinId": "unit"
+          "pinId": "emitter"
         }
       },
       "ref": true
@@ -28,27 +28,19 @@
   },
   "outputs": {
     "data": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "listen",
           "pinId": "data"
         }
-      },
-      "type": "any"
+      }
     }
   },
   "metadata": {
     "icon": "square",
     "description": "listen to `element` message event",
-    "complexity": 3,
-    "tags": [
-      "platform",
-      "core",
-      "api",
-      "event"
-    ]
+    "tags": ["platform", "core", "api", "event"]
   },
   "id": "8809ad1e-91bf-11eb-a3ad-dbb373958321",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

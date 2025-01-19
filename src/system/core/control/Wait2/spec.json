@@ -9,7 +9,7 @@
     }
   },
   "merges": {
-    "gnurtgifi": {
+    "0": {
       "wait": {
         "output": {
           "a": true
@@ -25,53 +25,44 @@
   "metadata": {
     "icon": "git-merge",
     "description": "wait for `b` and `c` before output `a`",
-    "complexity": 4,
-    "tags": [
-      "core",
-      "control"
-    ]
+    "tags": ["core", "control"]
   },
   "inputs": {
     "c": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "wait0",
           "pinId": "b"
         }
-      },
-      "type": "any"
+      }
     },
     "b": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "wait",
           "pinId": "b"
         }
-      },
-      "type": "any"
+      }
     },
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "wait",
           "pinId": "a"
         }
-      },
-      "type": "<A>"
+      }
     }
   },
   "outputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "wait0",
           "pinId": "a"
         }
-      },
-      "type": "<A>"
+      }
     }
   },
   "id": "67cca9ec-1976-47bc-b0d7-5b32e059f6f1",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

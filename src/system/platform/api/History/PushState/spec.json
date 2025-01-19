@@ -1,0 +1,23 @@
+{
+  "name": "push state",
+  "inputs": {
+    "data": {
+      "type": "any"
+    },
+    "title": {
+      "type": "string"
+    },
+    "url": {
+      "type": "string"
+    }
+  },
+  "outputs": {},
+  "metadata": {
+    "icon": "map-pin",
+    "description": "adds an entry to the session history stack",
+    "tags": ["platform", "api", "history"]
+  },
+  "id": "53dd6448-f1e8-46ed-b3e8-b03b846133bb",
+  "base": true,
+  "type": "`U`"
+}

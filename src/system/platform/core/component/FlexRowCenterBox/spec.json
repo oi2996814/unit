@@ -1,0 +1,71 @@
+{
+  "name": "flex row center box",
+  "units": {
+    "flexrowcenter": {
+      "id": "af731047-6d74-4dfd-93bd-0daa4d649d4d",
+      "metadata": {
+        "component": {
+          "width": 240,
+          "height": 240
+        }
+      }
+    },
+    "mergedefault": {
+      "id": "304e98ac-bda1-11ea-b416-9746f024148c",
+      "input": {
+        "a": {},
+        "default": {
+          "constant": true,
+          "data": "{height:\"100%\"}"
+        }
+      },
+      "output": {
+        "a": {}
+      }
+    }
+  },
+  "merges": {
+    "0": {
+      "mergedefault": {
+        "output": {
+          "a": true
+        }
+      },
+      "flexrowcenter": {
+        "input": {
+          "style": true
+        }
+      }
+    }
+  },
+  "inputs": {
+    "style": {
+      "plug": {
+        "0": {
+          "unitId": "mergedefault",
+          "pinId": "a"
+        }
+      }
+    }
+  },
+  "outputs": {},
+  "metadata": {
+    "icon": "square",
+    "description": "full-size flexbox with content centered",
+    "tags": ["platform", "core", "component"]
+  },
+  "component": {
+    "slots": [["flexrowcenter", "default"]],
+    "defaultWidth": 240,
+    "defaultHeight": 240,
+    "subComponents": {
+      "flexrowcenter": {
+        "children": []
+      }
+    },
+    "children": ["flexrowcenter"]
+  },
+  "id": "5a7018ba-079d-4749-982d-16326e708a71",
+  "type": "`U`&`C`&`G`",
+  "render": true
+}

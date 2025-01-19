@@ -39,7 +39,7 @@
       },
       "isnotempty": {
         "output": {
-          "!empty": true
+          "test": true
         }
       },
       "loop1": {
@@ -124,46 +124,38 @@
   "metadata": {
     "icon": "brackets",
     "description": "get value of `a` at `path`",
-    "complexity": 18.31604988603302,
-    "tags": [
-      "core",
-      "array"
-    ]
+    "tags": ["core", "array"]
   },
   "inputs": {
     "a": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "loop1",
           "pinId": "init"
         }
       },
-      "type": "<A>[][][]"
+      "functional": true
     },
     "path": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "loop0",
           "pinId": "init"
         }
       },
-      "type": "number[]"
+      "functional": true
     }
   },
   "outputs": {
     "value": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "loop1",
           "pinId": "final"
         }
-      },
-      "type": "<A>[][][]"
+      }
     }
   },
   "id": "c4de657d-0af7-45a0-b5a9-64127d78fb18",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

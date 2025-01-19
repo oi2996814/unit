@@ -1,14 +1,13 @@
 {
-  "name": "POST url encoded",
+  "name": "post url encoded",
   "inputs": {
     "url": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "fetch",
           "pinId": "url"
         }
       },
-      "type": "string",
       "metadata": {
         "position": {
           "0": {
@@ -19,13 +18,12 @@
       }
     },
     "body": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "stringify",
-          "pinId": "a"
+          "pinId": "obj"
         }
       },
-      "type": "any",
       "metadata": {
         "position": {
           "0": {
@@ -36,13 +34,12 @@
       }
     },
     "opt": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "deepmerge",
           "pinId": "b"
         }
       },
-      "type": "object",
       "metadata": {
         "position": {
           "0": {
@@ -55,13 +52,12 @@
   },
   "outputs": {
     "response": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "fetch",
           "pinId": "response"
         }
       },
-      "type": "{status:number,body:string}",
       "metadata": {
         "position": {
           "0": {
@@ -85,7 +81,7 @@
             }
           }
         },
-        "options": {}
+        "opt": {}
       },
       "output": {
         "response": {
@@ -104,7 +100,7 @@
         }
       }
     },
-    "assoc": {
+    "set": {
       "id": "c4784b05-1f50-44ad-b812-545b3ed77614",
       "input": {
         "obj": {},
@@ -133,7 +129,7 @@
     "stringify": {
       "id": "f97f2a74-d9a9-411d-afd3-fda46ba86c3b",
       "input": {
-        "a": {
+        "obj": {
           "metadata": {
             "position": {
               "x": 152,
@@ -189,17 +185,17 @@
     "0": {
       "fetch": {
         "input": {
-          "options": true
+          "opt": true
         }
       },
-      "assoc": {
+      "set": {
         "output": {
           "obj": true
         }
       }
     },
     "1": {
-      "assoc": {
+      "set": {
         "input": {
           "value": true
         }
@@ -211,7 +207,7 @@
       }
     },
     "2": {
-      "assoc": {
+      "set": {
         "input": {
           "obj": true
         }
@@ -226,13 +222,8 @@
   "component": {},
   "metadata": {
     "icon": "send",
-    "description": "...",
-    "complexity": 7.6594147842039915,
-    "tags": [
-      "platform",
-      "core",
-      "rest"
-    ],
+    "description": "POST url-encoded body",
+    "tags": ["platform", "core", "rest"],
     "position": {
       "merge": {
         "0": {
@@ -251,6 +242,5 @@
     }
   },
   "id": "b9a7ef07-db1c-4a4a-814d-4e4113bbbbf7",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

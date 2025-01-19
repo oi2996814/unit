@@ -1,5 +1,6 @@
 import { Functional } from '../../../../Class/Functional'
 import { System } from '../../../../system'
+import { ID_MULTIPLY } from '../../../_ids'
 
 export interface I {
   a: number
@@ -18,7 +19,8 @@ export default class Multiply extends Functional<I, O> {
         o: ['a × b'],
       },
       {},
-      system
+      system,
+      ID_MULTIPLY
     )
   }
 

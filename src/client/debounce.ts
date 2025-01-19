@@ -1,16 +1,24 @@
 // http://unscriptable.com/2009/03/20/debouncing-javascript-methods/
 
-export default function debounce(
+import { System } from '../system'
+
+export function debounce(
+  system: System,
   func: Function,
   threshold: number = 100,
   execAsap: boolean = false
 ) {
-  let timeout
+  let timeout: NodeJS.Timeout
 
-  return function debounced() {
+  return function debounced(...args: any[]) {
+    const {
+      api: {
+        window: { setTimeout, clearTimeout },
+      },
+    } = system
+
     // @ts-ignore
     let obj = this
-    let args = arguments
 
     function delayed() {
       if (!execAsap) {
@@ -26,5 +34,30 @@ export default function debounce(
     }
 
     timeout = setTimeout(delayed, threshold)
+  }
+}
+
+export function animateDebounce(func: Function, execAsap: boolean = false) {
+  let frame: number
+
+  return function debounced() {
+    // @ts-ignore
+    let obj = this
+    let args = arguments
+
+    function delayed() {
+      if (!execAsap) {
+        func.apply(obj, args)
+      }
+      frame = null
+    }
+
+    if (frame) {
+      cancelAnimationFrame(frame)
+    } else if (execAsap) {
+      func.apply(obj, args)
+    }
+
+    frame = requestAnimationFrame(delayed)
   }
 }

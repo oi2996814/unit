@@ -1,0 +1,367 @@
+{
+  "type": "`U`&`G`",
+  "name": "fetch",
+  "units": {
+    "fetch": {
+      "id": "b97c0133-6c87-4b69-af4e-354c0b590ece",
+      "input": {
+        "url": {
+          "metadata": {
+            "position": {
+              "x": -93,
+              "y": 244
+            }
+          }
+        },
+        "opt": {
+          "metadata": {
+            "position": {
+              "x": -146,
+              "y": 240
+            }
+          }
+        },
+        "body": {},
+        "done": {
+          "ignored": false
+        }
+      },
+      "output": {
+        "res": {
+          "metadata": {
+            "position": {
+              "x": -58,
+              "y": 211
+            }
+          }
+        },
+        "done": {
+          "ignored": false
+        }
+      },
+      "metadata": {
+        "position": {
+          "x": -116,
+          "y": 204
+        }
+      }
+    },
+    "state": {
+      "id": "c899b675-c3c4-428e-b548-b228305c0302",
+      "input": {
+        "init": {},
+        "done": {
+          "ignored": false
+        }
+      },
+      "output": {
+        "data": {
+          "metadata": {
+            "position": {
+              "x": -174,
+              "y": 208
+            }
+          }
+        }
+      },
+      "metadata": {
+        "position": {
+          "x": -221,
+          "y": 184
+        }
+      }
+    },
+    "getordefault": {
+      "id": "aeac1075-e01f-4d22-b01b-9a77cbba504b",
+      "input": {
+        "key": {
+          "constant": true,
+          "data": {
+            "ref": [],
+            "data": "body"
+          },
+          "metadata": {
+            "position": {
+              "x": -375,
+              "y": 182
+            },
+            "data": {
+              "position": {
+                "x": -409,
+                "y": 205
+              }
+            }
+          }
+        },
+        "obj": {
+          "metadata": {
+            "position": {
+              "x": -376,
+              "y": 147
+            }
+          }
+        },
+        "default": {
+          "constant": true,
+          "data": {
+            "ref": [],
+            "data": ""
+          },
+          "metadata": {
+            "position": {
+              "x": -296,
+              "y": 131
+            },
+            "data": {
+              "position": {
+                "x": -277,
+                "y": 101
+              }
+            }
+          }
+        }
+      },
+      "output": {
+        "value": {}
+      },
+      "metadata": {
+        "position": {
+          "x": -329,
+          "y": 163
+        }
+      }
+    },
+    "read": {
+      "id": "c6da6b9f-a783-4e58-a252-e543aef109fb",
+      "input": {
+        "value": {
+          "metadata": {
+            "position": {
+              "x": 164,
+              "y": 81
+            }
+          }
+        },
+        "any": {
+          "metadata": {
+            "position": {
+              "x": 38,
+              "y": 203
+            },
+            "data": {
+              "position": {
+                "x": 77,
+                "y": 222
+              }
+            }
+          },
+          "constant": true,
+          "data": {
+            "ref": [],
+            "data": "xxx"
+          }
+        }
+      },
+      "output": {
+        "data": {
+          "metadata": {
+            "position": {
+              "x": 35,
+              "y": 168
+            }
+          }
+        },
+        "done": {
+          "ignored": false
+        }
+      },
+      "metadata": {
+        "position": {
+          "x": -9,
+          "y": 189
+        }
+      }
+    }
+  },
+  "merges": {
+    "0": {
+      "state": {
+        "output": {
+          "data": true
+        }
+      },
+      "fetch": {
+        "input": {
+          "body": true
+        }
+      }
+    },
+    "1": {
+      "state": {
+        "input": {
+          "init": true
+        }
+      },
+      "getordefault": {
+        "output": {
+          "value": true
+        }
+      }
+    },
+    "2": {
+      "fetch": {
+        "output": {
+          "res": true
+        }
+      },
+      "read": {
+        "input": {
+          "value": true
+        }
+      }
+    },
+    "3": {
+      "read": {
+        "output": {
+          "done": true
+        }
+      },
+      "fetch": {
+        "input": {
+          "done": true
+        }
+      }
+    },
+    "5": {
+      "fetch": {
+        "output": {
+          "done": true
+        }
+      },
+      "state": {
+        "input": {
+          "done": true
+        }
+      }
+    }
+  },
+  "inputs": {
+    "url": {
+      "plug": {
+        "0": {
+          "unitId": "fetch",
+          "pinId": "url",
+          "kind": "input"
+        }
+      },
+      "metadata": {
+        "position": {
+          "0": {
+            "ext": {
+              "x": -87,
+              "y": 268
+            }
+          },
+          "1": {
+            "ext": {
+              "x": 9,
+              "y": -99
+            }
+          }
+        }
+      },
+      "functional": true
+    },
+    "opt": {
+      "plug": {
+        "0": {
+          "unitId": "fetch",
+          "pinId": "opt",
+          "kind": "input"
+        },
+        "1": {
+          "unitId": "getordefault",
+          "pinId": "obj",
+          "kind": "input"
+        }
+      },
+      "metadata": {
+        "position": {
+          "0": {
+            "ext": {
+              "x": -154,
+              "y": 264
+            }
+          },
+          "1": {
+            "ext": {
+              "x": -396,
+              "y": 133
+            }
+          }
+        }
+      },
+      "functional": true
+    }
+  },
+  "outputs": {
+    "response": {
+      "plug": {
+        "0": {
+          "unitId": "read",
+          "pinId": "data",
+          "kind": "output"
+        }
+      },
+      "defaultIgnored": false,
+      "metadata": {
+        "position": {
+          "0": {
+            "ext": {
+              "x": 52,
+              "y": 152
+            }
+          }
+        }
+      }
+    }
+  },
+  "metadata": {
+    "icon": "send",
+    "description": "fetch a resource across the network through HTTP (with text body)",
+    "position": {
+      "merge": {
+        "1": {
+          "x": -275,
+          "y": 176
+        },
+        "3": {
+          "x": -64,
+          "y": 183
+        },
+        "4": {
+          "x": 68,
+          "y": -8
+        },
+        "5": {
+          "x": -166,
+          "y": 181
+        },
+        "7": {
+          "x": -106,
+          "y": 63
+        },
+        "8": {
+          "x": -6,
+          "y": -4
+        }
+      },
+      "data": {
+        "x": 135,
+        "y": 74
+      }
+    },
+    "tags": ["platform", "core", "http"]
+  },
+  "id": "c5856fdc-5154-46ab-a414-47f37af39da1"
+}

@@ -1,0 +1,29 @@
+{
+  "name": "create object url",
+  "inputs": {
+    "blob": {
+      "type": "`B`",
+      "ref": true
+    },
+    "init": {
+      "type": "any"
+    }
+  },
+  "outputs": {
+    "url": {
+      "type": "string"
+    },
+    "done": {
+      "type": "any",
+      "defaultIgnored": true
+    }
+  },
+  "metadata": {
+    "icon": "tilde",
+    "description": "encode URI to UTF-8",
+    "tags": ["platform", "api", "URI"]
+  },
+  "id": "1d5b6bb0-f18e-4428-a350-a29d8ca3ff4a",
+  "type": "`U`",
+  "base": true
+}

@@ -1,42 +1,80 @@
 {
   "name": "default video user media",
-  "units": {
-    "getusermedia": {
-      "id": "a6e30b43-9ab4-4206-bfba-3f2129faac30",
-      "input": {
-        "opt": {
-          "constant": true,
-          "data": "{video:true,audio:{echoCancellation:true,noiseSuppression:true}}"
+  "inputs": {
+    "opt": {
+      "plug": {
+        "0": {
+          "unitId": "merge",
+          "pinId": "b"
         }
-      },
-      "output": {}
+      }
     }
   },
-  "merges": {},
-  "inputs": {},
   "outputs": {
     "stream": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "getusermedia",
           "pinId": "stream"
         }
       },
       "ref": true,
-      "type": "`ST`"
+      "icon": "circle-play"
     }
   },
+  "units": {
+    "getusermedia": {
+      "id": "a6e30b43-9ab4-4206-bfba-3f2129faac30",
+      "input": {
+        "opt": {
+          "constant": false
+        }
+      },
+      "output": {
+        "stream": {},
+        "icon": "circle-play"
+      },
+      "metadata": {
+        "position": {
+          "x": 51,
+          "y": -1
+        }
+      }
+    },
+    "merge": {
+      "id": "60bdba6d-c670-430f-be72-6f39cf4e8453",
+      "input": {
+        "a": {
+          "constant": true,
+          "data": "{video:true,audio:{echoCancellation:true,noiseSuppression:true}}"
+        },
+        "b": {}
+      },
+      "output": {
+        "ab": {}
+      }
+    }
+  },
+  "merges": {
+    "0": {
+      "merge": {
+        "output": {
+          "ab": true
+        }
+      },
+      "getusermedia": {
+        "input": {
+          "opt": true
+        }
+      }
+    }
+  },
+  "component": {},
   "metadata": {
     "icon": "video",
-    "description": "",
-    "complexity": 3,
-    "tags": [
-      "platform",
-      "core",
-      "media"
-    ]
+    "description": "get device default video stream",
+    "tags": ["platform", "core", "media"]
   },
   "id": "c03c7ef3-0649-4a99-9e9a-858bcaba1307",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

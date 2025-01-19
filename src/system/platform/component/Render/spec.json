@@ -6,25 +6,27 @@
       "type": "object",
       "optional": true,
       "metadata": {
-        "examples": [
-          "{}"
-        ]
+        "examples": ["{}"]
       }
     },
-    "pod": {
-      "type": "`G`",
+    "component": {
+      "type": "`C`",
       "ref": true
+    },
+    "attr": {
+      "type": "object",
+      "optional": true,
+      "defaultIgnored": true,
+      "metadata": {
+        "examples": ["{tabIndex:1}", "{title:'hello'}", "{draggable:true}"]
+      }
     }
   },
   "outputs": {},
   "metadata": {
     "icon": "square",
-    "description": "visualize a pod",
-    "complexity": 7.798454496599522,
-    "tags": [
-      "platform",
-      "component"
-    ]
+    "description": "render a unit",
+    "tags": ["platform", "component"]
   },
   "id": "7772a2f5-40c8-482e-83f4-bed9bfb364e3",
   "base": true,
@@ -32,6 +34,5 @@
     "defaultWidth": 300,
     "defaultHeight": 300
   },
-  "system": true,
   "render": true
 }

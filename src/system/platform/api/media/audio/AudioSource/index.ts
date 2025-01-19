@@ -1,48 +1,107 @@
-import { Callback } from '../../../../../../Callback'
-import { $ } from '../../../../../../Class/$'
 import { Functional } from '../../../../../../Class/Functional'
 import { Done } from '../../../../../../Class/Functional/Done'
-import { ST } from '../../../../../../interface/ST'
-import NOOP from '../../../../../../NOOP'
-import { Unlisten } from '../../../../../../Unlisten'
+import { System } from '../../../../../../system'
+import { MS } from '../../../../../../types/interface/MS'
+import { wrapMediaStream } from '../../../../../../wrap/MediaStream'
+import { ID_AUDIO_SOURCE } from '../../../../../_ids'
 
 export type I = {
   src: string
 }
 
 export type O = {
-  stream: ST
+  stream: MS
+}
+
+async function createMediaStreamFromUrl(
+  src: string
+): Promise<{ stream: MediaStream; source: AudioBufferSourceNode }> {
+  // @ts-ignore
+  const audioContext = new (window.AudioContext || window.webkitAudioContext)()
+
+  let source: AudioBufferSourceNode
+
+  try {
+    const response = await fetch(src)
+    const arrayBuffer = await response.arrayBuffer()
+    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer)
+
+    source = audioContext.createBufferSource()
+
+    source.buffer = audioBuffer
+
+    const mediaStreamDestination = audioContext.createMediaStreamDestination()
+
+    source.connect(mediaStreamDestination)
+    source.start()
+
+    const stream = mediaStreamDestination.stream
+
+    return { stream, source }
+  } catch (error) {
+    if (source) {
+      source.stop()
+      source.disconnect()
+    }
+
+    throw new Error('could not load media stream')
+  }
 }
 
 export default class AudioSource extends Functional<I, O> {
-  private _audio: HTMLAudioElement
+  private _source: AudioBufferSourceNode
 
-  constructor() {
-    super({
-      i: ['src'],
-      o: ['stream'],
+  constructor(system: System) {
+    super(
+      {
+        i: ['src'],
+        o: ['stream'],
+      },
+      {
+        output: {
+          stream: {
+            ref: true,
+          },
+        },
+      },
+      system,
+      ID_AUDIO_SOURCE
+    )
+
+    const {
+      api: {
+        window: { Audio },
+      },
+    } = this.__system
+
+    this.addListener('play', () => {
+      if (this._source) {
+        this._source.start()
+      }
     })
 
-    this._audio = new Audio()
-    this._audio.volume = 0
-    this._audio.play()
-
-    this.addListener('destroy', () => {
-      this._audio.srcObject = null
+    this.addListener('pause', () => {
+      if (this._source) {
+        this._source.stop()
+      }
     })
   }
 
-  f({ src }, done: Done<O>) {
-    this._audio.src = src
+  async f({ src }, done: Done<O>) {
+    let srcObject: MediaStream
+    let source: AudioBufferSourceNode
 
-    const audio = this._audio
+    try {
+      ;({ stream: srcObject, source } = await createMediaStreamFromUrl(src))
+    } catch (err) {
+      done(undefined, err.message)
 
-    const stream = new (class Stream extends $ implements ST {
-      stream(callback: Callback<MediaProvider>): Unlisten {
-        callback(audio.srcObject)
-        return NOOP
-      }
-    })()
+      return
+    }
+
+    this._source = source
+
+    const stream = wrapMediaStream(srcObject, this.__system)
 
     done({
       stream,
@@ -50,6 +109,11 @@ export default class AudioSource extends Functional<I, O> {
   }
 
   d() {
-    this._audio.src = null
+    if (this._source) {
+      this._source.stop()
+      this._source.disconnect()
+
+      this._source = undefined
+    }
   }
 }

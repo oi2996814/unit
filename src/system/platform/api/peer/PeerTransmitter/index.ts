@@ -1,26 +1,25 @@
+import { Peer } from '../../../../../api/peer/Peer'
 import { $ } from '../../../../../Class/$'
-import { CH } from '../../../../../interface/CH'
-import { ST } from '../../../../../interface/ST'
-import { Peer } from '../../../../../Peer'
-import { Primitive } from '../../../../../Primitive'
-import { stringify } from '../../../../../spec/stringify'
-import { Unlisten } from '../../../../../Unlisten'
+import { Holder } from '../../../../../Class/Holder'
+import { System } from '../../../../../system'
+import { CH } from '../../../../../types/interface/CH'
+import { MS } from '../../../../../types/interface/MS'
+import { Unlisten } from '../../../../../types/Unlisten'
+import { ID_PEER_TRANSMITTER } from '../../../../_ids'
 
-export interface I<T> {
+export interface I {
   opt: RTCConfiguration
   close: any
   answer: string
-  stream: ST
+  stream: MS
 }
 
-export interface O<T> {
-  port: CH
+export interface O {
+  offer: string
+  channel: CH
 }
 
-export default class PeerTransmitter<T>
-  extends Primitive<I<T>, O<T>>
-  implements CH
-{
+export default class PeerTransmitter extends Holder<I, O> implements CH {
   private _peer: Peer = undefined
 
   private _unlisten: Unlisten = undefined
@@ -35,11 +34,12 @@ export default class PeerTransmitter<T>
 
   private _stream: MediaStream | null = null
 
-  constructor() {
+  constructor(system: System) {
     super(
       {
-        i: ['opt', 'answer', 'stream', 'close'],
-        o: ['offer', 'port'],
+        fi: ['opt'],
+        i: ['answer', 'stream'],
+        o: ['offer', 'channel'],
       },
       {
         input: {
@@ -48,18 +48,15 @@ export default class PeerTransmitter<T>
           },
         },
         output: {
-          port: {
+          channel: {
             ref: true,
           },
         },
-      }
+      },
+      system,
+      ID_PEER_TRANSMITTER,
+      'close'
     )
-
-    this.addListener('destroy', () => {
-      if (this._connected) {
-        this._disconnect()
-      }
-    })
 
     this.addListener('take_err', () => {
       if (!this._backwarding) {
@@ -70,65 +67,92 @@ export default class PeerTransmitter<T>
           this._flag_err_peer_construct = false
           this._backward('opt')
         } else {
-          throw new Error('PeerTransmitter: invalid err state.')
+          throw new Error('PeerTransmitter: invalid err state')
         }
       }
     })
   }
 
-  onRefInputData(name: string, unit: ST): void {
-    // if (name === 'stream') {
-    this._unlisten_stream = unit.stream((_stream: MediaStream) => {
-      if (_stream === null) {
-        if (this._stream) {
-          this._remove_stream(this._stream)
-        }
-        this._stream = null
+  async f({ opt }) {
+    try {
+      this._peer = new Peer(this.__system, true, opt)
+    } catch (err) {
+      const { message } = err
+
+      const FAIL_TO_CONSTRUCT_MSG_START = `Failed to construct 'RTCPeerConnection': `
+
+      if (message.startsWith(FAIL_TO_CONSTRUCT_MSG_START)) {
+        const _err = message
+          .substr(0, message.length - 1)
+          .replace(FAIL_TO_CONSTRUCT_MSG_START, '')
+
+        this.err(_err)
+
+        return
       } else {
-        if (this._stream) {
-          this._remove_stream(this._stream)
-        }
-        this._add_stream(_stream)
-        this._stream = _stream
+        this.err(err.message.toLowerCase())
+
+        return
       }
-    })
+    }
+
+    this._unlisten = this._setup_peer()
+
+    const offer = await this._peer.offer()
+
+    this._offered = true
+
+    this._output.offer.push(offer)
+  }
+
+  d() {
+    if (this._connected) {
+      const unlisten = this._unlisten
+
+      unlisten()
+
+      this._unlisten = undefined
+
+      this._peer.close()
+      this._peer = undefined
+
+      this._connected = false
+    }
+  }
+
+  async onRefInputData(name: string, unit: MS): Promise<void> {
+    // if (name === 'stream') {
+    const _stream = await unit.mediaStream()
+
+    if (_stream === null) {
+      if (this._stream) {
+        this._remove_stream(this._stream)
+      }
+      this._stream = null
+    } else {
+      if (this._stream) {
+        this._remove_stream(this._stream)
+      }
+      this._add_stream(_stream)
+      this._stream = _stream
+    }
     // }
   }
 
-  async onDataInputData(name: string, data: any): Promise<void> {
-    // console.log('Transmitter', 'onDataInputData', name, data)
+  async onIterDataInputData(name: keyof I, data: any): Promise<void> {
+    // console.log('Transmitter', 'onIterDataInputData', name, data)
+
+    super.onIterDataInputData(name, data)
+
     if (this.hasErr()) {
       this._backwarding = true
+
       this.takeErr()
+
       this._backwarding = false
     }
 
-    if (name === 'opt') {
-      try {
-        this._peer = new Peer(true, data)
-      } catch (err) {
-        const { message } = err
-        const FAIL_TO_CONSTRUCT_MSG_START = `Failed to construct 'RTCPeerConnection': `
-        if (message.startsWith(FAIL_TO_CONSTRUCT_MSG_START)) {
-          const _err = message
-            .substr(0, message.length - 1)
-            .replace(FAIL_TO_CONSTRUCT_MSG_START, '')
-          this.err(_err)
-          return
-        } else {
-          this.err(err.message)
-          return
-        }
-      }
-
-      this._unlisten = this._setup_peer()
-
-      const offer = await this._peer.offer()
-
-      this._offered = true
-
-      this._output.offer.push(offer)
-    } else if (name === 'answer') {
+    if (name === 'answer') {
       const sdp = data
 
       if (this._offered) {
@@ -136,38 +160,33 @@ export default class PeerTransmitter<T>
           await this._peer.acceptAnswer(sdp)
         } catch (err) {
           this.err(err.message)
+
           return
         }
-
-        this._input.answer.pull()
       } else {
         this._flag_err_answer_without_offer = true
+
         this.err('cannot answer without offer')
       }
-    } else if (name === 'close') {
-      this._disconnect()
     }
   }
 
   onDataInputDrop(name: string) {
+    // console.log('PeerTransmitter', 'onDataInputDrop', name)
+
     if (name === 'answer') {
       if (this._flag_err_answer_without_offer) {
         this.takeErr()
       }
-    } else if (name === 'opt') {
+
       if (this._connected) {
-        if (!this._backwarding) {
-          this._disconnect()
-          this._output.port.pull()
-        }
-      } else {
-        this._output.offer.pull()
+        this._disconnect()
       }
     }
   }
 
   onDataOutputDrop(name: string): void {
-    console.log('PeerTransmitter', 'onDataOutputDrop', name)
+    // console.log('PeerTransmitter', 'onDataOutputDrop', name)
 
     if (this._connected) {
       this._output_port()
@@ -191,7 +210,8 @@ export default class PeerTransmitter<T>
   }
 
   private _add_stream = (stream: MediaStream) => {
-    console.log('Peer', '_add_stream')
+    // console.log('Peer', '_add_stream')
+
     this._stream = stream
     if (this._peer) {
       this._peer.addStream(stream)
@@ -199,71 +219,73 @@ export default class PeerTransmitter<T>
   }
 
   private _remove_stream = (stream: MediaStream) => {
-    console.log('Transmitter', '_remove_stream')
+    // console.log('Transmitter', '_remove_stream')
+
     this._peer.removeStream()
   }
 
-  private async _send_data(data: any) {
-    return this._send({ type: 'data', data })
+  private async _send_data(data: string) {
+    return this._send(data)
   }
 
-  private async _send(data: any): Promise<void> {
-    const message = stringify(data)
-    this._peer.send(message)
+  private async _send(data: string): Promise<void> {
+    this._peer.send(data)
+
     return
   }
 
   private _output_port = () => {
+    // console.log('Transmitter', '_output_port')
+
     const peer = this._peer
 
-    const port = new (class Channel extends $ implements CH {
-      __: string[] = ['ST']
+    const channel = new (class Channel extends $ implements CH {
+      __: string[] = ['MS']
 
-      async send(data: any): Promise<void> {
-        const _data = stringify(data)
-        peer.send(_data)
+      async send(data: string): Promise<void> {
+        peer.send(data)
+
         return
       }
-    })()
+    })(this.__system)
 
-    this._output.port.push(port)
+    this._output.channel.push(channel)
   }
 
   private _setup_peer = (): Unlisten => {
-    console.log('Transmitter', '_setup_peer')
+    // console.log('Transmitter', '_setup_peer')
 
     const signal_listener = (signal) => {
-      console.log('Transmitter', 'signal', signal)
+      // console.log('Transmitter', 'signal', signal)
       const { sdp } = signal
+
       this._output.offer.push(sdp)
     }
     const connect_listener = () => {
-      console.log('Transmitter', 'connect')
+      // console.log('Transmitter', 'connect')
       this._connected = true
 
-      if (!this._output.offer.active()) {
-        this._output_port()
-      }
+      this._output_port()
     }
     const error_listener = (err) => {
-      console.log('Transmitter', 'error', err)
+      // console.log('Transmitter', 'error', err)
+
       this.err(err.message)
     }
     const close_listener = () => {
-      console.log('Transmitter', 'close')
+      // console.log('Transmitter', 'close')
+
       this._disconnect()
     }
 
-    this._peer.on('signal', signal_listener)
-    this._peer.on('connect', connect_listener)
-    this._peer.on('error', error_listener)
-    this._peer.on('close', close_listener)
+    this._peer.addListener('connect', connect_listener)
+    this._peer.addListener('error', error_listener)
+    this._peer.addListener('close', close_listener)
 
     return () => {
-      this._peer.off('signal', signal_listener)
-      this._peer.off('connect', connect_listener)
-      this._peer.off('error', error_listener)
-      this._peer.off('close', close_listener)
+      this._peer.removeListener('connect', connect_listener)
+      this._peer.removeListener('error', error_listener)
+      this._peer.removeListener('close', close_listener)
     }
   }
 
@@ -272,14 +294,8 @@ export default class PeerTransmitter<T>
       return
     }
 
-    const unlisten = this._unlisten
-    unlisten()
-    this._unlisten = undefined
-
-    this._peer.destroy()
-    this._peer = undefined
-
-    this._connected = false
+    this._forward_empty('offer')
+    this._forward_empty('channel')
   }
 
   async send(data: any): Promise<void> {

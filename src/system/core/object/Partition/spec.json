@@ -43,7 +43,7 @@
         "current": {}
       }
     },
-    "prop": {
+    "get": {
       "id": "9414421d-3376-4438-aa03-7afcd860972c",
       "input": {
         "obj": {},
@@ -53,7 +53,7 @@
         "value": {}
       }
     },
-    "assoc": {
+    "set": {
       "id": "c4784b05-1f50-44ad-b812-545b3ed77614",
       "input": {
         "obj": {},
@@ -97,7 +97,7 @@
       }
     },
     "1": {
-      "prop": {
+      "get": {
         "input": {
           "obj": true
         }
@@ -109,7 +109,7 @@
       }
     },
     "2": {
-      "prop": {
+      "get": {
         "input": {
           "key": true
         }
@@ -119,14 +119,14 @@
           "a[i]": true
         }
       },
-      "assoc": {
+      "set": {
         "input": {
           "key": true
         }
       }
     },
     "3": {
-      "assoc": {
+      "set": {
         "output": {
           "obj": true
         }
@@ -138,7 +138,7 @@
       }
     },
     "4": {
-      "assoc": {
+      "set": {
         "input": {
           "obj": true
         }
@@ -150,12 +150,12 @@
       }
     },
     "5": {
-      "prop": {
+      "get": {
         "output": {
           "value": true
         }
       },
-      "assoc": {
+      "set": {
         "input": {
           "value": true
         }
@@ -188,46 +188,38 @@
   },
   "inputs": {
     "obj": {
-      "pin": {
+      "plug": {
         "0": {
           "mergeId": "6"
         }
       },
-      "functional": true,
-      "type": "any"
+      "functional": true
     },
     "keys": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "foreach",
           "pinId": "a"
         }
       },
-      "functional": true,
-      "type": "(number|string)[]"
+      "functional": true
     }
   },
   "outputs": {
     "obj": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "loop",
           "pinId": "final"
         }
-      },
-      "type": "object"
+      }
     }
   },
   "metadata": {
     "icon": "brackets-curly",
-    "description": "...",
-    "complexity": 8,
-    "tags": [
-      "core",
-      "object"
-    ]
+    "description": "build `obj` by getting all `keys` from input `obj`",
+    "tags": ["core", "object"]
   },
   "id": "9daf6128-fd26-11ea-8f82-7374faa69acf",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

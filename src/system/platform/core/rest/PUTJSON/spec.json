@@ -1,5 +1,5 @@
 {
-  "name": "PUT JSON",
+  "name": "put JSON",
   "units": {
     "stringify": {
       "id": "ee184ea6-3c80-4119-919e-290620aafab0",
@@ -51,7 +51,7 @@
     "1": {
       "fetch": {
         "input": {
-          "options": true
+          "opt": true
         }
       },
       "set": {
@@ -75,55 +75,45 @@
   },
   "inputs": {
     "json": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "stringify",
           "pinId": "json"
         }
-      },
-      "type": "<A>"
+      }
     },
     "url": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "fetch",
           "pinId": "url"
         }
-      },
-      "type": "string"
+      }
     },
     "opt": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "deepmerge",
           "pinId": "b"
         }
-      },
-      "type": "object"
+      }
     }
   },
   "outputs": {
     "response": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "fetch",
           "pinId": "response"
         }
-      },
-      "type": "{status:number,body:string}"
+      }
     }
   },
   "metadata": {
     "icon": "send",
-    "description": "...",
-    "complexity": 6,
-    "tags": [
-      "platform",
-      "core",
-      "rest"
-    ]
+    "description": "PUT JSON body",
+    "tags": ["platform", "core", "rest"]
   },
   "id": "3698d7af-8d4c-40f6-bcfa-222d9efb0940",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

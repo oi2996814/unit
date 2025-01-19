@@ -1,10 +1,18 @@
 import { Pin } from '../../Pin'
 import { PinOpt } from '../../PinOpt'
-import { Primitive } from '../../Primitive'
+import { Primitive, PrimitiveEvents } from '../../Primitive'
 import { System } from '../../system'
+import { Dict } from '../../types/Dict'
 import { Functional } from '../Functional'
 import { Done } from '../Functional/Done'
 import { Opt } from '../Unit'
+
+export type Semifunctional_EE = {}
+
+export type SemifunctionalEvents<_EE extends Dict<any[]>> = PrimitiveEvents<
+  _EE & Semifunctional_EE
+> &
+  Semifunctional_EE
 
 export interface SFIO {
   fi?: string[]
@@ -13,33 +21,39 @@ export interface SFIO {
   o?: string[]
 }
 
-export class Semifunctional<I = {}, O = {}> extends Primitive<I, O> {
-  private _f_i: Set<string>
-  private _f_o: Set<string>
+export class Semifunctional<
+  I extends Dict<any> = any,
+  O extends Dict<any> = any,
+  EE extends SemifunctionalEvents<
+    Dict<any>
+  > = SemifunctionalEvents<Semifunctional_EE>,
+> extends Primitive<I, O, EE> {
+  protected _f_i: Set<string>
+  protected _f_o: Set<string>
 
-  private _functional: Functional<any, any>
-  private _primitive: Primitive
-
-  private _i_input_err = false
+  protected _functional: Functional<any, any>
+  protected _primitive: Primitive<I, O>
 
   constructor(
     { fi = [], fo = [], i = [], o = [] }: SFIO,
     opt: Opt = {},
-    system: System = null
+    system: System,
+    id: string
   ) {
-    super({ i: [...fi, ...i], o: [...fo, ...o] }, opt, system)
+    super({ i: [...fi, ...i], o: [...fo, ...o] }, opt, system, id)
 
     const self = this
 
     const functional = new (class _Functional extends Functional<I, O> {
-      constructor(system: System = null) {
+      constructor(system: System) {
         super(
           {
             i: fi,
             o: fo,
           },
           {},
-          system
+          system,
+          `_${id}`
         )
       }
 
@@ -49,6 +63,10 @@ export class Semifunctional<I = {}, O = {}> extends Primitive<I, O> {
 
       d() {
         self.d()
+      }
+
+      b() {
+        self.b()
       }
     })(this.__system)
 
@@ -64,39 +82,40 @@ export class Semifunctional<I = {}, O = {}> extends Primitive<I, O> {
             o,
           },
           {},
-          system
+          system,
+          `_${id}`
         )
       }
 
-      onDataInputData(name: string, data: any) {
+      onDataInputData<K extends keyof I>(name: K, data) {
         self.onIterDataInputData(name, data)
       }
 
-      onRefInputData(name: string, data: any) {
+      onRefInputData<K extends keyof I>(name: K, data) {
         self.onIterRefInputData(name, data)
       }
 
-      onDataInputDrop(name: string): void {
+      onDataInputDrop<K extends keyof I>(name: K): void {
         self.onIterDataInputDrop(name)
       }
 
-      onRefInputDrop(name: string): void {
+      onRefInputDrop<K extends keyof I>(name: K): void {
         self.onIterRefInputDrop(name)
       }
 
-      onDataOutputDrop(name: string): void {
+      onDataOutputDrop<K extends keyof O>(name: K): void {
         self.onIterDataOutputDrop(name)
       }
 
-      onRefOutputDrop(name: string): void {
+      onRefOutputDrop<K extends keyof O>(name: K): void {
         self.onIterRefOutputDrop(name)
       }
 
-      onDataInputInvalid(name: string) {
+      onDataInputInvalid<K extends keyof I>(name: K) {
         self.onIterDataInputInvalid(name)
       }
 
-      onRefInputInvalid(name: string) {
+      onRefInputInvalid<K extends keyof I>(name: K) {
         self.onIterRefInputInvalid(name)
       }
     })(this.__system)
@@ -106,27 +125,53 @@ export class Semifunctional<I = {}, O = {}> extends Primitive<I, O> {
     this._primitive = primitive
 
     for (const name of fi) {
-      functional.setInput(name, this.getInput(name), this.getInputOpt(name))
+      functional.setInput(
+        name as keyof I,
+        this.getInput(name),
+        this.getInputOpt(name)
+      )
     }
 
     for (const name of fo) {
-      functional.setOutput(name, this.getOutput(name), this.getOutputOpt(name))
+      functional.setOutput(
+        name as keyof O,
+        this.getOutput(name),
+        this.getOutputOpt(name)
+      )
     }
 
     for (const name of i) {
-      primitive.setInput(name, this.getInput(name), this.getInputOpt(name))
+      primitive.setInput(
+        name as keyof I,
+        this.getInput(name as keyof I),
+        this.getInputOpt(name)
+      )
     }
 
     for (const name of o) {
-      primitive.setOutput(name, this.getOutput(name), this.getOutputOpt(name))
+      primitive.setOutput(
+        name as keyof O,
+        this.getOutput(name),
+        this.getOutputOpt(name)
+      )
     }
 
+    // assuming primitive side will not throw error
+
+    functional.addListener('err', (err) => {
+      this.err(err)
+    })
+
+    functional.addListener('take_err', () => {
+      this.takeErr()
+    })
+
     this.addListener('take_err', () => {
-      // TODO
+      functional.takeErr()
     })
 
     this.addListener('take_caught_err', () => {
-      // TODO
+      functional.takeCaughtErr()
     })
 
     this._f_i = new Set(fi)
@@ -134,46 +179,66 @@ export class Semifunctional<I = {}, O = {}> extends Primitive<I, O> {
 
     this.addListener(
       'set_input',
-      (name: string, pin: Pin<any>, opt: PinOpt) => {
+      (name: string, pin: Pin<any>, opt: PinOpt, propagate) => {
         this._f_i.add(name)
+
         functional.addInput(name, pin, opt)
       }
     )
     this.addListener(
       'set_output',
-      (name: string, pin: Pin<any>, opt: PinOpt) => {
+      (name: string, pin: Pin<any>, opt: PinOpt, propagate) => {
         this._f_o.add(name)
+
         functional.addOutput(name, pin, opt)
       }
     )
-    // TODO
-    // this.addListener('remove_input', this._onInputRemoved)
-    // this.addListener('remove_output', this._onOutputRemoved)
-    // this.addListener('rename_input', this._onInputRenamed)
-    // this.addListener('rename_output', this._onOutputRenamed)
   }
 
   f(i: Partial<I>, done: Done<O>) {}
 
   d() {}
 
+  b() {}
+
   protected _done: Done<O> = (data, err = null) => {
     this._functional._done(data, err)
   }
 
-  public onIterDataInputData(name: string, data: any): void {}
+  public onIterDataInputData<K extends keyof I>(name: K, data: any): void {}
 
-  public onIterRefInputData(name, data: any): void {}
+  public onIterRefInputData<K extends keyof I>(name: K, data: any): void {}
 
-  public onIterDataInputDrop(name: string): void {}
+  public onIterDataInputDrop<K extends keyof I>(name: K): void {}
 
-  public onIterRefInputDrop(name: string): void {}
+  public onIterRefInputDrop<K extends keyof I>(name: K): void {}
 
-  public onIterDataOutputDrop(name: string): void {}
+  public onIterDataOutputDrop<K extends keyof O>(name: K): void {}
 
-  public onIterRefOutputDrop(name: string): void {}
+  public onIterRefOutputDrop<K extends keyof O>(name: K): void {}
 
-  public onIterDataInputInvalid(name: string) {}
+  public onIterDataInputInvalid<K extends keyof I>(name: K) {}
 
-  public onIterRefInputInvalid(name: string) {}
+  public onIterRefInputInvalid<K extends keyof I>(name: K) {}
+
+  public destroy(): void {
+    this._functional.destroy()
+    this._primitive.destroy()
+
+    super.destroy()
+  }
+
+  protected _backward_f(): void {
+    for (const fi of this._f_i) {
+      if (!this._ref_input[fi]) {
+        this._backward(fi)
+      }
+    }
+  }
+
+  protected _forward_empty_f(): void {
+    for (const fo of this._f_o) {
+      this._forward_empty(fo)
+    }
+  }
 }

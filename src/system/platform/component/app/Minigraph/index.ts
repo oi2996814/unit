@@ -1,6 +1,8 @@
-import { Element } from '../../../../../Class/Element/Element'
-import { GraphSpec } from '../../../../../types'
+import { Element_ } from '../../../../../Class/Element'
+import { System } from '../../../../../system'
 import { Dict } from '../../../../../types/Dict'
+import { GraphSpec } from '../../../../../types/GraphSpec'
+import { ID_MINIGRAPH } from '../../../../_ids'
 
 export interface I<T> {
   width: number
@@ -11,11 +13,16 @@ export interface I<T> {
 
 export interface O<T> {}
 
-export default class Minigraph<T> extends Element<I<T>, O<T>> {
-  constructor() {
-    super({
-      i: ['spec', 'style', 'width', 'height'],
-      o: [],
-    })
+export default class Minigraph<T> extends Element_<I<T>, O<T>> {
+  constructor(system: System) {
+    super(
+      {
+        i: ['spec', 'style', 'width', 'height'],
+        o: [],
+      },
+      {},
+      system,
+      ID_MINIGRAPH
+    )
   }
 }

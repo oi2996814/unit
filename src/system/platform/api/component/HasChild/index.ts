@@ -1,6 +1,8 @@
 import { Functional } from '../../../../../Class/Functional'
 import { Done } from '../../../../../Class/Functional/Done'
-import { E } from '../../../../../interface/E'
+import { System } from '../../../../../system'
+import { E } from '../../../../../types/interface/composed/E'
+import { ID_HAS_CHILD } from '../../../../_ids'
 
 export interface I {
   parent: E
@@ -8,15 +10,15 @@ export interface I {
 }
 
 export interface O {
-  has: boolean
+  test: boolean
 }
 
 export default class HasChild extends Functional<I, O> {
-  constructor() {
+  constructor(system: System) {
     super(
       {
         i: ['parent', 'at'],
-        o: ['has'],
+        o: ['test'],
       },
       {
         input: {
@@ -24,12 +26,15 @@ export default class HasChild extends Functional<I, O> {
             ref: true,
           },
         },
-      }
+      },
+      system,
+      ID_HAS_CHILD
     )
   }
 
   f({ parent, at }: I, done: Done<O>): void {
-    const has = parent.hasChild(at)
-    done({ has })
+    const test = parent.hasChild(at)
+
+    done({ test })
   }
 }

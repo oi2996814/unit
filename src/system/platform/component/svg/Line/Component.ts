@@ -1,6 +1,5 @@
-import applyStyle from '../../../../../client/applyStyle'
-import namespaceURI from '../../../../../client/component/namespaceURI'
-import { Element } from '../../../../../client/element'
+import { namespaceURI } from '../../../../../client/component/namespaceURI'
+import { SVGElement_ } from '../../../../../client/svg'
 import { System } from '../../../../../system'
 import { Dict } from '../../../../../types/Dict'
 
@@ -13,40 +12,39 @@ export interface Props {
   y2?: number
 }
 
-export default class SVGLine extends Element<SVGLineElement, Props> {
-  private _line_el: SVGLineElement
-
+export default class SVGLine extends SVGElement_<SVGLineElement, Props> {
   constructor($props: Props, $system: System) {
-    super($props, $system)
+    super(
+      $props,
+      $system,
+      $system.api.document.createElementNS(namespaceURI, 'line'),
+      $system.style['line'],
+      {},
+      {
+        x1: (x1: number | undefined = 0) => {
+          this.$element.setAttribute('x1', `${x1}`)
+        },
+        y1: (y1: number | undefined = 0) => {
+          this.$element.setAttribute('y1', `${y1}`)
+        },
+        x2: (x2: number | undefined = 0) => {
+          this.$element.setAttribute('x2', `${x2}`)
+        },
+        y2: (y2: number | undefined = 0) => {
+          this.$element.setAttribute('y2', `${y2}`)
+        },
+      }
+    )
 
-    const { className, style = {}, x1 = 0, y1 = 0, x2 = 0, y2 = 0 } = $props
+    const { className, x1 = 0, y1 = 0, x2 = 0, y2 = 0 } = $props
 
-    const line_el = document.createElementNS(namespaceURI, 'line')
     if (className !== undefined) {
-      line_el.classList.value = className
+      this.$element.classList.value = className
     }
-    applyStyle(line_el, style)
-    line_el.setAttribute('x1', `${x1}`)
-    line_el.setAttribute('y1', `${y1}`)
-    line_el.setAttribute('x2', `${x2}`)
-    line_el.setAttribute('y2', `${y2}`)
-    this._line_el = line_el
 
-    this.$element = line_el
-  }
-
-  onPropChanged(prop: string, current: any): void {
-    if (prop === 'className') {
-      this._line_el.className.value = current
-    } else if (prop === 'style') {
-      applyStyle(this._line_el, current)
-    } else if (
-      prop === 'x1' ||
-      prop === 'y1' ||
-      prop === 'x2' ||
-      prop === 'y2'
-    ) {
-      this._line_el.setAttribute(prop, `${current}`)
-    }
+    this.$element.setAttribute('x1', `${x1}`)
+    this.$element.setAttribute('y1', `${y1}`)
+    this.$element.setAttribute('x2', `${x2}`)
+    this.$element.setAttribute('y2', `${y2}`)
   }
 }

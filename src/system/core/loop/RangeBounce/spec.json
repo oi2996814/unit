@@ -12,7 +12,7 @@
     }
   },
   "merges": {
-    "ixnwjcyy": {
+    "0": {
       "range": {
         "input": {
           "a": true
@@ -20,14 +20,14 @@
       },
       "plan": {
         "output": {
-          "first": true
+          "0": true
         }
       }
     },
-    "dpqjcxzt": {
+    "1": {
       "plan": {
         "output": {
-          "second": true
+          "1": true
         }
       },
       "rangereverse": {
@@ -64,42 +64,36 @@
   "metadata": {
     "icon": "exchange",
     "description": "count from `a` to `b - 1`, then regressive count from `b - 1` to `a`",
-    "complexity": 12,
-    "tags": [
-      "core",
-      "loop"
-    ]
+    "tags": ["core", "loop"]
   },
   "inputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "plan",
           "pinId": "a"
         }
       },
-      "type": "number"
+      "functional": true
     },
     "b": {
-      "pin": {
+      "plug": {
         "0": {
           "mergeId": "bjpzdvv"
         }
       },
-      "type": "number"
+      "functional": true
     }
   },
   "outputs": {
     "i": {
-      "pin": {
+      "plug": {
         "0": {
           "mergeId": "ymwlenzvu"
         }
-      },
-      "type": "number"
+      }
     }
   },
   "id": "343f1382-4d2d-4022-b4b3-139e40ab6627",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

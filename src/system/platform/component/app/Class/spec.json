@@ -3,18 +3,20 @@
   "inputs": {
     "id": {
       "type": "string"
+    },
+    "style": {
+      "type": "object"
+    },
+    "attr": {
+      "type": "object",
+      "defaultIgnored": true
     }
   },
   "outputs": {},
   "metadata": {
     "icon": "chalkboard",
     "description": "unit class component",
-    "complexity": 9.74304616125864,
-    "tags": [
-      "platform",
-      "component",
-      "app"
-    ]
+    "tags": ["platform", "component", "app"]
   },
   "id": "c18d7dcc-939b-11ea-90cb-77846d7504a9",
   "base": true,
@@ -22,7 +24,6 @@
     "defaultWidth": 100,
     "defaultHeight": 100
   },
-  "type": "`U`&`C`",
-  "system": true,
+  "type": "`U`&`C`&`V`&`J`",
   "render": true
 }

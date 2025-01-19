@@ -2,7 +2,7 @@
   "name": "tag transform translate px",
   "inputs": {
     "y": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "px",
           "pinId": "n"
@@ -10,7 +10,7 @@
       }
     },
     "x": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "px0",
           "pinId": "n"
@@ -20,7 +20,7 @@
   },
   "outputs": {
     "{transform}": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "tagtransform",
           "pinId": "{transform}"
@@ -168,17 +168,11 @@
       }
     }
   },
-  "render": false,
-  "system": true,
   "type": "`U`&`G`",
   "metadata": {
     "icon": "tag",
-    "complexity": 15,
-    "tags": [
-      "platform",
-      "core",
-      "canvas"
-    ]
+    "description": "{transform: translate(x, y)}",
+    "tags": ["platform", "core", "canvas"]
   },
   "id": "f08860e0-f393-4159-80da-510ff95adb21"
 }

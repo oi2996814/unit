@@ -3,7 +3,7 @@ import { Moment } from './Moment'
 import { PinType } from './PinType'
 
 export interface PinDataMomentData {
-  type: string
+  type: PinType
   pinId: string
   data: any
 }

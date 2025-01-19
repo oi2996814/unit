@@ -57,7 +57,7 @@
     "3": {
       "propx0y0x1y1": {
         "output": {
-          "ppmqen": true
+          "x0": true
         }
       },
       "moveto": {
@@ -69,7 +69,7 @@
     "4": {
       "propx0y0x1y1": {
         "output": {
-          "kzxphae": true
+          "y0": true
         }
       },
       "moveto": {
@@ -81,7 +81,7 @@
     "5": {
       "propx0y0x1y1": {
         "output": {
-          "htyb": true
+          "x1": true
         }
       },
       "addlineto": {
@@ -93,7 +93,7 @@
     "6": {
       "propx0y0x1y1": {
         "output": {
-          "mlhf": true
+          "y1": true
         }
       },
       "addlineto": {
@@ -106,45 +106,36 @@
   "metadata": {
     "icon": "edit-3",
     "description": "draw a circle to the canvas",
-    "complexity": 18.63146971072772,
-    "tags": [
-      "platform",
-      "core",
-      "canvas"
-    ]
+    "tags": ["platform", "core", "canvas"]
   },
   "inputs": {
     "d": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "beginpath",
           "pinId": "d"
         }
-      },
-      "type": "any[][]"
+      }
     },
     "line": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "propx0y0x1y1",
-          "pinId": "kiusigco"
+          "pinId": "{x0,y0,x1,y1}"
         }
-      },
-      "type": "object"
+      }
     }
   },
   "outputs": {
     "d": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "stroke",
           "pinId": "d"
         }
-      },
-      "type": "any[][]"
+      }
     }
   },
   "id": "90dc2942-52fa-4e09-bcef-43fa97cc0b72",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

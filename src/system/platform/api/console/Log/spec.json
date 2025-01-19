@@ -2,21 +2,15 @@
   "name": "log",
   "inputs": {
     "message": {
-      "type": "<T>"
+      "type": "any"
     }
   },
   "metadata": {
     "icon": "terminal",
-    "description": "print on the console",
-    "complexity": 2.6564127272390343,
-    "tags": [
-      "platform",
-      "api",
-      "console"
-    ]
+    "description": "print to the console",
+    "tags": ["platform", "api", "console"]
   },
   "id": "e7232263-a2cf-4f2b-a862-4fc85933d09f",
   "base": true,
-  "type": "`U`",
-  "system": true
+  "type": "`U`"
 }

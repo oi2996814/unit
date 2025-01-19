@@ -1,4 +1,6 @@
 import { Functional } from '../../../../Class/Functional'
+import { System } from '../../../../system'
+import { ID_AND } from '../../../_ids'
 
 export interface I {
   a: number
@@ -10,11 +12,16 @@ export interface O {
 }
 
 export default class And extends Functional<I, O> {
-  constructor() {
-    super({
-      i: ['a', 'b'],
-      o: ['a & b'],
-    })
+  constructor(system: System) {
+    super(
+      {
+        i: ['a', 'b'],
+        o: ['a & b'],
+      },
+      {},
+      system,
+      ID_AND
+    )
   }
 
   f({ a, b }: I, done): void {

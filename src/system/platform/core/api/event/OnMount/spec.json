@@ -2,11 +2,10 @@
   "name": "on mount",
   "inputs": {
     "element": {
-      "type": "`U`",
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "listen",
-          "pinId": "unit"
+          "pinId": "emitter"
         }
       },
       "ref": true
@@ -14,8 +13,7 @@
   },
   "outputs": {
     "event": {
-      "type": "{clientX:number,clientY:number,offsetX:number,offsetY:number,pointerId:number,pointerType:string}",
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "listen",
           "pinId": "data"
@@ -27,7 +25,7 @@
     "listen": {
       "id": "367241d8-ad12-11ea-beed-9777f31699a8",
       "input": {
-        "unit": {
+        "emitter": {
           "metadata": {
             "position": {
               "x": -15,
@@ -77,15 +75,8 @@
   "metadata": {
     "icon": "square",
     "description": "listen to `element` 'mount' event",
-    "complexity": 3,
-    "tags": [
-      "platform",
-      "core",
-      "api",
-      "event"
-    ]
+    "tags": ["platform", "core", "api", "event"]
   },
   "id": "6ecc9c94-98bd-11eb-845c-dfd895d4184c",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

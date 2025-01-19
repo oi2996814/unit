@@ -3,7 +3,7 @@
   "type": "`U`&`G`&`C`",
   "inputs": {
     "style": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "mergedefault",
           "pinId": "a"
@@ -63,31 +63,21 @@
     }
   },
   "component": {
-    "slots": [
-      [
-        "div",
-        "default"
-      ]
-    ],
+    "slots": [["div", "default"]],
     "subComponents": {
       "div": {
         "children": []
       }
     },
-    "children": [
-      "div"
-    ],
+    "children": ["div"],
     "defaultWidth": 120,
     "defaultHeight": 120
   },
   "metadata": {
     "icon": "square",
-    "complexity": 4,
-    "tags": [
-      "platform",
-      "core",
-      "component"
-    ]
+    "description": "div with inline-block display",
+    "tags": ["platform", "core", "component"]
   },
-  "id": "b434223f-7f7a-4f03-83ab-744e16990206"
+  "id": "b434223f-7f7a-4f03-83ab-744e16990206",
+  "render": true
 }

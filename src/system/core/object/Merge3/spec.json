@@ -25,53 +25,44 @@
   "metadata": {
     "icon": "brackets-curly",
     "description": "merge objects `a`, `b` and `c` into `abc`",
-    "complexity": 5.659822470952319,
-    "tags": [
-      "core",
-      "object"
-    ]
+    "tags": ["core", "object"]
   },
   "inputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "merge",
           "pinId": "a"
         }
-      },
-      "type": "object"
+      }
     },
     "b": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "merge0",
           "pinId": "a"
         }
-      },
-      "type": "object"
+      }
     },
     "c": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "merge0",
           "pinId": "b"
         }
-      },
-      "type": "object"
+      }
     }
   },
   "outputs": {
     "abc": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "merge",
           "pinId": "ab"
         }
-      },
-      "type": "object"
+      }
     }
   },
   "id": "23b844e3-1cef-4ff7-9e2a-bb3ffb613055",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

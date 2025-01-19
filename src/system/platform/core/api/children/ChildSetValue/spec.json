@@ -2,7 +2,7 @@
   "name": "child set value",
   "inputs": {
     "value": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "childset",
           "pinId": "data"
@@ -15,11 +15,10 @@
             "y": -43
           }
         }
-      },
-      "type": "any"
+      }
     },
     "at": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "childset",
           "pinId": "at"
@@ -32,11 +31,10 @@
             "y": 28
           }
         }
-      },
-      "type": "number"
+      }
     },
     "parent": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "childset",
           "pinId": "parent"
@@ -50,8 +48,7 @@
             "y": 28
           }
         }
-      },
-      "type": "<A>"
+      }
     }
   },
   "outputs": {},
@@ -92,24 +89,6 @@
               "y": -26
             }
           }
-        },
-        "b": {
-          "ignored": true,
-          "metadata": {
-            "position": {
-              "x": 29,
-              "y": 31
-            }
-          }
-        },
-        "a": {
-          "ignored": true,
-          "metadata": {
-            "position": {
-              "x": -26,
-              "y": 31
-            }
-          }
         }
       },
       "output": {},
@@ -126,15 +105,8 @@
   "metadata": {
     "icon": "triangle",
     "description": "set `element` child `at` value to `value`",
-    "complexity": 3,
-    "tags": [
-      "platform",
-      "core",
-      "api",
-      "children"
-    ]
+    "tags": ["platform", "core", "api", "children"]
   },
   "id": "9f9dff70-30e6-467b-9204-55fdf5b4ac4f",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

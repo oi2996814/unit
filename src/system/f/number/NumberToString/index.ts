@@ -1,4 +1,6 @@
 import { MIMO } from '../../../../MIMO'
+import { System } from '../../../../system'
+import { ID_NUMBER_TO_STRING } from '../../../_ids'
 
 export interface I {
   n: number
@@ -10,11 +12,16 @@ export interface O {
 }
 
 export default class NumberToString extends MIMO<I, O> {
-  constructor() {
-    super({
-      i: ['n', 'radix'],
-      o: ['str'],
-    })
+  constructor(system: System) {
+    super(
+      {
+        i: ['n', 'radix'],
+        o: ['str'],
+      },
+      {},
+      system,
+      ID_NUMBER_TO_STRING
+    )
   }
 
   m({ n, radix }: I): Partial<O> | undefined {

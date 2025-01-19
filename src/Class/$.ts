@@ -1,28 +1,26 @@
-import { EventEmitter2 } from 'eventemitter2'
+import { EventEmitter_, EventEmitter_EE } from '../EventEmitter'
 import { deleteGlobalRef, setGlobalRef } from '../global'
-import { $_ } from '../interface/$_'
-import { PO } from '../interface/PO'
 import { System } from '../system'
-import { Unlisten } from '../Unlisten'
-import { Dict } from './../types/Dict'
+import { Dict } from '../types/Dict'
 
-export class $ extends EventEmitter2 implements $_ {
+export type $_EE = { destroy: [string[]]; register: [string]; unregister: [] }
+
+export type $Events<_EE extends Dict<any[]>> = EventEmitter_EE<_EE & $_EE> &
+  $_EE
+
+export class $<
+  _EE extends $Events<_EE> & Dict<any[]> = $Events<$_EE>,
+> extends EventEmitter_<_EE> {
   public __: string[] = []
-  public __id: string
-
-  public __pod: PO | null = null
-  public __system: System | null = null
+  public $__: string[] = []
+  public __system: System
   public __global_id: string
-  public __listener_count: Dict<number> = {}
+  public __done: boolean
 
-  constructor(__system: System = null) {
+  constructor(system: System) {
     super()
 
-    this.__system = __system
-
-    if (this.__system) {
-      this.__global_id = setGlobalRef(this.__system, this)
-    }
+    this.__system = system
   }
 
   getGlobalId(): string {
@@ -37,87 +35,35 @@ export class $ extends EventEmitter2 implements $_ {
     return this.__system
   }
 
-  refPod(): PO {
-    return this.__pod
-  }
+  register(): void {
+    if (!this.__global_id) {
+      this.__global_id = setGlobalRef(this.__system, this)
 
-  attach(__system: System): void {
-    // console.log('$', 'attach', __system, $pod)
-
-    if (__system === this.__system) {
-      return
+      this.emit('register', this.__global_id)
     }
-
-    this.__system = __system
-
-    this.__global_id = setGlobalRef(this.__system, this)
-
-    this.emit('_attach', __system)
   }
 
-  dettach(): void {
-    if (this.__system) {
+  unregister(): void {
+    if (this.__global_id) {
       deleteGlobalRef(this.__system, this.__global_id)
+
       this.__global_id = undefined
+
+      this.emit('unregister')
     }
-
-    this.__system = null
-    this.__pod = null
-
-    this.emit('_dettach')
-  }
-
-  _prependListener(
-    event: string,
-    listener: (...data: any[]) => void
-  ): Unlisten {
-    this.prependListener(event, listener)
-    return () => {
-      this.removeListener(event, listener)
-    }
-  }
-
-  _addListener(event: string, listener: (...data: any[]) => void): Unlisten {
-    this.addListener(event, listener)
-    return () => {
-      this.removeListener(event, listener)
-    }
-  }
-
-  getListeners(): string[] {
-    return Object.keys(this.__listener_count)
   }
 
   destroy() {
-    if (this.__system) {
-      deleteGlobalRef(this.__system, this.__global_id)
+    if (this.__done) {
+      return
     }
 
-    this.emit('destroy')
+    this.__done = true
+
+    this.emit('destroy', [])
   }
 
-  listen(event: string, listener: (data: any) => void): Unlisten {
-    this.__listener_count[event] = this.__listener_count[event] ?? 0
-
-    this.__listener_count[event]++
-
-    this.addListener(event, listener)
-
-    if (this.__listener_count[event] === 1) {
-      this.emit('listen', { event })
-    }
-
-    return () => {
-      this.__listener_count[event]--
-      if (this.__listener_count[event] === 0) {
-        delete this.__listener_count[event]
-        this.emit('unlisten', { event })
-      }
-      this.removeListener(event, listener)
-    }
-  }
-
-  listenerCount(name: string) {
-    return this.listenerCount(name)
+  raw(): any {
+    throw new Error("object doesn't have raw form")
   }
 }

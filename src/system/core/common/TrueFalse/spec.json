@@ -2,24 +2,22 @@
   "name": "true false",
   "inputs": {
     "any": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "wait",
           "pinId": "b"
         }
-      },
-      "type": "any"
+      }
     }
   },
   "outputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "foreach",
           "pinId": "a[i]"
         }
-      },
-      "type": "boolean"
+      }
     }
   },
   "units": {
@@ -85,12 +83,7 @@
   "metadata": {
     "icon": "map-signs",
     "description": "outputs true and then false",
-    "complexity": 4,
-    "tags": [
-      "core",
-      "common"
-    ]
+    "tags": ["core", "common"]
   },
-  "id": "e24d1987-e3e7-4f1a-bf4a-191c79b2eae6",
-  "system": true
+  "id": "e24d1987-e3e7-4f1a-bf4a-191c79b2eae6"
 }

@@ -18,15 +18,10 @@
   },
   "metadata": {
     "icon": "scissors",
-    "description": "extracts a section of a string",
-    "complexity": 2.6596000963623223,
-    "tags": [
-      "f",
-      "array"
-    ]
+    "description": "extracts a section from string `a` from `begin` to `end`",
+    "tags": ["f", "array"]
   },
   "id": "c6bf897a-4970-4284-bea2-b4a86186f828",
   "base": true,
-  "type": "`U`",
-  "system": true
+  "type": "`U`"
 }

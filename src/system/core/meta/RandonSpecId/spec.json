@@ -2,24 +2,22 @@
   "name": "random spec id",
   "inputs": {
     "any": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "specids",
           "pinId": "any"
         }
-      },
-      "type": "any"
+      }
     }
   },
   "outputs": {
     "id": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "randominarray",
           "pinId": "a[i]"
         }
-      },
-      "type": "string"
+      }
     }
   },
   "units": {
@@ -69,15 +67,10 @@
     }
   },
   "metadata": {
-    "icon": null,
-    "description": "",
-    "complexity": 4,
-    "tags": [
-      "core",
-      "meta"
-    ]
+    "icon": "random",
+    "description": "random spec id",
+    "tags": ["core", "meta"]
   },
   "id": "95735a9e-9bc0-11eb-90ec-3bb9082e8fe9",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

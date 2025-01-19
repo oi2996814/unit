@@ -1,6 +1,7 @@
-import { Element } from '../../../../../Class/Element/Element'
+import { Element_ } from '../../../../../Class/Element'
 import { System } from '../../../../../system'
 import { Dict } from '../../../../../types/Dict'
+import { ID_GUI } from '../../../../_ids'
 
 export interface I<T> {
   style?: Dict<string>
@@ -8,7 +9,7 @@ export interface I<T> {
 
 export interface O<T> {}
 
-export default class GUI<T> extends Element<I<T>, O<T>> {
+export default class GUI<T> extends Element_<I<T>, O<T>> {
   constructor(system: System) {
     super(
       {
@@ -16,7 +17,8 @@ export default class GUI<T> extends Element<I<T>, O<T>> {
         o: [],
       },
       {},
-      system
+      system,
+      ID_GUI
     )
   }
 }

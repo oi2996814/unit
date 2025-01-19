@@ -1,5 +1,7 @@
 import { Functional } from '../../../../../Class/Functional'
 import { Done } from '../../../../../Class/Functional/Done'
+import { System } from '../../../../../system'
+import { ID_DECODE } from '../../../../_ids'
 
 export type I = {
   b: string
@@ -10,11 +12,16 @@ export type O = {
 }
 
 export default class Decode extends Functional<I, O> {
-  constructor() {
-    super({
-      i: ['b'],
-      o: ['a'],
-    })
+  constructor(system: System) {
+    super(
+      {
+        i: ['b'],
+        o: ['a'],
+      },
+      {},
+      system,
+      ID_DECODE
+    )
   }
 
   f({ b }: I, done: Done<O>): void {
@@ -23,7 +30,8 @@ export default class Decode extends Functional<I, O> {
     try {
       a = atob(b)
     } catch {
-      done(undefined, 'string not correctly enconded')
+      done(undefined, 'string not correctly encoded')
+
       return
     }
 

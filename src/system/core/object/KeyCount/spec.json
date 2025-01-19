@@ -36,36 +36,29 @@
   },
   "inputs": {
     "obj": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "keys",
           "pinId": "obj"
         }
-      },
-      "type": "object"
+      }
     }
   },
   "outputs": {
     "count": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "length",
           "pinId": "length"
         }
-      },
-      "type": "number"
+      }
     }
   },
   "metadata": {
     "icon": "brackets-curly",
     "description": "`obj` total key count",
-    "complexity": 4,
-    "tags": [
-      "core",
-      "object"
-    ]
+    "tags": ["core", "object"]
   },
   "id": "8ea084fc-cffb-4b4a-9314-122e3c72554e",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

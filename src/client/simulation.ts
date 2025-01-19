@@ -1,6 +1,7 @@
-import { EventEmitter2 } from 'eventemitter2'
-import NOOP from '../NOOP'
+import { EventEmitter_, EventEmitter_EE } from '../EventEmitter'
+import { NOOP } from '../NOOP'
 import { Dict } from '../types/Dict'
+import { ANIMATION_C } from './animation/ANIMATION_C'
 import { Shape } from './util/geometry'
 
 export type SimulationOpt = {
@@ -11,6 +12,7 @@ export type SimulationOpt = {
   velocityDecay?: number
   stability?: number
   n?: number
+  t?: number
   force?: (alpha: number) => void
 }
 
@@ -34,7 +36,7 @@ export type SimNode<T extends {} = {}> = T & {
 }
 
 export interface SimLink<T> {
-  d: number
+  l: number
   s: number
   source_id: string
   target_id: string
@@ -69,7 +71,17 @@ const RK = [
   [RK40, RK41],
 ]
 
-export class Simulation<N = {}, L = {}> extends EventEmitter2 {
+export type Simulation_EE = {
+  tick: []
+  end: []
+}
+
+export type SimulationEvents = EventEmitter_EE<Simulation_EE> & Simulation_EE
+
+export class Simulation<
+  N = {},
+  L = {},
+> extends EventEmitter_<SimulationEvents> {
   public _nodes: Dict<SimNode<N>>
   public _links: Dict<SimLink<L>>
 
@@ -82,6 +94,7 @@ export class Simulation<N = {}, L = {}> extends EventEmitter2 {
   private _stability: number = 1
   private _velocityDecay: number
   private _n: number = 1
+  private _t: number = 1
 
   private _force: (alpha: number) => void = NOOP
 
@@ -93,8 +106,9 @@ export class Simulation<N = {}, L = {}> extends EventEmitter2 {
     alphaTarget = 0,
     alphaDecay,
     velocityDecay = 0.2,
-    n = 3,
-    stability = 2,
+    n = 1,
+    t = 1 / ANIMATION_C,
+    stability = 1,
     force = NOOP,
   }: SimulationOpt) {
     super()
@@ -107,6 +121,7 @@ export class Simulation<N = {}, L = {}> extends EventEmitter2 {
     this._velocityDecay = velocityDecay
     this._stability = stability
     this._n = n
+    this._t = t
     this._force = force
   }
 
@@ -176,6 +191,9 @@ export class Simulation<N = {}, L = {}> extends EventEmitter2 {
   }
 
   public stability(_stability?: number): number {
+    if (_stability < 1 || _stability > 4) {
+      throw new Error('simulation stability must be between 1 and 4, inclusive')
+    }
     if (_stability !== undefined) {
       this._stability = _stability
     }
@@ -203,7 +221,7 @@ export class Simulation<N = {}, L = {}> extends EventEmitter2 {
     }> = {}
 
     const F = 0.75 // friction
-    const T = 1
+    const T = this._t
 
     const order = this._stability
 

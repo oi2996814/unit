@@ -1,0 +1,221 @@
+{
+  "name": "editor | box",
+  "inputs": {},
+  "outputs": {
+    "graph": {
+      "plug": {
+        "0": {
+          "unitId": "editor",
+          "pinId": "graph"
+        }
+      },
+      "ref": true,
+      "type": "`U`&`G`",
+      "defaultIgnored": true,
+      "metadata": {
+        "position": {
+          "0": {
+            "x": 235,
+            "y": 21
+          }
+        }
+      }
+    }
+  },
+  "units": {
+    "editor": {
+      "id": "e80c912e-7508-11ea-966b-436805345ff0",
+      "input": {
+        "style": {
+          "constant": true,
+          "data": "{\"borderRight\":\"1px solid currentColor\"}",
+          "metadata": {
+            "position": {
+              "x": -210,
+              "y": -53
+            }
+          }
+        },
+        "graph": {
+          "ignored": false,
+          "metadata": {
+            "position": {
+              "x": 208,
+              "y": -27
+            }
+          }
+        },
+        "disabled": {
+          "ignored": true,
+          "metadata": {
+            "position": {
+              "x": -210,
+              "y": -139
+            }
+          }
+        },
+        "fullwindow": {
+          "ignored": true,
+          "metadata": {
+            "position": {
+              "x": -210,
+              "y": -90
+            }
+          }
+        },
+        "frame": {
+          "ignored": false
+        },
+        "attr": {
+          "ignored": true,
+          "metadata": {
+            "position": {
+              "x": -209,
+              "y": 28
+            }
+          }
+        },
+        "zoom": {
+          "ignored": true,
+          "metadata": {
+            "position": {
+              "x": -210,
+              "y": -113
+            }
+          }
+        },
+        "controls": {
+          "ignored": true,
+          "metadata": {
+            "position": {
+              "x": -210,
+              "y": -70
+            }
+          }
+        }
+      },
+      "output": {
+        "graph": {
+          "ignored": false,
+          "metadata": {
+            "position": {
+              "x": 221,
+              "y": 11
+            }
+          }
+        }
+      },
+      "metadata": {
+        "position": {
+          "x": 171,
+          "y": 189
+        },
+        "component": {
+          "width": 360.1918640136719,
+          "height": 441.29931640625
+        }
+      }
+    },
+    "box": {
+      "id": "9eba84b6-d2ca-47e6-9195-8208dbb880bc",
+      "input": {
+        "style": {
+          "constant": true,
+          "data": "{}",
+          "metadata": {
+            "position": {
+              "x": -503,
+              "y": -12
+            }
+          }
+        },
+        "attr": {
+          "ignored": true,
+          "metadata": {
+            "position": {
+              "x": -503,
+              "y": -41
+            }
+          }
+        }
+      },
+      "output": {},
+      "metadata": {
+        "position": {
+          "x": -228,
+          "y": 149
+        },
+        "component": {
+          "width": 246.2730712890625,
+          "height": 329.615966796875
+        }
+      }
+    },
+    "row": {
+      "id": "ad5a2fcc-fdee-11ea-a34f-77e9c48dbe57",
+      "input": {
+        "style": {
+          "metadata": {
+            "position": {
+              "x": -385,
+              "y": -406
+            }
+          }
+        }
+      },
+      "output": {},
+      "metadata": {
+        "position": {
+          "x": 21,
+          "y": -298
+        },
+        "component": {
+          "width": 376.8758239746094,
+          "height": 223.14797973632812
+        }
+      }
+    }
+  },
+  "merges": {
+    "0": {
+      "editor": {
+        "input": {
+          "frame": true
+        }
+      },
+      "box": {
+        "output": {
+          "_self": true
+        }
+      }
+    }
+  },
+  "metadata": {
+    "icon": "atom-alt",
+    "description": "editor with a box frame, side by side",
+    "tags": ["platform", "core", "graph"]
+  },
+  "component": {
+    "slots": [
+      ["editor", "default"],
+      ["box", "default"]
+    ],
+    "children": ["row"],
+    "subComponents": {
+      "editor": {
+        "children": []
+      },
+      "box": {
+        "children": []
+      },
+      "row": {
+        "children": ["editor", "box"]
+      }
+    },
+    "defaultWidth": 420,
+    "defaultHeight": 300
+  },
+  "id": "470428a2-b4b4-4866-a1e9-2f130772cd3b",
+  "type": "`U`&`G`",
+  "render": true
+}

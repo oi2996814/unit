@@ -1,24 +1,17 @@
-import { $_ } from '../interface/$_'
 import { Pin, PinEvent } from '../Pin'
+import { stringify } from '../spec/stringify'
 import { GlobalRefSpec } from '../types/GlobalRefSpec'
+import { $_ } from '../types/interface/$_'
 import { Moment } from './Moment'
 import { PinType } from './PinType'
 
 export interface RefPinMomentData {
   pinId: string
   type: string
-  data: GlobalRefSpec
+  data: GlobalRefSpec | string
 }
 
 export interface RefPinMoment extends Moment<RefPinMomentData> {}
-
-export function specGlobalRef(_data: $_): GlobalRefSpec {
-  const __global_id = _data.getGlobalId()
-  const __ = _data.getInterface()
-
-  const data = { __global_id, __ }
-  return data
-}
 
 export function watchRefPinEvent(
   event: PinEvent,
@@ -29,22 +22,18 @@ export function watchRefPinEvent(
   callback: (moment: RefPinMoment) => void
 ): () => void {
   // console.log(event, type, pin)
+
   const listener = (_data: $_) => {
-    const data = specGlobalRef(_data)
+    const data = stringify(_data, true)
+
     callback({
       type,
       event,
       data: { type: pinType, pinId, data },
     })
   }
-  pin.prependListener(event, listener)
 
-  if (event === 'data') {
-    if (pin.active()) {
-      const _data = pin.peak()
-      listener(_data)
-    }
-  }
+  pin.prependListener(event, listener)
 
   return () => {
     pin.removeListener(event, listener)

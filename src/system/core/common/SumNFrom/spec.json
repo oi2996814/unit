@@ -26,7 +26,7 @@
     }
   },
   "merges": {
-    "mxhdfwqki": {
+    "0": {
       "loop2": {
         "output": {
           "localb": true
@@ -38,7 +38,7 @@
         }
       }
     },
-    "xaycilon": {
+    "1": {
       "loop2": {
         "input": {
           "test": true
@@ -50,7 +50,7 @@
         }
       }
     },
-    "ilurxqxf": {
+    "2": {
       "loop2": {
         "output": {
           "currentb": true
@@ -62,7 +62,7 @@
         }
       }
     },
-    "yncygfort": {
+    "3": {
       "loop2": {
         "input": {
           "next b": true
@@ -74,7 +74,7 @@
         }
       }
     },
-    "msleufqc": {
+    "4": {
       "loop2": {
         "input": {
           "next a": true
@@ -86,7 +86,7 @@
         }
       }
     },
-    "xlqymzvp": {
+    "5": {
       "loop2": {
         "output": {
           "currenta": true
@@ -100,55 +100,48 @@
     }
   },
   "metadata": {
-    "icon": null,
-    "description": "no description",
-    "complexity": 6,
-    "tags": [
-      "core",
-      "common"
-    ]
+    "icon": "plus",
+    "description": "add `n` next numbers to `from`",
+    "tags": ["core", "common"]
   },
   "inputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "add",
           "pinId": "a"
         }
-      },
-      "type": "number"
+      }
     },
     "n": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "loop2",
           "pinId": "initb"
         }
       },
-      "type": "any"
+      "functional": true
     },
     "from": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "loop2",
           "pinId": "inita"
         }
       },
-      "type": "any"
+      "functional": true
     }
   },
   "outputs": {
     "sum": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "loop2",
           "pinId": "finala"
         }
-      },
-      "type": "any"
+      }
     }
   },
   "id": "57e0cf37-1bf7-449e-91fd-f1ddf62c607d",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

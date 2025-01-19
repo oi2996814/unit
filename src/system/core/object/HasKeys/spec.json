@@ -102,45 +102,37 @@
   },
   "inputs": {
     "keys": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "reduce",
           "pinId": "a"
         }
-      },
-      "type": "(number|string)[]"
+      }
     },
     "obj": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "looprepeat",
           "pinId": "init"
         }
-      },
-      "type": "object"
+      }
     }
   },
   "outputs": {
     "has": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "reduce",
           "pinId": "result"
         }
-      },
-      "type": "boolean"
+      }
     }
   },
   "metadata": {
     "icon": "brackets-curly",
-    "description": "does `obj` have all `keys`?",
-    "complexity": 6,
-    "tags": [
-      "core",
-      "object"
-    ]
+    "description": "check whether `obj` has all `keys`",
+    "tags": ["core", "object"]
   },
   "id": "5db358ae-5975-4a4f-8fa4-ec991624508a",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

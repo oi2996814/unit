@@ -2,24 +2,22 @@
   "name": "random class",
   "inputs": {
     "any": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "randomspecid",
           "pinId": "any"
         }
-      },
-      "type": "any"
+      }
     }
   },
   "outputs": {
     "class": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "idtoclass",
-          "pinId": "Class"
+          "pinId": "class"
         }
-      },
-      "type": "`U`"
+      }
     }
   },
   "units": {
@@ -44,7 +42,7 @@
         "id": {}
       },
       "output": {
-        "Class": {}
+        "class": {}
       },
       "metadata": {
         "position": {
@@ -69,15 +67,10 @@
     }
   },
   "metadata": {
-    "icon": null,
-    "description": "",
-    "complexity": 21.19795044752886,
-    "tags": [
-      "core",
-      "meta"
-    ]
+    "icon": "shapes",
+    "description": "random unit class",
+    "tags": ["core", "meta"]
   },
   "id": "96c788b0-9bc1-11eb-931a-7312c12cb4c3",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

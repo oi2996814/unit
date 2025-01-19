@@ -1,5 +1,7 @@
-import { Element } from '../../../../../Class/Element/Element'
-import { Style } from '../../../Props'
+import { Element_ } from '../../../../../Class/Element'
+import { System } from '../../../../../system'
+import { ID_RECT } from '../../../../_ids'
+import { Style } from '../../../Style'
 
 export interface I {
   style: Style
@@ -7,15 +9,21 @@ export interface I {
   y: number
   width: number
   height: number
+  attr: object
 }
 
 export interface O {}
 
-export default class SVGRect extends Element<I, O> {
-  constructor() {
-    super({
-      i: ['style', 'x', 'y', 'width', 'height'],
-      o: [],
-    })
+export default class SVGRect extends Element_<I, O> {
+  constructor(system: System) {
+    super(
+      {
+        i: ['style', 'x', 'y', 'width', 'height', 'attr'],
+        o: [],
+      },
+      {},
+      system,
+      ID_RECT
+    )
   }
 }

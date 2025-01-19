@@ -1,38 +1,38 @@
 {
   "name": "triplet",
   "units": {
-    "giqoqhe": {
+    "single": {
       "id": "d2f8bb43-af44-4371-a32e-20b760695e13"
     },
-    "rjybbinj": {
+    "pair": {
       "id": "a7d5c2f3-6134-4248-b9bc-33271c280267"
     },
-    "rhwfop": {
+    "concat": {
       "id": "f57f5318-f26f-4b9f-b9e2-dcc022ad7728"
     }
   },
   "merges": {
-    "gsreknt": {
-      "rhwfop": {
+    "0": {
+      "concat": {
         "input": {
           "b": true
         }
       },
-      "giqoqhe": {
+      "single": {
         "output": {
           "[a]": true
         }
       }
     },
-    "eauak": {
-      "rhwfop": {
+    "1": {
+      "concat": {
         "input": {
           "a": true
         }
       },
-      "rjybbinj": {
+      "pair": {
         "output": {
-          "hbsxpnl": true
+          "pair": true
         }
       }
     }
@@ -40,53 +40,44 @@
   "metadata": {
     "icon": "brackets",
     "description": "build array with elements `0` and `1` and `2`",
-    "complexity": 9,
-    "tags": [
-      "core",
-      "array"
-    ]
+    "tags": ["core", "array"]
   },
   "inputs": {
-    "tfqgrevuj": {
-      "pin": {
+    "0": {
+      "plug": {
         "0": {
-          "unitId": "giqoqhe",
-          "pinId": "a"
-        }
-      },
-      "type": "<A>"
-    },
-    "hbqzi": {
-      "pin": {
-        "0": {
-          "unitId": "rjybbinj",
-          "pinId": "1"
-        }
-      },
-      "type": "<A>"
-    },
-    "aegky": {
-      "pin": {
-        "0": {
-          "unitId": "rjybbinj",
+          "unitId": "pair",
           "pinId": "0"
         }
-      },
-      "type": "<A>"
+      }
+    },
+    "1": {
+      "plug": {
+        "0": {
+          "unitId": "pair",
+          "pinId": "1"
+        }
+      }
+    },
+    "2": {
+      "plug": {
+        "0": {
+          "unitId": "single",
+          "pinId": "a"
+        }
+      }
     }
   },
   "outputs": {
-    "gylhlifcp": {
-      "pin": {
+    "a": {
+      "plug": {
         "0": {
-          "unitId": "rhwfop",
+          "unitId": "concat",
           "pinId": "ab"
         }
-      },
-      "type": "<A>[]"
+      }
     }
   },
   "id": "91536c82-8e5f-4542-8138-a1a4eb2e5f4d",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

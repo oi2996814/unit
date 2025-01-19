@@ -1,5 +1,7 @@
 import { Functional } from '../../../../Class/Functional'
 import { Done } from '../../../../Class/Functional/Done'
+import { System } from '../../../../system'
+import { ID_SUBTRACT } from '../../../_ids'
 import subtract from './f'
 
 export interface I {
@@ -12,11 +14,16 @@ export interface O {
 }
 
 export default class Subtract extends Functional<I, O> {
-  constructor() {
-    super({
-      i: ['a', 'b'],
-      o: ['a - b'],
-    })
+  constructor(system: System) {
+    super(
+      {
+        i: ['a', 'b'],
+        o: ['a - b'],
+      },
+      {},
+      system,
+      ID_SUBTRACT
+    )
   }
 
   f(i: I, done: Done<O>): void {

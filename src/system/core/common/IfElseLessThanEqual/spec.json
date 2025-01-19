@@ -76,54 +76,45 @@
   },
   "inputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "mergeId": "1"
         }
       },
-      "functional": true,
-      "type": "number"
+      "functional": true
     },
     "b": {
-      "pin": {
+      "plug": {
         "0": {
           "mergeId": "0"
         }
       },
-      "functional": true,
-      "type": "number"
+      "functional": true
     }
   },
   "outputs": {
     "a ≤ b ? a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "if1",
           "pinId": "a if b"
         }
-      },
-      "type": "number"
+      }
     },
     "a > b ? a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "if0",
           "pinId": "a if b"
         }
-      },
-      "type": "number"
+      }
     }
   },
   "metadata": {
     "icon": "filter",
     "description": "forward `a` depending on `a ≤ b`",
-    "complexity": 6,
-    "tags": [
-      "core",
-      "common"
-    ]
+    "tags": ["core", "common"]
   },
   "id": "62de5773-43bc-416c-b604-8fb529d7b299",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

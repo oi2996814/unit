@@ -22,7 +22,7 @@
     }
   },
   "merges": {
-    "orbnh": {
+    "0": {
       "foreach": {
         "output": {
           "test": true
@@ -37,82 +37,70 @@
   },
   "inputs": {
     "a": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "foreach",
           "pinId": "a"
         }
       },
-      "type": "<A>[]"
+      "functional": true
     },
     "next": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "loop",
           "pinId": "next"
         }
-      },
-      "type": "<B>"
+      }
     },
     "init": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "loop",
           "pinId": "init"
         }
       },
-      "type": "<B>"
+      "functional": true
     }
   },
   "outputs": {
     "a[i]": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "foreach",
           "pinId": "a[i]"
         }
-      },
-      "type": "<A>"
+      }
     },
     "test": {
-      "pin": {
+      "plug": {
         "0": {
-          "mergeId": "orbnh"
+          "mergeId": "0"
         }
-      },
-      "type": "boolean"
+      }
     },
     "result": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "loop",
           "pinId": "final"
         }
-      },
-      "type": "<B>"
+      }
     },
     "local": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "loop",
           "pinId": "current"
         }
-      },
-      "type": "<B>"
+      }
     }
   },
   "metadata": {
     "icon": "brackets",
-    "description": "no description",
-    "complexity": 4,
-    "tags": [
-      "core",
-      "array"
-    ]
+    "description": "accumulatively iterate over array `a` to produce `result`",
+    "tags": ["core", "array"]
   },
   "id": "5cd76a8a-603b-49e1-bda3-09ad217eb108",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

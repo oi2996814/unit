@@ -1,8 +1,8 @@
-import { isColorName, isHEX, nameToColor } from '../../../../../client/color'
+import { isColorName, isHex, nameToColor } from '../../../../../client/color'
 import { Element } from '../../../../../client/element'
 import { makePointerEnterListener } from '../../../../../client/event/pointer/pointerenter'
 import { makePointerLeaveListener } from '../../../../../client/event/pointer/pointerleave'
-import parentElement from '../../../../../client/parentElement'
+import { parentElement } from '../../../../../client/platform/web/parentElement'
 import { applyTheme } from '../../../../../client/theme'
 import { System } from '../../../../../system'
 import { Dict } from '../../../../../types/Dict'
@@ -48,7 +48,7 @@ export default class IconButton extends Element<HTMLDivElement, Props> {
       color = nameToColor(color)
     }
 
-    const hex = isHEX(color)
+    const hex = isHex(color)
 
     const {
       disabledColor = hex ? applyTheme($theme, color, 75) : 'currentColor',
@@ -92,14 +92,18 @@ export default class IconButton extends Element<HTMLDivElement, Props> {
 
     this._icon_comp = icon_comp
 
-    const $element = parentElement()
+    const $element = parentElement($system)
 
     this.$element = $element
+    // @ts-ignore
+    this.$node = icon_comp.$node
     this.$slot = { default: icon_comp }
-    this.$subComponent = {
-      icon_comp,
-    }
     this.$unbundled = false
+    this.$primitive = true
+
+    this.setSubComponents({
+      icon_comp,
+    })
 
     this.registerRoot(icon_comp)
   }

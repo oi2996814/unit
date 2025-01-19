@@ -2,8 +2,8 @@ import * as assert from 'assert'
 import { Graph } from '../../../Class/Graph'
 import { watchGraphAndLog, watchUnitAndLog } from '../../../debug'
 import { fromSpec } from '../../../spec/fromSpec'
-import _specs from '../../../system/_specs'
-import { GraphSpec } from '../../../types'
+import { GraphSpec } from '../../../types/GraphSpec'
+import { system } from '../../util/system'
 
 const spec = {
   id: '9fa54f98-5dca-11ea-92d5-7f5b0bc9cda0',
@@ -55,27 +55,25 @@ const spec = {
   inputs: {
     any: {
       name: 'any',
-      pin: { 0: { unitId: 'wait', pinId: 'b' } },
+      plug: { 0: { unitId: 'wait', pinId: 'b' } },
       functional: true,
     },
   },
   outputs: {
     hex: {
       name: 'hex',
-      pin: { 0: { unitId: 'nstringbuilderfrom', pinId: 'str' } },
+      plug: { 0: { unitId: 'nstringbuilderfrom', pinId: 'str' } },
     },
   },
 } as GraphSpec
 
-const RandomHEXColor = fromSpec(spec, _specs)
-
-import { system } from '../../util/system'
+const RandomHEXColor = fromSpec(spec, system.specs)
 
 const randomHEXColor = new RandomHEXColor(system)
 
 false && watchUnitAndLog(randomHEXColor)
 false && watchGraphAndLog(randomHEXColor)
-false && watchGraphAndLog(randomHEXColor.refUnit('nstringbuilderfrom') as Graph)
+false && watchGraphAndLog(randomHEXColor.getUnit('nstringbuilderfrom') as Graph)
 
 randomHEXColor.play()
 

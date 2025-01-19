@@ -1,8 +1,9 @@
 import * as assert from 'assert'
 import { extractSubSpec, GraphSpecSelection } from '../../spec/extract'
+import { ID_IDENTITY } from '../../system/_ids'
 import _specs from '../../system/_specs'
-import { GraphSpec, Specs } from '../../types'
-import { ID_IDENTITY } from './id'
+import { Specs } from '../../types'
+import { GraphSpec } from '../../types/GraphSpec'
 
 const NEW_UNIT_ID = 'new'
 const NEW_UNIT_SPEC_ID = 'bcf31149-1b3a-49dc-b8f9-aad51fdeb9eb'
@@ -14,7 +15,13 @@ function test(
   parentSpec: GraphSpec,
   newSpec: GraphSpec
 ) {
-  const actual = extractSubSpec(specs, spec, selection, NEW_UNIT_ID, NEW_UNIT_SPEC_ID)
+  const actual = extractSubSpec(
+    specs,
+    spec,
+    selection,
+    NEW_UNIT_ID,
+    NEW_UNIT_SPEC_ID
+  )
   const expected = [parentSpec, newSpec]
   assert.deepEqual(actual, expected, JSON.stringify(actual, null, 2))
 }
@@ -47,8 +54,10 @@ test(
   },
   {
     units: ['identity', 'identity0'],
-    unitInputs: { identity: ['a'] },
-    unitOutputs: { identity0: ['a'] },
+    links: {
+      input: { identity: ['a'] },
+      output: { identity0: ['a'] },
+    },
     merges: ['0'],
   },
   {
@@ -98,8 +107,10 @@ test(
   },
   {
     units: ['identity', 'identity0'],
-    unitInputs: { identity: ['a'], identity0: ['a'] },
-    unitOutputs: { identity: ['a'], identity0: ['a'] },
+    links: {
+      input: { identity: ['a'], identity0: ['a'] },
+      output: { identity: ['a'], identity0: ['a'] },
+    },
   },
   {
     units: {
@@ -182,7 +193,7 @@ test(
     },
     inputs: {
       a: {
-        pin: {
+        plug: {
           0: {
             unitId: 'identity',
             pinId: 'a',
@@ -192,7 +203,7 @@ test(
     },
     outputs: {
       a: {
-        pin: {
+        plug: {
           0: {
             unitId: 'identity0',
             pinId: 'a',
@@ -244,8 +255,6 @@ test(
           output: {
             a: true,
           },
-        },
-        [NEW_UNIT_ID]: {
           input: {
             a0: true,
           },
@@ -264,7 +273,7 @@ test(
     },
     inputs: {
       a: {
-        pin: {
+        plug: {
           0: {
             unitId: 'identity',
             pinId: 'a',
@@ -272,7 +281,7 @@ test(
         },
       },
       a0: {
-        pin: {
+        plug: {
           0: {
             unitId: 'identity0',
             pinId: 'a',
@@ -282,7 +291,7 @@ test(
     },
     outputs: {
       a: {
-        pin: {
+        plug: {
           0: {
             unitId: 'identity',
             pinId: 'a',
@@ -290,7 +299,7 @@ test(
         },
       },
       a0: {
-        pin: {
+        plug: {
           0: {
             unitId: 'identity0',
             pinId: 'a',
@@ -362,7 +371,7 @@ test(
     },
     inputs: {
       a: {
-        pin: {
+        plug: {
           0: {
             unitId: 'identity',
             pinId: 'a',
@@ -372,7 +381,7 @@ test(
     },
     outputs: {
       a: {
-        pin: {
+        plug: {
           0: {
             unitId: 'identity',
             pinId: 'a',
@@ -411,8 +420,10 @@ test(
   },
   {
     units: ['identity'],
-    unitInputs: {
-      identity: ['a'],
+    links: {
+      input: {
+        identity: ['a'],
+      },
     },
   },
   {
@@ -447,7 +458,7 @@ test(
     },
     outputs: {
       a: {
-        pin: {
+        plug: {
           0: {
             unitId: 'identity',
             pinId: 'a',
@@ -520,7 +531,7 @@ test(
     },
     inputs: {
       a: {
-        pin: {
+        plug: {
           0: {
             unitId: 'identity',
             pinId: 'a',
@@ -530,7 +541,7 @@ test(
     },
     outputs: {
       a: {
-        pin: {
+        plug: {
           0: {
             unitId: 'identity',
             pinId: 'a',

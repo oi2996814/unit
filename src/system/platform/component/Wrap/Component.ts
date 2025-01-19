@@ -1,38 +1,36 @@
 import { Component } from '../../../../client/component'
-import { component_ } from '../../../../client/component_'
 import { componentClassFromSpecId } from '../../../../client/componentClassFromSpecId'
 import { parentClass } from '../../../../client/createParent'
-import { Element } from '../../../../client/element'
-import parentElement from '../../../../client/parentElement'
-import { $Wrap } from '../../../../interface/async/$Wrap'
+import HTMLElement_ from '../../../../client/html'
+import { getComponentInterface } from '../../../../client/interface'
+import { parentElement } from '../../../../client/platform/web/parentElement'
 import { ComponentClass, System } from '../../../../system'
-import { Dict } from '../../../../types/Dict'
-import { UnitClass } from '../../../../types/UnitClass'
+import { UnitBundleSpec } from '../../../../types/UnitBundleSpec'
 import { insert, push, removeAt, unshift } from '../../../../util/array'
 
 export interface Props {
-  className?: string
-  style?: Dict<string>
-  component?: UnitClass
+  component?: UnitBundleSpec
 }
 
 export const DEFAULT_STYLE = {}
 
-export default class Wrap extends Element<HTMLDivElement, Props, $Wrap> {
-  $_ = ['$W']
+export default class Wrap extends HTMLElement_<HTMLDivElement, Props> {
+  $_ = ['WP']
 
-  private _Component: ComponentClass = parentClass()
+  private _Container: ComponentClass = parentClass()
 
   private _child_container: Component[] = []
   private _parent_container: Component[] = []
   private _parent_child_container: Component[] = []
 
   constructor(props: {}, $system: System) {
-    super(props, $system)
+    super(props, $system, parentElement($system), DEFAULT_STYLE, {}, {})
 
-    const $element = parentElement()
+    this.$element.className = 'wrap'
 
-    this.$element = $element
+    this.$slot = {
+      default: this,
+    }
   }
 
   private _rewrap = (): void => {
@@ -57,13 +55,13 @@ export default class Wrap extends Element<HTMLDivElement, Props, $Wrap> {
     container.disconnect()
 
     const child = this.$parentRoot[at]
-    const childSlot = this.$parentRootSlot[at]
+    const childSlot = this.$parentRootSlotName[at]
 
     const new_container = this._connected_parent_root_container(at)
     this._parent_child_container[at] = new_container
 
-    super.domRemoveParentChildAt(container, at, _at)
-    super.memRemoveParentChildAt(container, at, _at)
+    super.domRemoveParentChildAt(container, childSlot, at, _at)
+    super.memRemoveParentChildAt(container, childSlot, at, _at)
 
     container.removeChild(child)
 
@@ -79,14 +77,14 @@ export default class Wrap extends Element<HTMLDivElement, Props, $Wrap> {
     container.disconnect()
 
     const child = this.$parentRoot[at]
-    const childSlot = this.$parentRootSlot[at]
+    const childSlot = this.$parentRootSlotName[at]
 
     const new_container = this._connected_parent_root_container(at)
     this._parent_container[at] = new_container
 
     if (this.$mountParentRoot.includes(child)) {
-      super.domRemoveParentRootAt(container, at)
-      super.postRemoveParentRootAt(container, at)
+      super.domRemoveParentRootAt(container, childSlot, at, at)
+      super.postRemoveParentRootAt(container, childSlot, at, at)
 
       container.removeChild(child)
 
@@ -103,7 +101,7 @@ export default class Wrap extends Element<HTMLDivElement, Props, $Wrap> {
     container.disconnect()
 
     const child = this.$children[at]
-    const childSlot = this.$childrenSlot[at]
+    const childSlot = this.$childSlotName[at]
 
     super.domRemoveChild(container, childSlot, at)
     super.postRemoveChild(container, at)
@@ -117,13 +115,13 @@ export default class Wrap extends Element<HTMLDivElement, Props, $Wrap> {
     this._child_container[at] = new_container
 
     super.domAppendChild(new_container, childSlot, at)
-    super.postAppendChild(new_container, at)
+    super.postAppendChild(new_container, childSlot, at)
   }
 
   private _connected_container = (at: number, method: string): Component => {
-    const container = new this._Component({}, this.$system)
+    const container = new this._Container({}, this.$system)
 
-    const _ = component_(container)
+    const _ = getComponentInterface(container)
 
     const containerUnit = this.$unit[`${method}`]({ at, _ })
 
@@ -133,7 +131,7 @@ export default class Wrap extends Element<HTMLDivElement, Props, $Wrap> {
   }
 
   private _connected_child_container(at: number): Component {
-    return this._connected_container(at, '$refParentChildContainer')
+    return this._connected_container(at, '$refChildContainer')
   }
 
   private _connected_parent_root_container(at: number): Component {
@@ -144,7 +142,17 @@ export default class Wrap extends Element<HTMLDivElement, Props, $Wrap> {
     return this._connected_container(at, '$refParentChildContainer')
   }
 
-  protected memAppendParentChild(
+  public memAppendChild(child: Component, slotName: string, at: number): void {
+    const container = this._connected_child_container(at)
+
+    this._child_container.push(container)
+
+    container.memAppendChild(child, 'default', at)
+
+    super.memAppendChild(child, slotName, at)
+  }
+
+  public memAppendParentChild(
     component: Component,
     slotName: string,
     at: number,
@@ -164,13 +172,14 @@ export default class Wrap extends Element<HTMLDivElement, Props, $Wrap> {
 
     push(this._parent_child_container, container)
 
+    container.memAppendChild(component, 'default', at)
+
     super.memAppendParentChild(component, slotName, at, _at)
   }
 
-  protected domAppendParentChildAt(
+  public domAppendParentChildAt(
     component: Component,
     slotName: string,
-    at: number,
     _at: number
   ): void {
     // console.log(
@@ -185,17 +194,14 @@ export default class Wrap extends Element<HTMLDivElement, Props, $Wrap> {
 
     const container = this._parent_child_container[_at]
 
-    container.appendChild(component)
+    container.domAppendChild(component, 'default', _at)
 
-    super.domAppendParentChildAt(container, slotName, at, _at)
-
-    container.mount(this.$context)
+    super.domAppendParentChildAt(container, slotName, _at, _at)
   }
 
-  protected memInsertParentChildAt(
+  public memInsertParentChildAt(
     component: Component,
     slotName: string,
-    at: number,
     _at: number
   ): void {
     // console.log(
@@ -204,21 +210,21 @@ export default class Wrap extends Element<HTMLDivElement, Props, $Wrap> {
     //   component.constructor.name,
     //   component.$globalId,
     //   slotName,
-    //   at,
     //   _at
     // )
 
-    const container = this._connected_parent_child_container(at)
+    const container = this._connected_parent_child_container(_at)
 
     insert(this._parent_child_container, container, _at)
 
-    super.memInsertParentChildAt(component, slotName, at, _at)
+    container.memAppendChild(component, 'default', _at)
+
+    super.memInsertParentChildAt(component, slotName, _at)
   }
 
-  protected domInsertParentChildAt(
+  public domInsertParentChildAt(
     component: Component,
     slotName: string,
-    at: number,
     _at: number
   ): void {
     // console.log(
@@ -233,15 +239,14 @@ export default class Wrap extends Element<HTMLDivElement, Props, $Wrap> {
 
     const container = this._parent_child_container[_at]
 
-    container.appendChild(component)
+    container.domInsertParentChildAt(component, 'default', _at)
 
-    super.domInsertParentChildAt(container, slotName, at, _at)
-
-    container.mount(this.$context)
+    super.domInsertParentChildAt(container, slotName, _at)
   }
 
-  protected memRemoveParentChildAt(
+  public memRemoveParentChildAt(
     component: Component,
+    slotName: string,
     at: number,
     _at: number
   ): void {
@@ -256,11 +261,12 @@ export default class Wrap extends Element<HTMLDivElement, Props, $Wrap> {
 
     this._parent_child_container.splice(_at, 1)
 
-    super.memRemoveParentChildAt(component, at, _at)
+    super.memRemoveParentChildAt(component, slotName, at, _at)
   }
 
-  protected domRemoveParentChildAt(
+  public domRemoveParentChildAt(
     component: Component,
+    slotName: string,
     at: number,
     _at: number
   ): void {
@@ -275,53 +281,51 @@ export default class Wrap extends Element<HTMLDivElement, Props, $Wrap> {
 
     const container = this._parent_child_container[_at]
 
-    container.removeChild(component)
+    container.domRemoveChild(component, 'default', at)
 
-    super.domRemoveParentChildAt(container, at, _at)
-
-    container.unmount()
+    super.domRemoveParentChildAt(container, slotName, at, _at)
   }
 
-  protected domAppendChild(child: Component, slotName: string, at: number) {
-    const container = this._connected_child_container(at)
+  public domAppendChild(child: Component, slotName: string, at: number) {
+    const container = this._child_container[at]
 
-    this._child_container.push(container)
-
-    container.appendChild(child)
+    container.domAppendChild(child, 'default', at)
 
     super.domAppendChild(container, slotName, at)
   }
 
-  protected postAppendChild(child: Component, at: number): void {
+  public postAppendChild(child: Component, slotName: string, at: number): void {
     const container = this._child_container[at]
 
-    super.postAppendChild(container, at)
+    child.$parent = this
+
+    container.mount(this.$context)
   }
 
-  protected domRemoveChild(child: Component, slotName: string, at: number) {
+  public postAppendParentChild(
+    child: Component,
+    slotName: string,
+    at: number
+  ): void {
+    const container = this._parent_child_container[at]
+
+    container.mount(this.$context)
+  }
+
+  public domRemoveChild(child: Component, slotName: string, at: number) {
     const container = this._child_container[at]
 
-    container.removeChild(child)
+    container.domRemoveChild(child, 'default', at)
 
     super.domRemoveChild(container, slotName, at)
   }
 
-  protected postRemoveChild(child: Component, at: number): void {
+  public postRemoveChild(child: Component, at: number): void {
     const container = this._child_container[at]
 
-    super.postRemoveChild(container, at)
-  }
+    container.unmount()
 
-  public pushParentRoot(component: Component, slotName: string): void {
-    // console.log('Graph', 'pushParentRoot', component, slotName)
-
-    const at = this.$parentRoot.length
-
-    const container = this._connected_parent_root_container(at)
-
-    this._parent_container.push(container)
-
-    super.pushParentRoot(component, slotName)
+    super.postRemoveChild(child, at)
   }
 
   public insertParentRoot(
@@ -358,7 +362,21 @@ export default class Wrap extends Element<HTMLDivElement, Props, $Wrap> {
     super.pullParentRoot(component)
   }
 
-  protected domAppendParentRoot(
+  public memAppendParentRoot(
+    component: Component,
+    slotName: string,
+    at: number
+  ): void {
+    const container = this._connected_parent_root_container(at)
+
+    this._parent_container.push(container)
+
+    container.memAppendChild(component, 'default', at)
+
+    super.memAppendParentRoot(component, slotName, at)
+  }
+
+  public domAppendParentRoot(
     component: Component,
     slotName: string,
     at: number
@@ -372,7 +390,7 @@ export default class Wrap extends Element<HTMLDivElement, Props, $Wrap> {
     super.domAppendParentRoot(container, slotName, at)
   }
 
-  protected postAppendParentRoot(
+  public postAppendParentRoot(
     component: Component,
     slotName: string,
     at: number
@@ -384,37 +402,45 @@ export default class Wrap extends Element<HTMLDivElement, Props, $Wrap> {
     super.postAppendParentRoot(container, slotName, at)
   }
 
-  protected domRemoveParentRootAt(component: Component, at: number): void {
+  public domRemoveParentRootAt(
+    component: Component,
+    slotName: string,
+    at: number,
+    _at: number
+  ): void {
     // console.log('Wrap', 'domRemoveParentRootAt', component, at)
 
-    const container = this._parent_container[at]
+    const container = this._parent_container[_at]
 
-    container.removeChild(component)
+    container.domRemoveChild(component, 'default', at)
 
-    super.domRemoveParentRootAt(container, at)
+    super.domRemoveParentRootAt(container, slotName, at, _at)
   }
 
-  protected postRemoveParentRootAt(component: Component, at: number): void {
+  public postRemoveParentRootAt(
+    component: Component,
+    slotName: string,
+    at: number,
+    _at: number
+  ): void {
     // console.log('Wrap', 'postRemoveParentRootAt', component, at)
 
-    const container = this._parent_container[at]
-
-    super.postRemoveParentRootAt(container, at)
+    super.postRemoveParentRootAt(component, slotName, at, _at)
   }
 
-  protected domInsertParentRootAt(
+  public domInsertParentRootAt(
     component: Component,
     at: number,
     slotName: string
   ): void {
     const container = this._parent_container[at]
 
-    container.appendChild(component)
+    container.domAppendChild(component, 'default', at)
 
     super.domInsertParentRootAt(container, at, slotName)
   }
 
-  protected postInsertParentRootAt(
+  public postInsertParentRootAt(
     component: Component,
     at: number,
     slotName: string
@@ -424,27 +450,46 @@ export default class Wrap extends Element<HTMLDivElement, Props, $Wrap> {
     super.postInsertParentRootAt(container, at, slotName)
   }
 
-  onPropChanged(name: string, current: any): void {
+  public onPropChanged(name: string, current: any): void {
     if (name === 'component') {
       let componentClass: ComponentClass
 
       if (current) {
-        const unitClass = current as UnitClass
+        const Class = current
 
-        const { __id } = unitClass
+        const { __bundle } = Class
 
-        componentClass = componentClassFromSpecId(this.$system, __id)
+        const { id, input } = __bundle.unit
+
+        componentClass = componentClassFromSpecId(
+          this.$system.components,
+          this.$system.specs,
+          id,
+          input
+        )
       } else {
         componentClass = parentClass()
       }
 
-      this._Component = componentClass
+      this._Container = componentClass
 
       this._rewrap()
-    } else if (name === 'style') {
-      //
-    } else if (name === 'className') {
-      //
     }
+  }
+
+  public getContainer(): ComponentClass {
+    return this._Container
+  }
+
+  public getChildContainer(at: number): Component {
+    return this._child_container[at]
+  }
+
+  public getParentChildContainer(at: number): Component {
+    return this._parent_child_container[at]
+  }
+
+  public getParentRootContainer(at: number): Component {
+    return this._parent_container[at]
   }
 }

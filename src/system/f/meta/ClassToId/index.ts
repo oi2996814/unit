@@ -1,9 +1,11 @@
 import { Functional } from '../../../../Class/Functional'
 import { Done } from '../../../../Class/Functional/Done'
-import { UnitClass } from '../../../../types/UnitClass'
+import { System } from '../../../../system'
+import { UnitBundle } from '../../../../types/UnitBundle'
+import { ID_CLASS_TO_ID } from '../../../_ids'
 
 export interface I<T> {
-  Class: UnitClass<any>
+  class: UnitBundle<any>
 }
 
 export interface O<T> {
@@ -11,15 +13,23 @@ export interface O<T> {
 }
 
 export default class ClassToId<T> extends Functional<I<T>, O<T>> {
-  constructor() {
-    super({
-      i: ['Class'],
-      o: ['id'],
-    })
+  constructor(system: System) {
+    super(
+      {
+        i: ['class'],
+        o: ['id'],
+      },
+      {},
+      system,
+      ID_CLASS_TO_ID
+    )
   }
 
-  f({ Class }: I<T>, done: Done<O<T>>): void {
-    const id = Class.__id
+  f({ class: Class }: I<T>, done: Done<O<T>>): void {
+    const { __bundle } = Class
+
+    const { id } = __bundle.unit
+
     done({ id })
   }
 }

@@ -34,7 +34,7 @@
         }
       }
     },
-    "jqmhcjrub": {
+    "1": {
       "loop": {
         "output": {
           "current": true
@@ -50,71 +50,60 @@
   "metadata": {
     "icon": "undo",
     "description": "loop adding the value of `+` to the current value",
-    "complexity": 4,
-    "tags": [
-      "core",
-      "common"
-    ]
+    "tags": ["core", "common"]
   },
   "inputs": {
     "init": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "loop",
           "pinId": "init"
         }
-      },
-      "type": "number"
+      }
     },
     "test": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "loop",
           "pinId": "test"
         }
-      },
-      "type": "boolean"
+      }
     },
     "plus": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "add",
           "pinId": "b"
         }
-      },
-      "type": "number"
+      }
     }
   },
   "outputs": {
     "local": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "loop",
           "pinId": "local"
         }
-      },
-      "type": "number"
+      }
     },
     "final": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "loop",
           "pinId": "final"
         }
       },
-      "type": "number",
       "defaultIgnored": true
     },
     "current": {
-      "pin": {
+      "plug": {
         "0": {
-          "mergeId": "jqmhcjrub"
+          "mergeId": "1"
         }
-      },
-      "type": "number"
+      }
     }
   },
   "id": "93369291-7ce2-4b4c-a414-870b1f3c9b4c",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

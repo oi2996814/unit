@@ -1,234 +1,63 @@
-import { boot } from '../../../boot'
-import { spawn } from '../../../spawn'
-import { BootOpt, Host, System } from '../../../system'
-import deepMerge from '../../../system/f/object/DeepMerge/f'
-import { BundleSpec } from '../../../system/platform/method/process/BundleSpec'
-import classes from '../../../system/_classes'
-import components from '../../../system/_components'
-import env, { dev, prod } from '../../env'
-import { isConnected, send } from '../../host/socket'
-import init from '../../init'
-import { isPWA } from '../../isPWA'
-import noise from '../../paperBackground'
-import { render } from '../../render'
-import root from '../../root'
-import { showNotification } from '../../showNotification'
-import { RED } from '../../theme'
+import { Graph } from '../../../Class/Graph'
+import { start } from '../../../start'
+import { BootOpt, System } from '../../../system'
+import _classes from '../../../system/_classes'
+import _components from '../../../system/_components'
+import _specs from '../../../system/_specs'
+import { BundleSpec } from '../../../types/BundleSpec'
+import { Unlisten } from '../../../types/Unlisten'
+import { AsyncGraph } from '../../../types/interface/async/AsyncGraph'
+import { callAll } from '../../../util/call/callAll'
+import { weakMerge } from '../../../weakMerge'
+import { render as render_ } from '../../render'
+import { defaultWebBoot, webBoot } from './boot'
+import { webInit } from './init'
 
-export default function web_render(
+export function render(
   bundle: BundleSpec,
-  opt: BootOpt = {}
-): System {
-  console.log('env', env)
+  opt?: BootOpt
+): [System, Graph, Unlisten] {
+  const { spec = {}, specs = {} } = bundle
 
-  const { specs } = bundle
+  bundle.spec = spec
+  bundle.specs = specs
 
-  if (env === 'production') {
-    console.log = function () {}
-  }
-
-  window.addEventListener('error', function (event: ErrorEvent) {
-    const message = event.error || event.message
-
-    if (isConnected()) {
-      send({
-        type: 'client',
-        data: {
-          type: 'log',
-          data: {
-            type: 'error',
-            data: {
-              message,
-            },
-          },
-        },
-      })
-    }
-
-    // AD HOC
-    if (message === 'ResizeObserver loop limit exceeded') {
-      return
-    }
-
-    // log('error', message)
-    showNotification(message, {
-      // showNotification('An exception has ocurred; please refresh.', {
-      color: RED,
-      borderColor: RED,
-    })
-
-    return false
+  const [system, deboot] = defaultWebBoot({
+    specs: weakMerge(specs, _specs),
+    classes: _classes,
+    components: _components,
+    ...opt,
   })
 
-  window.addEventListener('unhandledrejection', function (event) {
-    console.log('unhandledrejection', event)
-    // TODO logging
-  })
+  const graph = start(system, bundle)
 
-  // Vivaldi
+  const $graph = AsyncGraph(graph)
 
-  const TEXT_INPUT_TYPE_SET = new Set([
-    'text',
-    'password',
-    'file',
-    'search',
-    'email',
-    'number',
-    'date',
-    'color',
-    'datetime',
-    'datetime-local',
-    'month',
-    'range',
-    'search',
-    'tel',
-    'time',
-    'url',
-    'week',
-  ])
+  const deinit = webInit(system, window, system.root)
 
-  window.addEventListener(
-    'keydown',
-    (event) => {
-      const { key, target } = event
-      let doPrevent = true
-      if (key === 'Backspace') {
-        if (target instanceof HTMLElement) {
-          const { tagName, isContentEditable } = target
-          if (isContentEditable) {
-            doPrevent = false
-          } else if (tagName === 'TEXTAREA') {
-            doPrevent = false
-          } else if (tagName === 'INPUT') {
-            let { type } = target as HTMLInputElement
-            type = type.toLowerCase()
-            if (TEXT_INPUT_TYPE_SET.has(type)) {
-              doPrevent = false
-            }
-          }
-        }
-        if (doPrevent) {
-          event.preventDefault()
-          return false
-        }
-      }
-    },
-    true
-  )
+  const unrender = render_(system, $graph)
 
-  if (prod && isPWA) {
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        const { pathname } = location
+  const destroy = callAll([deinit, unrender, deboot])
 
-        const swUrl = `${
-          pathname.endsWith('/') ? pathname : `${pathname}/`
-        }sw.js`
+  return [system, graph, destroy]
+}
 
-        navigator.serviceWorker
-          .register(swUrl)
-          .then((registration) => {
-            registration.onupdatefound = () => {
-              const installingWorker = registration.installing
-              if (installingWorker) {
-                installingWorker.onstatechange = () => {
-                  if (installingWorker.state === 'installed') {
-                    if (navigator.serviceWorker.controller) {
-                      !dev &&
-                        showNotification(
-                          'A new update is available; please refresh.',
-                          { color: '#ffcc00', borderColor: '#ffcc00' },
-                          3000
-                        )
-                    } else {
-                      !dev &&
-                        showNotification(
-                          'App is cached for offline use.',
-                          { color: '#ffcc00', borderColor: '#ffcc00' },
-                          3000
-                        )
-                    }
-                  }
-                }
-              } else {
-                console.log('registration.installing worker was not found')
-              }
-            }
-          })
-          .catch((error) => {
-            console.error('Error during service worker registration:', error)
-          })
-      })
-    }
-  }
+export function renderBundle(
+  root: HTMLElement,
+  bundle: BundleSpec,
+  opt?: BootOpt
+): [System, Graph, Unlisten] {
+  // console.log('renderBundle')
 
-  noise(document.body)
+  const [system, unlistenSystem] = webBoot(window, root, opt)
 
-  const tabStorage: Storage = {
-    length: 0,
+  const graph = start(system, bundle)
 
-    clear: function (): void {
-      throw new Error('Function not implemented.')
-    },
+  const $graph = AsyncGraph(graph)
 
-    getItem: function (key: string): string {
-      throw new Error('Function not implemented.')
-    },
+  const unlistenRender = render_(system, $graph)
 
-    key: function (index: number): string {
-      throw new Error('Function not implemented.')
-    },
+  const unlisten = callAll([unlistenRender, unlistenSystem])
 
-    removeItem: function (key: string): void {
-      throw new Error('Function not implemented.')
-    },
-
-    setItem: function (key: string, value: string): void {
-      throw new Error('Function not implemented.')
-    },
-  }
-
-  const cloudStorage: Storage = {
-    length: 0,
-
-    clear: function (): void {
-      throw new Error('Function not implemented.')
-    },
-
-    getItem: function (key: string): string {
-      throw new Error('Function not implemented.')
-    },
-
-    key: function (index: number): string {
-      throw new Error('Function not implemented.')
-    },
-
-    removeItem: function (key: string): void {
-      throw new Error('Function not implemented.')
-    },
-
-    setItem: function (key: string, value: string): void {
-      throw new Error('Function not implemented.')
-    },
-  }
-
-  const host: Host = {
-    tabStorage,
-    localStorage,
-    sessionStorage,
-    cloudStorage,
-    location,
-  }
-
-  const _opt = deepMerge({ specs, classes, components, host }, opt)
-
-  const system = boot(_opt)
-
-  const pod = spawn(system, bundle)
-
-  const unlisten = init(system, root)
-
-  render(system, pod, root)
-
-  return system
+  return [system, graph, unlisten]
 }

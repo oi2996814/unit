@@ -1,96 +1,139 @@
 import { System } from '../../system'
-import { clearCanvas } from '../../system/platform/component/canvas/Canvas/Component'
+import { Unlisten } from '../../types/Unlisten'
+import { namespaceURI } from '../component/namespaceURI'
 import { _addEventListener } from '../event'
-import { IOPointerEvent } from '../event/pointer'
-import { Point } from '../util/geometry'
+import { UnitPointerEvent } from '../event/pointer'
+import { catmullRomSplineSegment } from '../util/geometry'
+import { Point } from '../util/geometry/types'
 
-export function attachGesture($system: System): void {
+function pathFromSpline(stroke: number[][]): string {
+  if (!stroke.length) {
+    return ''
+  }
+
+  let d = `M ${stroke[0][0]} ${stroke[0][1]}`
+
+  for (let i = 1; i < stroke.length; i++) {
+    d = d + ` L ${stroke[i][0]} ${stroke[i][1]}`
+  }
+
+  return d
+}
+
+const STROKE_OPT = {
+  size: 3,
+  smoothing: 0.99,
+  thinning: 0.5,
+  streamline: 0.25,
+  easing: (t) => t,
+  start: {
+    taper: 0,
+    cap: true,
+  },
+  end: {
+    taper: 0,
+    cap: true,
+  },
+}
+
+export function attachGesture(system: System): void {
   // console.log('attachGesture')
-  const {
-    root: $root,
-    foreground: { canvas: $canvas },
-  } = $system
 
-  const context = $canvas.getContext('2d')!
+  const {
+    root,
+    foreground: { svg },
+    api: {
+      document: { createElementNS },
+    },
+  } = system
 
   const captureGesture = (
-    event: IOPointerEvent,
+    event: UnitPointerEvent,
     opt: {
       lineWidth?: number
       strokeStyle?: string
     } = {},
     callback: (event: PointerEvent, track: Point[]) => void
-  ): void => {
-    const { pointerId, screenX, screenY } = event
+  ): Unlisten => {
+    const { pointerId, pageX, pageY } = event
 
-    // AD HOC
+    const path = createElementNS(namespaceURI, 'path')
 
-    // $root.setPointerCapture(pointerId)
+    svg.appendChild(path)
 
-    $system.cache.pointerCapture[pointerId] = $root
+    const { lineWidth = 10, strokeStyle = '#d1d1d1' } = opt
 
-    const { lineWidth = 2, strokeStyle = '#d1d1d1' } = opt
+    const color = strokeStyle
 
-    context.lineWidth = lineWidth
-    context.strokeStyle = strokeStyle
+    path.style.stroke = color
+    path.style.strokeWidth = `${lineWidth}px`
+    path.style.fill = 'none'
+    path.style.strokeLinecap = 'round'
 
-    context.beginPath()
-    context.moveTo(Math.floor(screenX), Math.floor(screenY))
+    let active = true
 
-    const track: Point[] = [{ x: screenX, y: screenY }]
+    const track: Point[] = [{ x: pageX, y: pageY }]
+
+    let d = ''
 
     const pointerMoveListener = (_event: PointerEvent) => {
       // console.log('attachGesture', 'pointerMoveListener')
+
       const { pointerId: _pointerId } = _event
+
       if (_pointerId === pointerId) {
-        const { clientX, clientY } = _event
+        const { pageX, pageY } = _event
 
-        // const last = track[track.length - 1]
-        // const xc = (last.x + clientX) / 2
-        // const yc = (last.y + clientY) / 2
-        // context.quadraticCurveTo(last.x, last.y, xc, yc)
-        context.lineTo(Math.floor(clientX), Math.floor(clientY))
-        context.stroke()
+        track.push({ x: pageX, y: pageY })
 
-        track.push({ x: clientX, y: clientY })
+        if (track.length > 3) {
+          const segment = catmullRomSplineSegment(track.slice(-4))
+
+          d += pathFromSpline(segment)
+        }
+
+        path.setAttribute('d', d)
       }
     }
-    // const pointerUpListener = (_event: CustomEvent<PointerEvent>) => {
+
     const pointerUpListener = (_event: PointerEvent) => {
       // console.log('attachGesture', 'pointerUpListener')
+
       const { pointerId: _pointerId } = _event
+
       if (_pointerId === pointerId) {
-        clearCanvas(context)
-
-        // $root.releasePointerCapture(pointerId)
-        delete $system.cache.pointerCapture[pointerId]
-
-        // $root.removeEventListener('pointermove', pointerMoveListener)
-        // $root.removeEventListener('pointerup', pointerUpListener)
-
-        unlistenPointerMove()
-        unlistenPointerUp()
+        unlisten()
 
         callback(_event, track)
       }
     }
 
+    const unlisten = () => {
+      if (active) {
+        active = false
+
+        unlistenPointerMove()
+        unlistenPointerUp()
+
+        svg.removeChild(path)
+      }
+    }
+
     const unlistenPointerMove = _addEventListener(
       'pointermove',
-      $root,
+      root.shadowRoot,
       pointerMoveListener,
       true
     )
     const unlistenPointerUp = _addEventListener(
       'pointerup',
-      $root,
+      root.shadowRoot,
       pointerUpListener,
       true
     )
 
-    // $root.addEventListener('pointermove', pointerMoveListener)
-    // $root.addEventListener('pointerup', pointerUpListener)
+    return unlisten
   }
 
-  $system.method.captureGesture = captureGesture
+  system.captureGesture = captureGesture
 }

@@ -1,5 +1,7 @@
 import { Functional } from '../../../../../Class/Functional'
 import { Done } from '../../../../../Class/Functional/Done'
+import { System } from '../../../../../system'
+import { ID_ENCODE_URI } from '../../../../_ids'
 
 export interface I<T> {
   uri: string
@@ -10,30 +12,34 @@ export interface O<T> {
 }
 
 export default class EncodeURI<T> extends Functional<I<T>, O<T>> {
-  constructor() {
-    super({
-      i: ['uri'],
-      o: ['UTF-8'],
-    })
+  constructor(system: System) {
+    super(
+      {
+        i: ['uri'],
+        o: ['UTF-8'],
+      },
+      {},
+      system,
+      ID_ENCODE_URI
+    )
   }
 
   f({ uri }: I<T>, done: Done<O<T>>): void {
-    if (!this.__system) {
-      // BOT('screenshot')
-      const error = new Error('not attached to a system')
-      throw error
-    }
-
     const {
-      method: { encodeURI },
+      api: {
+        uri: { encodeURI },
+      },
     } = this.__system
 
-    if (!encodeURI) {
-      done(undefined, 'Encode URI API not supported')
+    let encoded
+
+    try {
+      encoded = encodeURI(uri)
+    } catch (err) {
+      done(undefined, err.message)
+
       return
     }
-
-    const encoded = encodeURI(uri)
 
     done({ 'UTF-8': encoded })
   }

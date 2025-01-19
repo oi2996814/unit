@@ -3,7 +3,7 @@
   "type": "`U`&`G`",
   "inputs": {
     "parent": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "child",
           "pinId": "parent"
@@ -14,14 +14,17 @@
         "position": {
           "0": {
             "x": -97,
-            "y": 39
+            "y": 39,
+            "ext": {
+              "x": -123,
+              "y": 0
+            }
           }
         }
-      },
-      "type": "<A>"
+      }
     },
     "at": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "child",
           "pinId": "at"
@@ -31,15 +34,19 @@
         "position": {
           "0": {
             "x": -102,
-            "y": -31
+            "y": -31,
+            "ext": {
+              "x": -95,
+              "y": -51
+            }
           }
         }
       },
-      "type": "number",
-      "ref": false
+      "ref": false,
+      "functional": true
     },
     "name": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "writeinput",
           "pinId": "name"
@@ -49,33 +56,64 @@
         "position": {
           "0": {
             "x": 96,
-            "y": 39
+            "y": 39,
+            "ext": {
+              "x": 123,
+              "y": 33
+            }
           }
         }
       },
-      "type": "string",
-      "ref": false
+      "ref": false,
+      "functional": true
     },
     "data": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "writeinput",
-          "pinId": "data"
+          "pinId": "data",
+          "kind": "input"
         }
       },
       "metadata": {
         "position": {
           "0": {
             "x": 101,
-            "y": -31
+            "y": -31,
+            "ext": {
+              "x": 122,
+              "y": -33
+            }
           }
         }
       },
-      "type": "any",
-      "ref": false
+      "functional": true
     }
   },
-  "outputs": {},
+  "outputs": {
+    "done": {
+      "plug": {
+        "0": {
+          "unitId": "child",
+          "pinId": "done",
+          "kind": "output"
+        }
+      },
+      "ref": false,
+      "type": "any",
+      "defaultIgnored": true,
+      "metadata": {
+        "position": {
+          "0": {
+            "ext": {
+              "x": -98,
+              "y": 51
+            }
+          }
+        }
+      }
+    }
+  },
   "units": {
     "child": {
       "id": "59afce80-30e7-4322-84e6-955767bb5106",
@@ -83,47 +121,77 @@
         "parent": {
           "metadata": {
             "position": {
-              "x": -77,
-              "y": 19
+              "x": -99,
+              "y": 0
             }
           }
         },
         "at": {
           "metadata": {
             "position": {
-              "x": -79,
-              "y": -16
+              "x": -83,
+              "y": -30
             }
           }
         },
         "done": {}
       },
       "output": {
-        "child": {}
+        "child": {
+          "metadata": {
+            "position": {
+              "x": 5,
+              "y": 19
+            }
+          }
+        },
+        "done": {
+          "ignored": false,
+          "metadata": {
+            "position": {
+              "x": -84,
+              "y": 31
+            }
+          }
+        }
       },
       "metadata": {
         "position": {
-          "x": -53,
-          "y": -1
+          "x": -47,
+          "y": 1
         }
       }
     },
     "writeinput": {
       "id": "04953fed-157a-479d-91ac-005174b9b85e",
       "input": {
-        "name": {},
-        "data": {},
+        "name": {
+          "metadata": {
+            "position": {
+              "x": 104,
+              "y": 18
+            }
+          }
+        },
+        "data": {
+          "metadata": {
+            "position": {
+              "x": 104,
+              "y": -17
+            }
+          }
+        },
         "unit": {}
       },
       "output": {
-        "data": {
+        "done": {
           "ignored": false
         }
       },
       "metadata": {
         "position": {
-          "x": 52,
-          "y": 0
+          "x": 58,
+          "y": 1
         }
       }
     }
@@ -132,7 +200,7 @@
     "0": {
       "writeinput": {
         "output": {
-          "data": true
+          "done": true
         }
       },
       "child": {
@@ -156,24 +224,21 @@
   },
   "component": {},
   "metadata": {
-    "icon": "triangle",
-    "description": "set `element` child `at` `name` to `data`",
-    "complexity": 12.23475344217334,
+    "icon": "object-set",
+    "description": "set `parent` child `at` input `name` to `data`",
     "position": {
       "merge": {
         "0": {
-          "x": -1,
-          "y": -26
+          "x": 5,
+          "y": -11
+        },
+        "2": {
+          "x": -38,
+          "y": -3
         }
       }
     },
-    "tags": [
-      "platform",
-      "core",
-      "api",
-      "children"
-    ]
+    "tags": ["platform", "core", "api", "children"]
   },
-  "id": "2633ed12-309e-40fe-910d-44106d917e96",
-  "system": true
+  "id": "2633ed12-309e-40fe-910d-44106d917e96"
 }

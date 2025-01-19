@@ -41,51 +41,40 @@
   },
   "inputs": {
     "ms": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "delay",
           "pinId": "ms"
         }
       },
-      "type": "number",
       "metadata": {
-        "examples": [
-          "1000",
-          "100"
-        ]
+        "examples": ["1000", "100"]
       }
     },
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "delay",
           "pinId": "a"
         }
-      },
-      "type": "<A>"
+      }
     }
   },
   "outputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "push",
           "pinId": "a"
         }
-      },
-      "type": "<A>"
+      }
     }
   },
   "metadata": {
     "icon": "alarm-clock",
-    "description": "delay + push",
-    "complexity": 4,
-    "tags": [
-      "core",
-      "time"
-    ]
+    "description": "delay + memory",
+    "tags": ["core", "time"]
   },
   "id": "8cd6c706-d1d4-11ea-92e1-47577abb9ccf",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

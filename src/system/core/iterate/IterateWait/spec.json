@@ -39,64 +39,54 @@
   },
   "inputs": {
     "init": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "iterate",
           "pinId": "init"
         }
-      },
-      "type": "<A>"
+      }
     },
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "wait",
           "pinId": "a"
         }
-      },
-      "type": "<A>"
+      }
     },
     "b": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "wait",
           "pinId": "b"
         }
-      },
-      "type": "any"
+      }
     }
   },
   "outputs": {
     "current": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "iterate",
           "pinId": "current"
         }
-      },
-      "type": "<A>"
+      }
     },
     "local": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "iterate",
           "pinId": "local"
         }
       },
-      "defaultIgnored": true,
-      "type": "<A>"
+      "defaultIgnored": true
     }
   },
   "metadata": {
     "icon": "undo",
-    "description": "...",
-    "complexity": 4,
-    "tags": [
-      "core",
-      "iterate"
-    ]
+    "description": "iterate + wait",
+    "tags": ["core", "iterate"]
   },
   "id": "ed5e826a-163c-42cd-8522-e47187decae7",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

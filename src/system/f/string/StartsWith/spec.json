@@ -1,0 +1,30 @@
+{
+  "name": "starts with",
+  "inputs": {
+    "str": {
+      "type": "string"
+    },
+    "search": {
+      "type": "string"
+    },
+    "position": {
+      "type": "number",
+      "metadata": {
+        "examples": ["0"]
+      }
+    }
+  },
+  "outputs": {
+    "test": {
+      "type": "boolean"
+    }
+  },
+  "metadata": {
+    "icon": "ruler",
+    "description": "match a string against a regular expression",
+    "tags": ["f", "string"]
+  },
+  "id": "387fef8e-3e75-4deb-86a0-7b1120992589",
+  "base": true,
+  "type": "`U`"
+}

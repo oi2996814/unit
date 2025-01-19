@@ -2,13 +2,12 @@
   "name": "set color",
   "inputs": {
     "color": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "set",
           "pinId": "data"
         }
       },
-      "type": "string",
       "metadata": {
         "position": {
           "0": {
@@ -19,14 +18,13 @@
       }
     },
     "context": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "set",
-          "pinId": "unit"
+          "pinId": "obj"
         }
       },
       "ref": true,
-      "type": "`U`",
       "metadata": {
         "position": {
           "0": {
@@ -42,7 +40,7 @@
     "set": {
       "id": "074ef6f4-a0a1-40f9-95c0-cf0ecc3d420c",
       "input": {
-        "unit": {
+        "obj": {
           "metadata": {
             "position": {
               "x": -65,
@@ -82,15 +80,8 @@
   "metadata": {
     "icon": "object-set",
     "description": "set context color",
-    "complexity": 4.666271334062228,
-    "tags": [
-      "platform",
-      "core",
-      "api",
-      "set"
-    ]
+    "tags": ["platform", "core", "api", "set"]
   },
   "id": "7b067f38-e437-11ea-ad36-13112ed6b20b",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

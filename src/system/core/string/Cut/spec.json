@@ -62,52 +62,43 @@
   },
   "metadata": {
     "icon": "scissors",
-    "description": "no description",
-    "complexity": 8.315568074421364,
-    "tags": [
-      "core",
-      "string"
-    ]
+    "description": "split string `a` `at` index",
+    "tags": ["core", "string"]
   },
   "inputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "mergeId": "0"
         }
-      },
-      "type": "string"
+      }
     },
     "at": {
-      "pin": {
+      "plug": {
         "0": {
           "mergeId": "1"
         }
-      },
-      "type": "number"
+      }
     }
   },
   "outputs": {
     "second": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "slice",
           "pinId": "a"
         }
-      },
-      "type": "string"
+      }
     },
     "first": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "slice0",
           "pinId": "a"
         }
-      },
-      "type": "string"
+      }
     }
   },
   "id": "306fe446-a495-4ae3-a835-34f1468e92fe",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

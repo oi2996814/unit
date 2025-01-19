@@ -1,0 +1,52 @@
+{
+  "name": "empty string",
+  "units": {
+    "wait": {
+      "id": "ba38b0af-80c0-49e4-9e39-864396964ccc",
+      "input": {
+        "a": {
+          "constant": true,
+          "data": "\"\""
+        },
+        "b": {}
+      },
+      "output": {
+        "a": {}
+      },
+      "metadata": {
+        "position": {
+          "x": 0,
+          "y": 0
+        }
+      }
+    }
+  },
+  "merges": {},
+  "metadata": {
+    "icon": "string",
+    "description": "output an empty string",
+    "tags": ["core", "object"]
+  },
+  "inputs": {
+    "any": {
+      "plug": {
+        "0": {
+          "unitId": "wait",
+          "pinId": "b"
+        }
+      }
+    }
+  },
+  "outputs": {
+    "\"\"": {
+      "plug": {
+        "0": {
+          "unitId": "wait",
+          "pinId": "a"
+        }
+      }
+    }
+  },
+  "id": "7c8e8a47-2225-4716-986e-1cb2af3ed3b3",
+  "type": "`U`&`G`"
+}

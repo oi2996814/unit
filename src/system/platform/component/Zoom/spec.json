@@ -4,17 +4,32 @@
     "style": {
       "type": "object",
       "optional": true
+    },
+    "zoom": {
+      "type": "{x:number,y:number,z:number}",
+      "optional": true,
+      "metadata": {
+        "examples": ["{x:0,y:0,z:1}"]
+      }
+    },
+    "width": {
+      "type": "number",
+      "metadata": {
+        "examples": ["240"]
+      }
+    },
+    "height": {
+      "type": "number",
+      "metadata": {
+        "examples": ["240"]
+      }
     }
   },
   "outputs": {},
   "metadata": {
     "icon": "square",
     "description": "parent container",
-    "complexity": 6.733576709967941,
-    "tags": [
-      "platform",
-      "component"
-    ]
+    "tags": ["platform", "component"]
   },
   "id": "3ffeaaf8-30dd-11eb-9dcc-836b075fc64d",
   "component": {
@@ -22,7 +37,6 @@
     "defaultHeight": 240
   },
   "base": true,
-  "type": "`U`&`C`",
-  "system": true,
+  "type": "`U`&`C`&`V`&`J`",
   "render": true
 }

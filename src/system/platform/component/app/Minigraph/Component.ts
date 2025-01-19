@@ -1,23 +1,20 @@
 import { getSpecRadius } from '../../../../../client/complexity'
-import mergeProps from '../../../../../client/component/mergeProps'
-import Minimap from '../Minimap/Component'
+import { mergeProps } from '../../../../../client/component/mergeProps'
 import { Element } from '../../../../../client/element'
 import { getLinkId, segmentLinkId } from '../../../../../client/id'
-import { isComponent } from '../../../../../client/spec'
-import parentElement from '../../../../../client/parentElement'
+import { parentElement } from '../../../../../client/platform/web/parentElement'
 import { SimNode, Simulation } from '../../../../../client/simulation'
-import { getSpec, injectSpecs } from '../../../../../client/spec'
+import { getSpec, isComponentId } from '../../../../../client/spec'
 import { Shape, surfaceDistance } from '../../../../../client/util/geometry'
 import { LINK_DISTANCE } from '../../../../../constant/LINK_DISTANCE'
 import { emptyGraphSpec } from '../../../../../spec/emptySpec'
+import { System } from '../../../../../system'
+import { BundleSpec } from '../../../../../types/BundleSpec'
 import { Dict } from '../../../../../types/Dict'
 import { mapObjVK } from '../../../../../util/object'
-import { BundleSpec } from '../../../method/process/BundleSpec'
-import {
-  NOT_SUBGRAPH_MAX_D,
-  SUBGRAPH_MAX_D,
-} from '../../../component/app/graph/Graph/Component'
-import { System } from '../../../../../system'
+import { keys } from '../../../../f/object/Keys/f'
+import { NOT_SUBGRAPH_MAX_D, SUBGRAPH_MAX_D } from '../Editor/Component'
+import Minimap from '../Minimap/Component'
 
 export interface Props {
   width: number
@@ -29,10 +26,10 @@ export interface Props {
 
 export const DEFAULT_STYLE = {}
 
-export default class Mingraph extends Element<HTMLDivElement, Props> {
+export default class Minigraph extends Element<HTMLDivElement, Props> {
   public _minimap: Minimap
 
-  public _nodes: Dict<SimNode<any>> = {}
+  private _nodes: Dict<SimNode<any>> = {}
   private _links: Dict<number> = {}
 
   private _subgraph_to_node_id: Set<string>[] = []
@@ -64,7 +61,7 @@ export default class Mingraph extends Element<HTMLDivElement, Props> {
     simulation.addListener('tick', this._tick)
     this._simulation = simulation
 
-    const $element = parentElement()
+    const $element = parentElement($system)
 
     this.$element = $element
 
@@ -95,7 +92,12 @@ export default class Mingraph extends Element<HTMLDivElement, Props> {
 
         const b_subgraph = this._node_id_to_subgraph[b_id]
 
-        let { l, u } = surfaceDistance(a, b)
+        const surface_d = surfaceDistance(a, b)
+
+        const { u } = surface_d
+
+        let { l } = surfaceDistance(a, b)
+
         l = Math.max(l, 1)
 
         const same_subgraph = a_subgraph === b_subgraph
@@ -160,14 +162,13 @@ export default class Mingraph extends Element<HTMLDivElement, Props> {
   private _node_count: number = 0
 
   private _reset = (): void => {
-    // console.log('Minigraph', '_render')
-    const { specs } = this.$system
+    // console.log('Minigraph', '_reset')
+
+    const { specs, classes } = this.$system
 
     const { bundle } = this.$props
 
-    const { spec: spec = emptyGraphSpec, specs: _specs } = bundle
-
-    const map_spec_id: Dict<string> = injectSpecs(specs, _specs)
+    const { spec = emptyGraphSpec(), specs: _specs } = bundle
 
     const { units = {}, merges } = spec
 
@@ -180,11 +181,12 @@ export default class Mingraph extends Element<HTMLDivElement, Props> {
 
       const { x, y } = position
 
-      let r = getSpecRadius(specs, id, true)
+      const r = getSpecRadius(specs, classes, id, true)
+
       let width = 2 * r
       let height = 2 * r
 
-      const is_component = isComponent(specs, id)
+      const is_component = isComponentId(specs, id)
 
       if (is_component) {
         const { width: _width, height: _height } = component
@@ -228,23 +230,24 @@ export default class Mingraph extends Element<HTMLDivElement, Props> {
       const merge_input_unit: Dict<boolean> = {}
       const merge_output_unit: Dict<boolean> = {}
 
-      for (let unit_id in merge) {
+      for (const unit_id in merge) {
         const unit = merge[unit_id]
         const { input = {}, output = {} } = unit
-        if (Object.keys(input).length > 0) {
+        if (keys(input).length > 0) {
           merge_input_unit[unit_id] = true
         }
-        if (Object.keys(output).length > 0) {
+        if (keys(output).length > 0) {
           merge_output_unit[unit_id] = true
         }
       }
 
-      for (let input_unit_id in merge_input_unit) {
+      for (const input_unit_id in merge_input_unit) {
         let input_unit_sub_graph_id = node_id_to_subgraph[input_unit_id]
         let input_unit_subgraph = subgraph_to_node_id[input_unit_sub_graph_id]
-        for (let output_unit_id in merge_output_unit) {
-          let output_unit_sub_graph_id = node_id_to_subgraph[output_unit_id]
-          let output_unit_subgraph =
+
+        for (const output_unit_id in merge_output_unit) {
+          const output_unit_sub_graph_id = node_id_to_subgraph[output_unit_id]
+          const output_unit_subgraph =
             subgraph_to_node_id[output_unit_sub_graph_id]
 
           if (

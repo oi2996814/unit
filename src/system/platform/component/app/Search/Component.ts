@@ -1,55 +1,74 @@
 import * as fuzzy from 'fuzzy'
-import SearchInput from '../SearchInput/Component'
-import { System } from '../../../../../system'
-import Div from '../../Div/Component'
-import MicrophoneButton from '../../../component/app/MicrophoneButton/Component'
-import { Shape } from '../../../../../client/util/geometry'
+import { Registry } from '../../../../../Registry'
+import { getActiveElement } from '../../../../../client/activeElement'
+import { classnames } from '../../../../../client/classnames'
+import { debounce } from '../../../../../client/debounce'
 import { Element } from '../../../../../client/element'
-import IconButton from '../IconButton/Component'
-import { Dict } from '../../../../../types/Dict'
-import { compareByComplexity } from '../../../../../client/search'
-import {
-  IOScrollEvent,
-  makeScrollListener,
-} from '../../../../../client/event/scroll'
-import classnames from '../../../../../client/classnames'
-import { makeCustomListener } from '../../../../../client/event/custom'
 import { makeFocusInListener } from '../../../../../client/event/focus/focusin'
 import { makeFocusOutListener } from '../../../../../client/event/focus/focusout'
 import { makeInputListener } from '../../../../../client/event/input'
 import {
-  makeKeydownListener,
-  makeShortcutListener,
   IOKeyboardEvent,
+  makeKeydownListener,
+  makeKeyupListener,
+  makeShortcutListener,
 } from '../../../../../client/event/keyboard'
-import { IOPointerEvent } from '../../../../../client/event/pointer'
+import {
+  writeToContentEditable,
+  writeToTextField,
+} from '../../../../../client/event/keyboard/write'
+import { UnitPointerEvent } from '../../../../../client/event/pointer'
 import { makeClickListener } from '../../../../../client/event/pointer/click'
 import { makePointerEnterListener } from '../../../../../client/event/pointer/pointerenter'
-import parentElement from '../../../../../client/parentElement'
+import {
+  IOScrollEvent,
+  makeScrollListener,
+} from '../../../../../client/event/scroll'
+import { isContentEditable } from '../../../../../client/isContentEditable'
+import { isTextField } from '../../../../../client/isTextField'
+import { parentElement } from '../../../../../client/platform/web/parentElement'
+import { compareByComplexity } from '../../../../../client/search'
 import {
   getSpec,
-  addAddSpecListener,
-  addSetSpecListener,
-  addDeleteSpecListener,
-  isComponent,
+  isComponentId,
+  isSystemSpec,
 } from '../../../../../client/spec'
-import { userSelect } from '../../../../../client/style/userSelect'
-import { NONE } from '../../../../../client/theme'
+import { COLOR_NONE } from '../../../../../client/theme'
 import { throttle } from '../../../../../client/throttle'
-import { GraphSpec, Spec, Specs } from '../../../../../types'
+import { Shape } from '../../../../../client/util/geometry'
+import { userSelect } from '../../../../../client/util/style/userSelect'
+import { UNTITLED } from '../../../../../constant/STRING'
+import { System } from '../../../../../system'
+import { Spec } from '../../../../../types'
+import { Dict } from '../../../../../types/Dict'
+import { GraphSpec } from '../../../../../types/GraphSpec'
+import { Unlisten } from '../../../../../types/Unlisten'
+import { pull } from '../../../../../util/array'
+import { clone } from '../../../../../util/clone'
+import { specNameGrammar } from '../../../../../util/grammar'
+import { binaryFindIndex } from '../../../../../util/sort'
 import { removeWhiteSpace } from '../../../../../util/string'
-import TextDiv from '../TextDiv/Component'
+import { clamp } from '../../../../core/relation/Clamp/f'
+import { keys } from '../../../../f/object/Keys/f'
+import MicrophoneButton from '../../../component/app/MicrophoneButton/Component'
+import TextBox from '../../../core/component/TextBox/Component'
+import Div from '../../Div/Component'
 import Icon from '../../Icon/Component'
+import IconButton from '../IconButton/Component'
+import SearchInput from '../SearchInput/Component'
+import Tooltip, { TOOLTIP_WIDTH } from '../Tooltip/Component'
 
 export interface Props {
   className?: string
   style?: Dict<string>
   selected?: string
   selectedColor?: string
+  shape?: Shape
   filter?: (u: string) => boolean
+  registry?: Registry
 }
 
-const HEIGHT: number = 39
+export const SEARCH_ITEM_HEIGHT: number = 40
 
 export type ListItem = {
   id: string
@@ -61,7 +80,8 @@ export type ListItem = {
 
 const DEFAULT_STYLE = {
   position: 'relative',
-  width: 'fit-content',
+  width: 'calc(100% + 4px)',
+  maxWidth: '309px',
   height: 'initial',
   // overflowY: 'hidden',
   // overflowX: 'hidden',
@@ -70,7 +90,7 @@ const DEFAULT_STYLE = {
   color: 'currentColor',
   borderColor: 'currentColor',
   padding: '0',
-  backgroundColor: NONE,
+  backgroundColor: COLOR_NONE,
   borderTopLeftRadius: '3px',
   borderTopRightRadius: '3px',
 }
@@ -80,16 +100,14 @@ export const SHAPE_TO_ICON = {
   circle: 'circle',
 }
 
-export function isSpecVisible(specs: Specs, id: string): boolean {
-  const spec = getSpec(specs, id)
+export function isSpecFuzzyMatch(str: string, pattern: string) {
+  const cleanPattern = removeWhiteSpace(pattern.replace('-', ' '))
 
-  const { private: _private } = spec
+  const isMatch = fuzzy.match(cleanPattern, str, {
+    caseSensitive: false,
+  })
 
-  if (_private) {
-    return false
-  } else {
-    return true
-  }
+  return isMatch
 }
 
 export default class Search extends Element<HTMLDivElement, Props> {
@@ -100,10 +118,12 @@ export default class Search extends Element<HTMLDivElement, Props> {
   public _input: SearchInput
   public _microphone: MicrophoneButton
 
+  private _tooltip: Tooltip
+  private _shape_tooltip: Tooltip
+  private _microphone_tooltip: Tooltip
+
   private _shape: Shape = 'circle'
   private _shape_button: IconButton
-
-  private _id_list: string[] = []
 
   private _ordered_id_list: string[] = []
   private _filtered_id_list: string[] = []
@@ -113,6 +133,7 @@ export default class Search extends Element<HTMLDivElement, Props> {
   private _filtered_list_item: ListItem[] = []
   private _list_item_div: Dict<Div> = {}
   private _list_item_content: Dict<Div> = {}
+  private _list_item_name: Dict<TextBox> = {}
 
   private _list_hidden: boolean = true
 
@@ -121,36 +142,28 @@ export default class Search extends Element<HTMLDivElement, Props> {
 
   private _scrollTop: number = 0
 
+  private _registry: Registry
+
   constructor($props: Props, $system: System) {
     super($props, $system)
 
-    const { specs } = this.$system
+    const { className, style = {}, selected, registry } = this.$props
 
-    const { className, style = {}, selected } = this.$props
-
-    const id_list = Object.keys(specs)
-    this._id_list = id_list
-
-    const visible_id_list = id_list.filter((id) => isSpecVisible(specs, id))
-
-    const ordered_id_list = visible_id_list.sort((a, b) => {
-      return compareByComplexity(specs, a, b)
-    })
-
-    this._ordered_id_list = ordered_id_list
-    this._filtered_id_list = ordered_id_list
+    this._registry = registry ?? this.$system
 
     const list = new Div(
       {
         className: 'search-list',
         style: {
           position: 'relative',
-          maxHeight: `${4 * HEIGHT - 2}px`,
+          maxHeight: `${4 * SEARCH_ITEM_HEIGHT - 1}px`,
           overflowY: 'auto',
           overflowX: 'hidden',
           display: this._list_hidden ? 'none' : 'block',
-          width: 'calc(100% + 3px)',
+          width: 'calc(100% + 13px)',
+          height: '100%',
           boxSizing: 'content-box',
+          scrollSnapType: 'y mandatory',
         },
       },
       this.$system
@@ -162,24 +175,15 @@ export default class Search extends Element<HTMLDivElement, Props> {
     )
     this._list = list
 
-    const total = id_list.length
-
-    let i = 0
-    for (let id of ordered_id_list) {
-      this._add_list_item(id, i, total)
-      i++
-    }
+    this._reset()
 
     const input = new SearchInput({}, this.$system)
+
     input.addEventListener(makeKeydownListener(this._on_input_keydown))
+    input.addEventListener(makeKeyupListener(this._on_input_keyup))
     input.addEventListener(makeFocusInListener(this._on_input_focus_in))
     input.addEventListener(makeFocusOutListener(this._on_input_focus_out))
     input.addEventListener(makeInputListener(this._on_input_input))
-    // input.addEventListener(
-    //   makeClickListener({
-    //     onClick: this._on_input_click,
-    //   })
-    // )
     input.addEventListener(
       makeShortcutListener([
         {
@@ -192,11 +196,15 @@ export default class Search extends Element<HTMLDivElement, Props> {
           keydown: this._on_arrow_up_keydown,
           multiple: true,
         },
-        { combo: 'Escape', keydown: this._on_escape_keydown },
         {
-          // combo: 'Ctrl + p',
-          combo: 'Ctrl + ;',
-          // combo: 'Ctrl + /',
+          combo: 'Escape',
+          keydown: this._on_escape_keydown,
+          stopPropagation: true,
+        },
+        {
+          // combo: 'Control + p',
+          combo: ['Control + ;', ';'],
+          // combo: 'Control + /',
           keydown: this._on_ctrl_p_keydown,
           strict: false,
         },
@@ -218,6 +226,12 @@ export default class Search extends Element<HTMLDivElement, Props> {
     )
     this._input = input
 
+    const {
+      api: {
+        speech: { SpeechGrammarList },
+      },
+    } = this.$system
+
     const microphone = new MicrophoneButton(
       {
         style: {
@@ -228,12 +242,21 @@ export default class Search extends Element<HTMLDivElement, Props> {
           height: '18px',
           padding: '11px 9px 10px 11px',
         },
+        opt: {
+          grammars: SpeechGrammarList
+            ? specNameGrammar(this.$system)
+            : undefined,
+          lang: 'en-us',
+          maxAlternatives: 1,
+          continuous: false,
+          interimResults: true,
+        },
       },
       this.$system
     )
-    microphone.addEventListener(
-      makeCustomListener('transcript', this._on_microphone_transcript)
-    )
+    // microphone.addEventListener(
+    //   makeCustomListener('text', this._on_microphone_transcript)
+    // )
     microphone.preventDefault('mousedown')
     microphone.preventDefault('touchdown')
     this._microphone = microphone
@@ -248,6 +271,7 @@ export default class Search extends Element<HTMLDivElement, Props> {
           width: '18px',
           height: '18px',
           padding: '11px 11px 10px 9px',
+          ...userSelect('none'),
         },
         title: 'layout',
       },
@@ -262,6 +286,7 @@ export default class Search extends Element<HTMLDivElement, Props> {
     )
     shape_button.preventDefault('mousedown')
     shape_button.preventDefault('touchdown')
+
     this._shape_button = shape_button
 
     const search = new Div(
@@ -279,13 +304,41 @@ export default class Search extends Element<HTMLDivElement, Props> {
     search.registerParentRoot(input)
     search.registerParentRoot(shape_button)
     search.registerParentRoot(microphone)
+
+    const tooltip = new Tooltip(
+      {
+        shortcut: ';',
+      },
+      this.$system
+    )
+    this._tooltip = tooltip
+
+    const shape_tooltip = new Tooltip(
+      {
+        shortcut: 'l',
+      },
+      this.$system
+    )
+    this._shape_tooltip = shape_tooltip
+
+    const microphone_tooltip = new Tooltip(
+      {
+        shortcut: '|',
+      },
+      this.$system
+    )
+    this._microphone_tooltip = microphone_tooltip
+
     this._search = search
 
-    const $element = parentElement()
+    const $element = parentElement($system)
 
     this.$element = $element
-    this.$slot['default'] = search.$slot['default']
+    this.$slot = {
+      default: search,
+    }
     this.$unbundled = false
+    this.$primitive = true
 
     if (selected) {
       if (this._filtered_id_list.includes(selected)) {
@@ -298,52 +351,70 @@ export default class Search extends Element<HTMLDivElement, Props> {
     }
 
     this.registerRoot(search)
+    this.registerRoot(tooltip)
+    this.registerRoot(shape_tooltip)
+    this.registerRoot(microphone_tooltip)
 
-    const unlisten_add_spec = addAddSpecListener(
-      (id: string, spec: GraphSpec): void => {
-        const { specs } = this.$system
+    this._listen_registry()
+  }
 
-        console.log('Search', '_on_add_spec', id, spec)
+  private _reset = () => {
+    // console.log('Search', '_reset')
 
-        this._id_list.push(id)
+    this._list.removeChildren()
 
-        let i: number
+    this._item = {}
+    this._list_item_div = {}
+    this._list_item_content = {}
+    this._list_item_name = {}
 
-        if (isSpecVisible(specs, id)) {
-          for (i = 0; i < this._ordered_id_list.length; i++) {
-            const i_id = this._ordered_id_list[i]
-            if (compareByComplexity(specs, id, i_id) < 0) {
-              this._ordered_id_list.splice(i, 0, id)
-              break
-            }
-          }
-        }
+    this._refresh_ordered_list()
 
-        const l = this._id_list.length
-        const total = l + 1
+    const total = this._ordered_id_list.length
 
-        this._add_list_item(id, i, total)
+    let i = 0
 
-        this._filter_list()
-      }
-    )
+    for (const id of this._ordered_id_list) {
+      this._add_list_item(id, i, total)
 
-    const unlisten_set_spec = addSetSpecListener(
-      (id: string, spec: GraphSpec): void => {
-        // console.log('Search', '_on_set_spec', id, spec)
-        // TODO
-      }
-    )
+      i++
+    }
+  }
 
-    const unlisten_delete_spec = addDeleteSpecListener((id: string): void => {
-      // console.log('Search', '_on_delete_spec', id)
-      // TODO
+  private _refresh_ordered_list = () => {
+    const { classes } = this.$system
+
+    const { specs } = this._registry
+
+    const id_list = keys(specs)
+
+    const ordered_id_list = id_list.sort((a, b) => {
+      return compareByComplexity(specs, classes, a, b)
     })
+
+    this._ordered_id_list = ordered_id_list
+    this._filtered_id_list = clone(ordered_id_list)
+
+    const ordered_id_set = new Set(ordered_id_list)
+
+    for (const spec_id in this._item) {
+      if (!ordered_id_set.has(spec_id)) {
+        this.__remove_list_item(spec_id)
+      }
+    }
   }
 
   private _set_list_item_color = (id: string, color: string) => {
     // console.log('Search', '_set_list_item_color', id, color)
+
     const selected_list_item = this._list_item_content[id]
+
+    if (!selected_list_item) {
+      // console.warn('selected list item not found')
+
+      return
+    }
+
     selected_list_item.$element.style.color = color
   }
 
@@ -353,33 +424,166 @@ export default class Search extends Element<HTMLDivElement, Props> {
         ...DEFAULT_STYLE,
         ...current,
       }
+
       this._search.setProp('style', style)
     } else if (prop === 'selectedColor') {
       if (this._selected_id) {
         const { selectedColor = 'currentColor' } = this.$props
+
         this._set_list_item_color(this._selected_id, selectedColor)
       }
     } else if (prop === 'selected') {
       const { selected } = this.$props
+
       if (selected) {
         this._set_selected_item_id(selected)
       }
     } else if (prop === 'filter') {
-      this._filter_list()
+      this._filter_list(true)
+    } else if (prop === 'registry') {
+      if (this._registry === current) {
+        return
+      }
+
+      this._registry = current ?? this.$system
+
+      this._unlisten_registry()
+      this._listen_registry()
+
+      this._refresh_list()
+    } else if (prop === 'shape') {
+      this._setShape(current ?? 'circle')
     }
   }
 
+  private _registry_unlisten: Unlisten
+
+  private _refresh_list = (preserve_selected?: boolean) => {
+    this._refresh_ordered_list()
+    this._filter_list(preserve_selected)
+  }
+
+  private _find_new_item_index = (spec: GraphSpec, list: string[]): number => {
+    const { classes } = this.$system
+
+    const { specs } = this._registry
+
+    if (list.length === 0) {
+      return 0
+    }
+
+    const index = binaryFindIndex(list, (current_spec_id) => {
+      const current_score = compareByComplexity(
+        specs,
+        classes,
+        spec.id,
+        current_spec_id
+      )
+
+      return current_score
+    })
+
+    return index
+  }
+
+  private _insert_list_item = (spec: GraphSpec) => {
+    const new_ordered_index = this._find_new_item_index(
+      spec,
+      this._ordered_id_list
+    )
+
+    this._ordered_id_list.splice(new_ordered_index, 0, spec.id)
+
+    const match = fuzzy.match(this._input_value, spec.name ?? '')
+
+    if (match) {
+      const new_filtered_index = this._find_new_item_index(
+        spec,
+        this._filtered_id_list
+      )
+
+      this._filtered_id_list.splice(new_filtered_index, 0, spec.id)
+    }
+
+    this._add_list_item(
+      spec.id,
+      new_ordered_index,
+      this._ordered_id_list.length
+    )
+  }
+
+  private _listen_registry = () => {
+    this._registry_unlisten = this._registry.specs_.subscribe(
+      [],
+      '*',
+      (type, path, key, data) => {
+        const { specs } = this._registry
+
+        const spec = data
+
+        if (path.length === 0) {
+          if (type === 'set') {
+            if (this._item[spec.id]) {
+              this._refresh_list_item(spec.id)
+              this._refresh_last_list_item_border()
+            } else {
+              this._insert_list_item(spec)
+
+              if (!this._list_hidden) {
+                this._filter_list(true)
+              } else {
+                this._to_be_filtered = true
+              }
+            }
+          } else if (type === 'delete') {
+            const specId = key
+            // console.log('delete', specId)
+
+            if (isSystemSpec(spec)) {
+              return
+            }
+
+            this._remove_list_item(specId)
+
+            const selected_item_id = this._selected_id
+
+            if (this._list_hidden) {
+              this._debounced_refresh_list()
+            } else {
+              this._refresh_list(true)
+
+              if (selected_item_id === specId) {
+                this._select_first_list_item()
+              }
+            }
+          }
+        }
+      }
+    )
+  }
+
+  private _unlisten_registry = () => {
+    this._registry_unlisten()
+
+    this._registry_unlisten = undefined
+  }
+
   private _add_list_item = (id: string, i: number, total: number): void => {
-    const { specs } = this.$system
+    // console.log('Search', '_add_list_item', id, i, total)
+
+    const { specs } = this._registry
 
     const spec = getSpec(specs, id)
 
     const { name = '', metadata = {} } = spec as Spec
+
     const icon = metadata.icon || 'question'
-    const tags = metadata.tags || []
+    const tags = metadata.tags || ['user']
     const tagsStr = tags.join(' ')
     // const fuzzyName = `${name} ${tagsStr}`
     const fuzzyName = name
+    const finalName = name || UNTITLED
+
     this._item[id] = { id, name, icon, tags, fuzzyName }
 
     const list_item_icon = new Icon(
@@ -389,7 +593,7 @@ export default class Search extends Element<HTMLDivElement, Props> {
       },
       this.$system
     )
-    const list_item_main_name = new TextDiv(
+    const list_item_main_name = new TextBox(
       {
         style: {
           width: 'fit-content',
@@ -397,17 +601,20 @@ export default class Search extends Element<HTMLDivElement, Props> {
           marginBottom: '2px',
           ...userSelect('none'),
         },
-        value: name,
+        value: finalName,
       },
       this.$system
     )
-    const list_item_main_tags = new TextDiv(
+    this._list_item_name[id] = list_item_main_name
+
+    const list_item_main_tags = new TextBox(
       {
         style: {
           fontSize: '12px',
           width: 'fit-content',
           height: '12px',
           marginBottom: '1px',
+          ...userSelect('none'),
         },
         value: tagsStr,
       },
@@ -421,6 +628,8 @@ export default class Search extends Element<HTMLDivElement, Props> {
           flexDirection: 'column',
           justifyContent: 'center',
           marginBottom: '2px',
+          width: '100%',
+          height: '100%',
         },
       },
       this.$system
@@ -435,8 +644,8 @@ export default class Search extends Element<HTMLDivElement, Props> {
           display: 'flex',
           width: '100%',
           alignItems: 'center',
-          height: `${HEIGHT - 1}px`,
-          backgroundColor: NONE,
+          height: `${SEARCH_ITEM_HEIGHT - 1}px`,
+          backgroundColor: COLOR_NONE,
         },
       },
       this.$system
@@ -454,10 +663,9 @@ export default class Search extends Element<HTMLDivElement, Props> {
         style: {
           borderBottom: list_item_div_border_bottom,
           boxSizing: 'border-box',
-          width: `${309 - 1}px`,
-        },
-        data: {
-          id,
+          width: `${309}px`,
+          height: '100%',
+          scrollSnapAlign: 'start',
         },
       },
       this.$system
@@ -482,6 +690,57 @@ export default class Search extends Element<HTMLDivElement, Props> {
     this._list.appendChild(list_item_div)
   }
 
+  private _remove_list_item = (id: string): void => {
+    // console.log('Search', '_remove_list_item', id)
+
+    const list_item_div = this._list_item_div[id]
+
+    if (list_item_div) {
+      this.__remove_list_item(id)
+
+      pull(this._filtered_id_list, id)
+      pull(this._ordered_id_list, id)
+    }
+  }
+
+  private __remove_list_item = (id: string): void => {
+    const list_item_div = this._list_item_div[id]
+
+    if (list_item_div) {
+      this._list.removeChild(list_item_div)
+
+      delete this._list_item_div[id]
+      delete this._item[id]
+      delete this._list_item_name[id]
+      delete this._list_item_content[id]
+    }
+  }
+
+  private _refresh_list_item = (id: string) => {
+    // console.log('Search', '_refresh_list_item', id)
+
+    const list_item_div = this._list_item_div[id]
+    const list_item_name = this._list_item_name[id]
+
+    const spec = this._registry.getSpec(id)
+
+    const { name = '', metadata = {} } = spec as Spec
+
+    const finalName = name || UNTITLED
+
+    const icon = metadata.icon || 'question'
+    const tags = metadata.tags || []
+    const tagsStr = tags.join(' ')
+    // const fuzzyName = `${name} ${tagsStr}`
+    const fuzzyName = name
+
+    list_item_div.$element.style.borderBottom = `1px solid currentColor`
+
+    this._item[id] = { id, name, icon, tags, fuzzyName }
+
+    list_item_name.setProp('value', finalName)
+  }
+
   public focus(options: FocusOptions | undefined = { preventScroll: true }) {
     this._input._input.focus(options)
   }
@@ -490,27 +749,88 @@ export default class Search extends Element<HTMLDivElement, Props> {
     this._input._input.blur()
   }
 
-  private _on_microphone_transcript = throttle((transcript: string) => {
-    // console.log('Search', '_on_microphone_transcript', transcript)
-    const value = transcript.toLowerCase().substr(0, 30)
-    this._input.setProp('value', value)
-    this._input_value = value
-    this._filter_list()
-    this._input.focus()
-  }, 100)
+  private _on_microphone_transcript = throttle(
+    this.$system,
+    (transcript: string) => {
+      const value = transcript.toLowerCase().substr(0, 30)
+
+      const activeElement = getActiveElement(this.$system)
+
+      const writeToSearch = () => {
+        this._input.setProp('value', value)
+
+        this._input_value = value
+
+        this._filter_list()
+
+        this._input.focus()
+      }
+
+      if (activeElement) {
+        if (isTextField(activeElement as HTMLInputElement)) {
+          writeToTextField(
+            this.$system,
+            activeElement as HTMLInputElement,
+            value
+          )
+        } else if (isContentEditable(activeElement as HTMLDivElement)) {
+          writeToContentEditable(
+            this.$system,
+            activeElement as HTMLInputElement,
+            value
+          )
+        } else {
+          writeToSearch()
+        }
+      } else {
+        writeToSearch()
+      }
+    },
+    100
+  )
+
+  public start_microphone = () => {
+    this._start_microphone()
+  }
+
+  public stop_microphone = () => {
+    this._stop_microphone()
+  }
+
+  private _start_microphone = () => {
+    this._microphone.$unit.$setPinData({
+      pinId: 'start',
+      type: 'input',
+      data: 'true',
+    })
+  }
+
+  private _stop_microphone = () => {
+    this._microphone.$unit.$setPinData({
+      pinId: 'stop',
+      type: 'input',
+      data: 'true',
+    })
+  }
 
   private _on_input_keydown = (
-    { keyCode, repeat }: IOKeyboardEvent,
+    { repeat, key }: IOKeyboardEvent,
     _event: KeyboardEvent
   ) => {
-    // console.log('Search', '_on_input_keydown', keyCode, repeat)
-    // prevent arrow up/down default
-    if (keyCode === 38 || keyCode === 40) {
+    if (key === 'ArrowUp' || key === 'ArrowDown' || key === 'F27') {
       _event.preventDefault()
     }
 
+    if (key === '\\') {
+      if (!this._microphone.$output.recording) {
+        this._start_microphone()
+
+        _event.preventDefault()
+      }
+    }
+
     if (repeat) {
-      if (keyCode === 8) {
+      if (key === 'Backspace') {
         //
       } else {
         _event.preventDefault()
@@ -518,8 +838,19 @@ export default class Search extends Element<HTMLDivElement, Props> {
     }
   }
 
+  private _on_input_keyup = ({ key }) => {
+    // console.log('Search', '_on_input_keyup')
+
+    if (key === '\\') {
+      if (this._microphone.$output.recording) {
+        this._stop_microphone()
+      }
+    }
+  }
+
   private _on_input_focus_in = (): void => {
     // console.log('Search', '_on_input_focus_in')
+
     // setTimeout(() => {
     this._select_all()
     // }, 0)
@@ -527,6 +858,8 @@ export default class Search extends Element<HTMLDivElement, Props> {
   }
 
   private _select_all = (): void => {
+    // console.log('Search', '_select_all')
+
     this._input.setSelectionRange(0, this._input_value.length)
   }
 
@@ -539,11 +872,20 @@ export default class Search extends Element<HTMLDivElement, Props> {
     this._hide_list()
   }
 
+  private _to_be_filtered: boolean = false
+
   private _show_list = () => {
+    // console.log('Search', '_show_list')
+
     const { style = {} } = this.$props
     const { color = 'currentColor' } = style
 
-    // console.log('Search', '_show_list')
+    if (this._to_be_filtered) {
+      this._filter_list()
+
+      this._to_be_filtered = false
+    }
+
     this._list_hidden = false
 
     const filtered_total = this._filtered_id_list.length
@@ -556,16 +898,31 @@ export default class Search extends Element<HTMLDivElement, Props> {
     this._input._input.$element.style.borderTopWidth = empty ? '0px' : '1px'
 
     if (!empty) {
-      const last_list_item_id = this._filtered_id_list[filtered_total - 1]
-      const last_list_item_div = this._list_item_div[last_list_item_id]
+      this._refresh_last_list_item_border()
 
-      last_list_item_div.$element.style.borderBottom = color
+      if (this._selected_id) {
+        this._scroll_into_item_if_needed(this._selected_id, false)
+      }
     }
 
     this._dispatch_list_shown()
+
     if (this._selected_id) {
       this._dispatch_item_selected(this._selected_id)
     }
+  }
+
+  private _refresh_last_list_item_border = () => {
+    const filtered_total = this._filtered_id_list.length
+
+    if (!filtered_total) {
+      return
+    }
+
+    const last_list_item_id = this._filtered_id_list[filtered_total - 1]
+    const last_list_item_div = this._list_item_div[last_list_item_id]
+
+    last_list_item_div.$element.style.borderBottom = ``
   }
 
   private _dispatch_item_selected = (id: string): void => {
@@ -594,107 +951,179 @@ export default class Search extends Element<HTMLDivElement, Props> {
 
   private _select_first_list_item = () => {
     const first_list_item_id = this._filtered_id_list[0]
-    this.set_selected_item_id(first_list_item_id)
+
+    this._top_element_index = 0
+
+    this.set_selected_item_id(first_list_item_id, true)
   }
 
   private _hide_list = () => {
     this._list_hidden = true
-    // this._select_first_list_item()
-    this._list.$element.style.display = 'none'
+
     this._input._input.$element.style.borderTopWidth = '0'
+
+    this._list.$element.style.display = 'none'
 
     this._dispatch_list_hidden()
   }
 
-  private _on_list_item_pointer_enter = ({}: IOPointerEvent, id: string) => {
+  private _on_list_item_pointer_enter = ({}: UnitPointerEvent, id: string) => {
     // console.log('Search', '_on_list_item_pointer_enter')
     this.set_selected_item_id(id)
   }
 
-  private _on_list_item_click = ({}: IOPointerEvent, id: string) => {
+  private _on_list_item_click = ({}: UnitPointerEvent, id: string) => {
     // console.log('Search', '_on_list_item_click')
     this._dispatch_item_pick(id)
   }
 
-  public set_selected_item_id = (id: string): void => {
+  public set_selected_item_id = (
+    id: string,
+    force_scroll: boolean = false
+  ): void => {
     const prev_selected_id = this._selected_id
-    this._set_selected_item_id(id)
+
+    this._set_selected_item_id(id, force_scroll)
+
     if (this._selected_id !== prev_selected_id) {
       this._dispatch_item_selected(id)
     }
   }
 
-  private _set_selected_item_id = (id: string): void => {
-    // console.log('Search', '_set_selected_item_id', id)
+  private _set_selected_item_id = (
+    id: string,
+    force_scroll: boolean = false
+  ): void => {
+    // console.log('Search', '_set_selected_item_id', id, force_scroll)
+
     const { style = {}, selectedColor = 'currentColor' } = this.$props
     const { color = 'currentColor' } = style
+
     if (this._selected_id) {
       this._set_list_item_color(this._selected_id, color)
     }
+
     this._selected_id = id
+
     this._set_list_item_color(id, selectedColor)
-    this._scroll_into_item(id)
+
+    if (!this._list_hidden) {
+      this._scroll_into_item_if_needed(id, force_scroll)
+    }
   }
 
-  private _scroll_into_item = (id: string) => {
-    // console.log('Search', '_scroll_into_item', id)
-    // const scroll_index = Math.ceil(this._list.$element.scrollTop / HEIGHT)
-    const scroll_index = Math.ceil(this._scrollTop / HEIGHT)
+  public select_next = (offset: number): void => {
+    // console.log('Search', 'select_next', offset)
+
+    let index: number = 0
+
+    if (this._selected_id) {
+      index = this._ordered_id_list.indexOf(this._selected_id)
+    }
+
+    const next_index = clamp(
+      index + offset,
+      0,
+      this._ordered_id_list.length - 1
+    )
+
+    const next_selected_spec_id = this._ordered_id_list[next_index]
+
+    this.set_selected_item_id(next_selected_spec_id)
+  }
+
+  private _top_element_index = 0
+
+  private _scroll_into_item_if_needed = (
+    id: string,
+    force: boolean = false
+  ) => {
+    // console.log('Search', '_scroll_into_item_if_needed', id, force)
+
+    const { scrollTop } = this._list.$element
+
+    const scroll_index = scrollTop / SEARCH_ITEM_HEIGHT
+
     const selected_id_index = this._filtered_id_list.indexOf(id)
+
+    // const scroll_index = this._top_element_index ?? selected_id_index
+
     if (
+      force ||
       selected_id_index - scroll_index >= 4 ||
       selected_id_index - scroll_index < 0
     ) {
-      // this._list.$element.scrollTop = selected_id_index * HEIGHT
-      this._list.$element.scrollTo({
-        top: selected_id_index * HEIGHT,
-      })
+      const list_item = this._list_item_div[id]
+
+      list_item.$element.scrollIntoView({ behavior: 'auto', block: 'nearest' })
+
+      this._top_element_index = selected_id_index
+      // this._list.$element.scrollTop = selected_id_index * SEARCH_ITEM_HEIGHT
+      // this._list.$element.scrollTo({
+      //   top: selected_id_index * SEARCH_ITEM_HEIGHT,
+      //   behavior: 'auto',
+      // })
     }
   }
 
-  private _filter_list = () => {
+  private _debounced_refresh_list = debounce(
+    this.$system,
+    (preserve_selected: boolean = false) => {
+      this._refresh_list(preserve_selected)
+    },
+    0
+  )
+
+  private _filter_list = (preserve_selected: boolean = false) => {
     // console.log('Search', '_filter_list')
 
-    const { specs } = this.$system
+    const { specs } = this._registry
+
     const { style = {}, filter = () => true } = this.$props
 
     const { color = 'currentColor' } = style
-
-    if (this._filtered_id_list.length > 0) {
-      const last_list_item_id =
-        this._filtered_id_list[this._filtered_id_list.length - 1]
-      const last_list_item_div = this._list_item_div[last_list_item_id]
-      last_list_item_div.$element.style.borderBottom = '1px solid currentColor'
-    }
 
     let filtered_id_list: string[] = []
 
     const filtered_score: Dict<number> = {}
 
     const fuzzy_pattern = this._input_value
+    const reverse_spaced_fuzzy_pattern = fuzzy_pattern
+      .split(' ')
+      .reverse()
+      .join(' ')
 
-    for (let id of this._ordered_id_list) {
+    for (const id of this._ordered_id_list) {
+      if (this._list_item_div[id]) {
+        this._refresh_list_item(id)
+      } else {
+        const spec = specs[id] as GraphSpec
+
+        this._insert_list_item(spec)
+      }
+
       const { fuzzyName } = this._item[id]
       const list_item_div = this._list_item_div[id]
 
-      const fuzzy_match = fuzzy.match(
-        removeWhiteSpace(fuzzy_pattern),
-        fuzzyName,
-        { caseSensitive: false }
-      )
+      const fuzzy_match =
+        isSpecFuzzyMatch(fuzzyName, fuzzy_pattern) ||
+        isSpecFuzzyMatch(fuzzyName, reverse_spaced_fuzzy_pattern)
 
       if (
         (fuzzy_pattern === '' || fuzzy_match) &&
         filter(id) &&
-        (this._shape === 'circle' || isComponent(specs, id))
+        (this._shape === 'circle' || isComponentId(specs, id))
       ) {
         filtered_score[id] = 0
+
         if (fuzzy_match) {
           const { score } = fuzzy_match
+
           filtered_score[id] = score
         }
 
         list_item_div.$element.style.display = 'flex'
+
         filtered_id_list.push(id)
       } else {
         list_item_div.$element.style.display = 'none'
@@ -704,31 +1133,44 @@ export default class Search extends Element<HTMLDivElement, Props> {
     filtered_id_list = filtered_id_list.sort((a, b) => {
       const a_score = filtered_score[a]
       const b_score = filtered_score[b]
+
       return b_score - a_score
     })
 
     this._filtered_id_list = filtered_id_list
 
-    const filtered_total = filtered_id_list.length
+    let filtered_total = filtered_id_list.length
 
     if (filtered_total > 0) {
       for (let i = 0; i < filtered_total; i++) {
         const id = this._filtered_id_list[i]
         const list_item_div = this._list_item_div[id]
+
         this._list.removeChild(list_item_div)
         this._list.appendChild(list_item_div)
       }
 
-      this._select_first_list_item()
-
       if (!this._list_hidden) {
-        const last_list_item_id = filtered_id_list[filtered_total - 1]
-        const last_list_item_div = this._list_item_div[last_list_item_id]
-
-        last_list_item_div.$element.style.borderBottom = color
+        this._refresh_last_list_item_border()
 
         this._input._input.$element.style.borderRadius = '0'
         this._input._input.$element.style.borderTopWidth = '1px'
+      }
+
+      if (preserve_selected) {
+        if (this._selected_id) {
+          if (this._filtered_id_list.includes(this._selected_id)) {
+            this._top_element_index = 0
+
+            this._scroll_into_item_if_needed(this._selected_id, false)
+          } else {
+            this._select_first_list_item()
+          }
+        } else {
+          this._select_first_list_item()
+        }
+      } else {
+        this._select_first_list_item()
       }
     } else {
       this._input._input.$element.style.borderRadius = '3px 3px 0px 0px'
@@ -741,9 +1183,19 @@ export default class Search extends Element<HTMLDivElement, Props> {
       this._selected_id = null
       this._dispatch_list_empty()
     }
+
+    if (this._filtered_id_list.length > 0) {
+      this._refresh_last_list_item_border()
+    }
   }
 
   private _on_input_input = (value: string) => {
+    if (value === ';') {
+      this._setValue(this._input_value)
+
+      return
+    }
+
     this._input_value = value
     this._filter_list()
   }
@@ -753,9 +1205,11 @@ export default class Search extends Element<HTMLDivElement, Props> {
       const selected_id_index = this._filtered_id_list.indexOf(
         this._selected_id
       )
+
       if (selected_id_index < this._filtered_id_list.length - 1) {
         const next_selected_id_index = selected_id_index + 1
         const next_selected_id = this._filtered_id_list[next_selected_id_index]
+
         this.set_selected_item_id(next_selected_id)
       }
     }
@@ -775,6 +1229,12 @@ export default class Search extends Element<HTMLDivElement, Props> {
   }
 
   private _on_ctrl_p_keydown = () => {
+    const {
+      api: {
+        window: { setTimeout },
+      },
+    } = this.$system
+
     // console.log('Search', 'on_ctrl_p_keydown')
     setTimeout(() => {
       this._hide_list()
@@ -782,6 +1242,12 @@ export default class Search extends Element<HTMLDivElement, Props> {
   }
 
   private _on_escape_keydown = () => {
+    const {
+      api: {
+        window: { setTimeout },
+      },
+    } = this.$system
+
     // console.log('Search', '_on_escape_keydown')
     setTimeout(() => {
       this._hide_list()
@@ -789,11 +1255,17 @@ export default class Search extends Element<HTMLDivElement, Props> {
   }
 
   private _on_enter_keydown = (): void => {
+    const {
+      api: {
+        window: { setTimeout },
+      },
+    } = this.$system
+
     if (!this._list_hidden && this._selected_id) {
       setTimeout(() => {
         if (this._selected_id) {
-          // AD HOC
-          // on Safari apparently selecting the input might inadvertedly refocus it,
+          // Safari
+          // apparently selecting the input might inadvertently refocus it,
           // which is certainly unexpected, so this call must absolutely
           // come before dispatching a (possibly side-effecting) event
           this._select_all()
@@ -811,22 +1283,40 @@ export default class Search extends Element<HTMLDivElement, Props> {
     return this._shape
   }
 
+  public getList(): string[] {
+    return this._filtered_id_list
+  }
+
   public setValue = (value: string): void => {
+    // console.log('Search', 'setValue', value)
+
+    this._setValue(value)
+    this._filter_list(true)
+  }
+
+  public _setValue = (value: string): void => {
     this._input_value = value
     this._input.setProp('value', value)
-    this._filter_list()
   }
 
   public toggleShape = () => {
     const shape = this._shape === 'circle' ? 'rect' : 'circle'
+
     this.setShape(shape)
   }
 
   public setShape = (shape: 'rect' | 'circle') => {
+    this._setShape(shape)
+
+    this._dispatch_shape()
+  }
+
+  private _setShape = (shape: 'rect' | 'circle', emit?: boolean) => {
     if (this._shape !== shape) {
       this._shape = shape
+
       this._shape_button.setProp('icon', SHAPE_TO_ICON[shape])
-      this._dispatch_shape()
+
       this._filter_list()
     }
   }
@@ -835,13 +1325,37 @@ export default class Search extends Element<HTMLDivElement, Props> {
     // console.log('Search', 'onMount')
   }
 
+  public onUnmount(): void {
+    // console.log('Search', 'onUnmount')
+  }
+
   public onConnected(): void {
-    console.log('Search', 'onConnected')
+    // console.log('Search', 'onConnected')
+  }
 
-    console.log(this.$unit)
+  onDestroy(): void {
+    // console.log('Search', 'onDestroy')
 
-    const $pod = this.$unit.$refPod({})
+    this._unlisten_registry()
+  }
 
-    console.log('$pod', $pod)
+  public showTooltip(): void {
+    const bbox = this._search.getBoundingClientRect()
+
+    this._tooltip.show(
+      bbox.x + bbox.width / 2 - TOOLTIP_WIDTH / 2,
+      bbox.y - SEARCH_ITEM_HEIGHT + 6
+    )
+    this._shape_tooltip.show(bbox.x + 6, bbox.y - SEARCH_ITEM_HEIGHT + 6)
+    this._microphone_tooltip.show(
+      bbox.x + bbox.width - TOOLTIP_WIDTH - 4.5,
+      bbox.y - SEARCH_ITEM_HEIGHT + 6
+    )
+  }
+
+  public hideTooltip(): void {
+    this._tooltip.hide()
+    this._shape_tooltip.hide()
+    this._microphone_tooltip.hide()
   }
 }

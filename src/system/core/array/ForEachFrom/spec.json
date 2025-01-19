@@ -19,7 +19,7 @@
     "0": {
       "lessthanlength": {
         "output": {
-          "true": true
+          "test": true
         }
       },
       "looprepeat": {
@@ -84,73 +84,62 @@
   },
   "inputs": {
     "from": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "loopincrement",
           "pinId": "init"
         }
       },
-      "type": "number"
+      "functional": true
     },
     "a": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "looprepeat",
           "pinId": "init"
         }
       },
-      "type": "<A>[]"
+      "functional": true
     }
   },
   "outputs": {
     "i": {
-      "pin": {
+      "plug": {
         "0": {
           "mergeId": "4"
         }
       },
-      "defaultIgnored": true,
-      "type": "number"
+      "defaultIgnored": true
     },
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "mergeId": "3"
         }
       },
-      "defaultIgnored": true,
-      "type": "<A>[]"
+      "defaultIgnored": true
     },
     "a[i]": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "at",
           "pinId": "a[i]"
         }
-      },
-      "type": "<A>"
+      }
     },
     "test": {
-      "pin": {
+      "plug": {
         "0": {
           "mergeId": "0"
         }
-      },
-      "type": "boolean"
+      }
     }
   },
   "metadata": {
     "icon": "array",
-    "description": "...",
-    "complexity": 6,
-    "tags": [
-      "core",
-      "array"
-    ]
+    "description": "output every element of array `a` starting `from` index",
+    "tags": ["core", "array"]
   },
   "id": "f538e9b0-f172-4c9f-be23-86c715750b76",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

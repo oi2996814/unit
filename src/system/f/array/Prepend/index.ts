@@ -1,4 +1,6 @@
 import { Functional } from '../../../../Class/Functional'
+import { System } from '../../../../system'
+import { ID_PREPEND } from '../../../_ids'
 
 export interface I<T> {
   a: T[]
@@ -10,11 +12,16 @@ export interface O<T> {
 }
 
 export default class Prepend<T> extends Functional<I<T>, O<T>> {
-  constructor() {
-    super({
-      i: ['a', 'b'],
-      o: ['a'],
-    })
+  constructor(system: System) {
+    super(
+      {
+        i: ['a', 'b'],
+        o: ['a'],
+      },
+      {},
+      system,
+      ID_PREPEND
+    )
   }
 
   f({ a, b }: I<T>, done): void {

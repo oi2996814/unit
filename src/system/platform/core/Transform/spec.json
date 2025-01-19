@@ -2,7 +2,7 @@
   "name": "transform",
   "inputs": {
     "obj": {
-      "pin": {
+      "plug": {
         "0": {
           "mergeId": "0"
         }
@@ -10,14 +10,14 @@
       "ref": true
     },
     "name": {
-      "pin": {
+      "plug": {
         "0": {
           "mergeId": "1"
         }
       }
     },
     "next": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "set0",
           "pinId": "data"
@@ -27,7 +27,7 @@
   },
   "outputs": {
     "current": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "get",
           "pinId": "value"
@@ -39,7 +39,7 @@
     "get": {
       "id": "bc0320e2-2eb8-11eb-a38f-a779bfe81645",
       "input": {
-        "unit": {},
+        "obj": {},
         "name": {}
       },
       "output": {
@@ -55,7 +55,7 @@
     "set0": {
       "id": "074ef6f4-a0a1-40f9-95c0-cf0ecc3d420c",
       "input": {
-        "unit": {},
+        "obj": {},
         "name": {},
         "data": {}
       },
@@ -76,12 +76,12 @@
     "0": {
       "get": {
         "input": {
-          "unit": true
+          "obj": true
         }
       },
       "set0": {
         "input": {
-          "unit": true
+          "obj": true
         }
       }
     },
@@ -100,13 +100,9 @@
   },
   "metadata": {
     "icon": "brackets-curly",
-    "complexity": 4,
-    "tags": [
-      "platform",
-      "core"
-    ]
+    "description": "get element then set element after going through a function",
+    "tags": ["platform", "core"]
   },
   "type": "`U`&`G`",
-  "id": "47a78f03-7dd4-4207-aefa-02574661de6e",
-  "system": true
+  "id": "47a78f03-7dd4-4207-aefa-02574661de6e"
 }

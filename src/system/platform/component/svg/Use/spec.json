@@ -6,26 +6,21 @@
       "optional": true,
       "defaultIgnored": true
     },
-    "class": {
-      "type": "string",
-      "optional": true,
-      "defaultIgnored": true
-    },
     "style": {
       "type": "object",
       "optional": true
+    },
+    "attr": {
+      "type": "object",
+      "optional": true,
+      "defaultIgnored": true
     }
   },
   "outputs": {},
   "metadata": {
     "icon": "square",
     "description": "SVG G",
-    "complexity": 6.412541926875822,
-    "tags": [
-      "platform",
-      "component",
-      "svg"
-    ]
+    "tags": ["platform", "component", "svg"]
   },
   "id": "ad12678e-6642-11eb-9fc3-9fbc75c58110",
   "base": true,
@@ -33,7 +28,6 @@
     "defaultWidth": 200,
     "defaultHeight": 200
   },
-  "type": "`U`&`C`",
-  "system": true,
+  "type": "`U`&`C`&`V`&`J`",
   "render": true
 }

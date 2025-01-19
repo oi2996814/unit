@@ -35,25 +35,19 @@
   "metadata": {
     "icon": "edit-3",
     "description": "add a circular arc to the current sub-path",
-    "complexity": 5.660563719585642,
-    "tags": [
-      "platform",
-      "core",
-      "canvas"
-    ]
+    "tags": ["platform", "core", "canvas"]
   },
   "inputs": {
     "d": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "addarc",
           "pinId": "d"
         }
-      },
-      "type": "any[][]"
+      }
     },
     "circle": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "merge3",
           "pinId": "a"
@@ -64,16 +58,14 @@
   },
   "outputs": {
     "d": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "addarc",
           "pinId": "d"
         }
-      },
-      "type": "any[][]"
+      }
     }
   },
   "id": "50d23b21-1513-42c0-9722-4a01a32dc161",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

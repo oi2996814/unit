@@ -1,0 +1,72 @@
+{
+  "name": "flex column",
+  "units": {
+    "div": {
+      "id": "66698a97-15c5-4602-9925-11a1aeb03710",
+      "input": {},
+      "metadata": {
+        "component": {
+          "width": 180,
+          "height": 270
+        }
+      }
+    },
+    "mergedefault": {
+      "id": "304e98ac-bda1-11ea-b416-9746f024148c",
+      "input": {
+        "a": {},
+        "default": {
+          "constant": true,
+          "data": "{display:'flex',flexDirection:'column',overflow:'auto'}"
+        }
+      },
+      "output": {
+        "a": {}
+      }
+    }
+  },
+  "merges": {
+    "0": {
+      "mergedefault": {
+        "output": {
+          "a": true
+        }
+      },
+      "div": {
+        "input": {
+          "style": true
+        }
+      }
+    }
+  },
+  "inputs": {
+    "style": {
+      "plug": {
+        "0": {
+          "unitId": "mergedefault",
+          "pinId": "a"
+        }
+      }
+    }
+  },
+  "outputs": {},
+  "metadata": {
+    "icon": "square",
+    "description": "flex column div",
+    "tags": ["platform", "core", "component"]
+  },
+  "component": {
+    "slots": [["div", "default"]],
+    "defaultWidth": 180,
+    "defaultHeight": 270,
+    "subComponents": {
+      "div": {
+        "children": []
+      }
+    },
+    "children": ["div"]
+  },
+  "id": "435e106b-9ee5-4457-818b-3f41a62992a6",
+  "type": "`U`&`G`&`C`",
+  "render": true
+}

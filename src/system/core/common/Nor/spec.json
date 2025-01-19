@@ -24,45 +24,37 @@
   },
   "inputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "or",
           "pinId": "a"
         }
-      },
-      "type": "boolean"
+      }
     },
     "b": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "or",
           "pinId": "b"
         }
-      },
-      "type": "boolean"
+      }
     }
   },
   "outputs": {
     "!a && !b": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "not",
           "pinId": "!a"
         }
-      },
-      "type": "boolean"
+      }
     }
   },
   "metadata": {
-    "icon": null,
-    "description": "...",
-    "complexity": 4,
-    "tags": [
-      "core",
-      "common"
-    ]
+    "icon": "question",
+    "description": "NOT logic operator",
+    "tags": ["core", "common"]
   },
   "id": "561db4ce-1631-4d66-a047-140fb6e814a6",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

@@ -5,7 +5,10 @@
       "type": "string"
     },
     "sep": {
-      "type": "string"
+      "type": "string",
+      "metadata": {
+        "examples": ["''"]
+      }
     }
   },
   "outputs": {
@@ -16,14 +19,9 @@
   "metadata": {
     "icon": "split-text",
     "description": "output an array of strings by separating the string into substrings, using the specified separator `sep`",
-    "complexity": 2.6593035969089933,
-    "tags": [
-      "f",
-      "string"
-    ]
+    "tags": ["f", "string"]
   },
   "id": "e1e106ad-e15d-4044-82f6-27ddd476d7c8",
   "base": true,
-  "type": "`U`",
-  "system": true
+  "type": "`U`"
 }

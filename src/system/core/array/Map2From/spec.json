@@ -17,7 +17,7 @@
         }
       }
     },
-    "lgxnwnr": {
+    "arraybuilderfrom": {
       "id": "6db1905f-2343-4c63-97d3-07f4d946ef58",
       "output": {
         "local": {
@@ -30,13 +30,13 @@
     }
   },
   "merges": {
-    "hyjndoefw": {
+    "0": {
       "foreach": {
         "output": {
           "test": true
         }
       },
-      "lgxnwnr": {
+      "arraybuilderfrom": {
         "input": {
           "test": true
         }
@@ -45,82 +45,70 @@
   },
   "inputs": {
     "b": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "foreach1",
           "pinId": "a"
         }
-      },
-      "type": "<B>[]"
+      }
     },
     "c[i]": {
-      "pin": {
+      "plug": {
         "0": {
-          "unitId": "lgxnwnr",
+          "unitId": "arraybuilderfrom",
           "pinId": "a"
         }
-      },
-      "type": "<B>"
+      }
     },
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "foreach",
           "pinId": "a"
         }
-      },
-      "type": "<A>[]"
+      }
     },
-    "hqafziavx": {
-      "functional": true,
-      "pin": {
+    "init": {
+      "plug": {
         "0": {
-          "unitId": "lgxnwnr",
+          "unitId": "arraybuilderfrom",
           "pinId": "init"
         }
       },
-      "type": "<B>[]"
+      "functional": true
     }
   },
   "outputs": {
     "b[i]": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "foreach1",
           "pinId": "a[i]"
         }
-      },
-      "type": "<B>"
+      }
     },
     "b": {
-      "pin": {
+      "plug": {
         "0": {
-          "unitId": "lgxnwnr",
+          "unitId": "arraybuilderfrom",
           "pinId": "a[]"
         }
-      },
-      "type": "<B>[]"
+      }
     },
     "a[i]": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "foreach",
           "pinId": "a[i]"
         }
-      },
-      "type": "<A>"
+      }
     }
   },
   "metadata": {
-    "icon": "map",
-    "description": "...",
-    "complexity": 5,
-    "tags": [
-      "core",
-      "array"
-    ]
+    "icon": "array",
+    "description": "map elements of arrays `a` and `b` to a new array `c` starting from index `from`",
+    "tags": ["core", "array"]
   },
   "id": "28ee1447-9e5d-4e18-8a9d-90fedfceb4ff",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

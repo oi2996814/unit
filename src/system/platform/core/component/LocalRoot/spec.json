@@ -1,0 +1,610 @@
+{
+  "name": "local root",
+  "inputs": {
+    "style": {
+      "plug": {
+        "0": {
+          "unitId": "root",
+          "pinId": "style",
+          "kind": "input"
+        }
+      },
+      "ref": false,
+      "type": "object",
+      "metadata": {
+        "position": {
+          "0": {
+            "ext": {
+              "x": 23,
+              "y": 210
+            }
+          }
+        }
+      }
+    }
+  },
+  "outputs": {},
+  "units": {
+    "root": {
+      "id": "9aba266d-5200-4281-b477-749c9b3c5815",
+      "input": {
+        "disabled": {
+          "ignored": true,
+          "metadata": {
+            "position": {
+              "x": 22,
+              "y": 216
+            }
+          }
+        },
+        "fullwindow": {
+          "ignored": true,
+          "metadata": {
+            "position": {
+              "x": 22,
+              "y": 1
+            }
+          }
+        },
+        "style": {
+          "metadata": {
+            "position": {
+              "x": 23,
+              "y": 186
+            }
+          }
+        },
+        "graph": {}
+      },
+      "output": {
+        "graph": {
+          "ignored": false,
+          "metadata": {
+            "position": {
+              "x": 6,
+              "y": 52
+            }
+          }
+        },
+        "state": {
+          "ignored": false,
+          "metadata": {
+            "position": {
+              "x": 12,
+              "y": -62
+            }
+          }
+        }
+      },
+      "metadata": {
+        "position": {
+          "x": 258,
+          "y": 76
+        }
+      }
+    },
+    "localstorage": {
+      "id": "c8f3faa8-09f4-11eb-a3b1-477aa3ec4193",
+      "input": {},
+      "output": {},
+      "metadata": {
+        "position": {
+          "x": -241,
+          "y": -227
+        }
+      }
+    },
+    "set": {
+      "id": "074ef6f4-a0a1-40f9-95c0-cf0ecc3d420c",
+      "input": {
+        "obj": {},
+        "name": {
+          "constant": true,
+          "data": "\"bundle\"",
+          "metadata": {
+            "position": {
+              "x": -146,
+              "y": -251
+            },
+            "data": {
+              "position": {
+                "x": -123,
+                "y": -279
+              }
+            }
+          }
+        },
+        "data": {}
+      },
+      "output": {
+        "data": {
+          "ignored": true,
+          "metadata": {
+            "position": {
+              "x": -135,
+              "y": -230
+            }
+          }
+        }
+      },
+      "metadata": {
+        "position": {
+          "x": -183,
+          "y": -225
+        }
+      }
+    },
+    "get": {
+      "id": "bc0320e2-2eb8-11eb-a38f-a779bfe81645",
+      "input": {
+        "obj": {},
+        "name": {
+          "constant": false
+        }
+      },
+      "output": {
+        "value": {}
+      },
+      "metadata": {
+        "position": {
+          "x": -245,
+          "y": 200
+        }
+      }
+    },
+    "localstorage0": {
+      "id": "c8f3faa8-09f4-11eb-a3b1-477aa3ec4193",
+      "input": {},
+      "output": {},
+      "metadata": {
+        "position": {
+          "x": -290,
+          "y": 233
+        }
+      }
+    },
+    "spark": {
+      "id": "3be8272d-310a-4aa2-84a1-71f590a8227a",
+      "input": {
+        "a": {
+          "constant": true,
+          "data": "\"bundle\"",
+          "metadata": {
+            "position": {
+              "x": -397,
+              "y": 174
+            },
+            "data": {
+              "position": {
+                "x": -445,
+                "y": 170
+              }
+            }
+          }
+        }
+      },
+      "output": {
+        "a": {}
+      },
+      "metadata": {
+        "position": {
+          "x": -348,
+          "y": 177
+        }
+      }
+    },
+    "swallow": {
+      "id": "ecb16ee2-d81f-4f3f-a241-b007087f5055",
+      "input": {
+        "unit": {}
+      },
+      "output": {},
+      "metadata": {
+        "position": {
+          "x": -203,
+          "y": 167
+        }
+      }
+    },
+    "stringify": {
+      "id": "2b24877a-3221-4288-9f59-efbf29964368",
+      "input": {
+        "a": {}
+      },
+      "output": {
+        "str": {}
+      },
+      "metadata": {
+        "position": {
+          "x": -91,
+          "y": -177
+        }
+      }
+    },
+    "parse": {
+      "id": "69323dab-b425-4a2a-b1c7-d7efc723327a",
+      "input": {
+        "str": {}
+      },
+      "output": {
+        "a": {}
+      },
+      "metadata": {
+        "position": {
+          "x": -137,
+          "y": 206
+        }
+      }
+    },
+    "frombundle": {
+      "id": "de2d42e2-4fca-4a3f-8783-3585c546e88b",
+      "input": {
+        "bundle": {}
+      },
+      "output": {
+        "graph": {}
+      },
+      "metadata": {
+        "position": {
+          "x": -36,
+          "y": 177
+        }
+      }
+    },
+    "listen": {
+      "id": "367241d8-ad12-11ea-beed-9777f31699a8",
+      "input": {
+        "emitter": {},
+        "event": {
+          "constant": true,
+          "data": {
+            "ref": [],
+            "data": "edit"
+          },
+          "metadata": {
+            "position": {
+              "x": -89,
+              "y": 73
+            },
+            "data": {
+              "position": {
+                "x": -116,
+                "y": 96
+              }
+            }
+          }
+        },
+        "remove": {
+          "ignored": true,
+          "metadata": {
+            "position": {
+              "x": -16,
+              "y": 25
+            }
+          }
+        }
+      },
+      "output": {
+        "data": {}
+      },
+      "metadata": {
+        "position": {
+          "x": -51,
+          "y": 49
+        }
+      }
+    },
+    "debounce": {
+      "id": "e55c58b3-8653-4481-b5c9-2a75fce6365a",
+      "input": {
+        "ms": {
+          "constant": true,
+          "data": {
+            "ref": [],
+            "data": 1000
+          },
+          "metadata": {
+            "position": {
+              "x": -206,
+              "y": 29
+            },
+            "data": {
+              "position": {
+                "x": -244,
+                "y": 35
+              }
+            }
+          }
+        },
+        "a": {}
+      },
+      "output": {
+        "a": {}
+      },
+      "metadata": {
+        "position": {
+          "x": -156,
+          "y": 21
+        }
+      }
+    },
+    "get0": {
+      "id": "bc0320e2-2eb8-11eb-a38f-a779bfe81645",
+      "input": {
+        "obj": {},
+        "name": {}
+      },
+      "output": {
+        "value": {}
+      },
+      "metadata": {
+        "position": {
+          "x": -38,
+          "y": -94
+        }
+      }
+    },
+    "wait": {
+      "id": "ba38b0af-80c0-49e4-9e39-864396964ccc",
+      "input": {
+        "a": {
+          "constant": true,
+          "data": {
+            "ref": [],
+            "data": "bundle"
+          },
+          "metadata": {
+            "position": {
+              "x": -192,
+              "y": -72
+            },
+            "data": {
+              "position": {
+                "x": -241,
+                "y": -81
+              }
+            }
+          }
+        },
+        "b": {}
+      },
+      "output": {
+        "a": {}
+      },
+      "metadata": {
+        "position": {
+          "x": -142,
+          "y": -65
+        }
+      }
+    }
+  },
+  "merges": {
+    "0": {
+      "set": {
+        "input": {
+          "obj": true
+        }
+      },
+      "localstorage": {
+        "output": {
+          "_self": true
+        }
+      }
+    },
+    "1": {
+      "set": {
+        "input": {
+          "data": true
+        }
+      },
+      "stringify": {
+        "output": {
+          "str": true
+        }
+      }
+    },
+    "2": {
+      "get": {
+        "input": {
+          "obj": true
+        }
+      },
+      "localstorage0": {
+        "output": {
+          "_self": true
+        }
+      }
+    },
+    "3": {
+      "parse": {
+        "input": {
+          "str": true
+        }
+      },
+      "get": {
+        "output": {
+          "value": true
+        }
+      }
+    },
+    "4": {
+      "root": {
+        "output": {
+          "graph": true
+        }
+      },
+      "listen": {
+        "input": {
+          "emitter": true
+        }
+      }
+    },
+    "5": {
+      "spark": {
+        "output": {
+          "a": true
+        }
+      },
+      "get": {
+        "input": {
+          "name": true
+        }
+      }
+    },
+    "6": {
+      "swallow": {
+        "input": {
+          "unit": true
+        }
+      },
+      "get": {
+        "output": {
+          "_self": true
+        }
+      }
+    },
+    "7": {
+      "get0": {
+        "output": {
+          "value": true
+        }
+      },
+      "stringify": {
+        "input": {
+          "a": true
+        }
+      }
+    },
+    "8": {
+      "debounce": {
+        "input": {
+          "a": true
+        }
+      },
+      "listen": {
+        "output": {
+          "data": true
+        }
+      }
+    },
+    "9": {
+      "frombundle": {
+        "input": {
+          "bundle": true
+        }
+      },
+      "parse": {
+        "output": {
+          "a": true
+        }
+      }
+    },
+    "10": {
+      "frombundle": {
+        "output": {
+          "graph": true
+        }
+      },
+      "root": {
+        "input": {
+          "graph": true
+        }
+      }
+    },
+    "11": {
+      "debounce": {
+        "output": {
+          "a": true
+        }
+      },
+      "wait": {
+        "input": {
+          "b": true
+        }
+      }
+    },
+    "12": {
+      "get0": {
+        "input": {
+          "obj": true
+        }
+      },
+      "root": {
+        "output": {
+          "state": true
+        }
+      }
+    },
+    "13": {
+      "wait": {
+        "output": {
+          "a": true
+        }
+      },
+      "get0": {
+        "input": {
+          "name": true
+        }
+      }
+    }
+  },
+  "render": true,
+  "component": {
+    "subComponents": {
+      "root": {
+        "children": []
+      }
+    },
+    "children": ["root"],
+    "defaultWidth": 420,
+    "defaultHeight": 420
+  },
+  "metadata": {
+    "icon": "square",
+    "description": "root app local auto-save",
+    "tags": ["platform", "core", "component"],
+    "position": {
+      "merge": {
+        "1": {
+          "x": -136,
+          "y": -202
+        },
+        "3": {
+          "x": -190,
+          "y": 209
+        },
+        "5": {
+          "x": -297,
+          "y": 185
+        },
+        "7": {
+          "x": -55,
+          "y": -141
+        },
+        "8": {
+          "x": -104,
+          "y": 36
+        },
+        "9": {
+          "x": -85,
+          "y": 195
+        },
+        "10": {
+          "x": 11,
+          "y": 151
+        },
+        "11": {
+          "x": -170,
+          "y": -25
+        },
+        "13": {
+          "x": -90,
+          "y": -80
+        }
+      }
+    }
+  },
+  "id": "e1b6acd3-69cd-4edb-8e3e-6c78ffd28b49",
+  "type": "`U`&`C`&`G`"
+}

@@ -1,24 +1,54 @@
-import { Functional } from '../../../../Class/Functional'
+import { Holder } from '../../../../Class/Holder'
 import { Unit } from '../../../../Class/Unit'
-import { UnitClass } from '../../../../types/UnitClass'
+import { System } from '../../../../system'
+import { UnitBundle } from '../../../../types/UnitBundle'
+import { ID_NEW } from '../../../_ids'
 
 export interface I<T> {
-  class: UnitClass<any>
+  class: UnitBundle<any>
+  done: any
 }
 
 export interface O<T> {
   unit: Unit<any, any>
 }
 
-export default class New<T> extends Functional<I<T>, O<T>> {
-  constructor() {
-    super({
-      i: ['class'],
-      o: ['unit'],
-    })
+export default class New<T> extends Holder<I<T>, O<T>> {
+  private _unit: Unit
+
+  constructor(system: System) {
+    super(
+      {
+        fi: ['class'],
+        fo: ['unit'],
+      },
+      {
+        output: {
+          unit: {
+            ref: true,
+          },
+        },
+      },
+      system,
+      ID_NEW
+    )
   }
 
   f({ class: Class }: I<T>, done): void {
-    done({ unit: new Class(this.__system) })
+    const unit = new Class(this.__system)
+
+    unit.play()
+
+    this._unit = unit
+
+    done({ unit })
+  }
+
+  d() {
+    if (this._unit) {
+      this._unit.destroy()
+
+      this._unit = undefined
+    }
   }
 }

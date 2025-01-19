@@ -27,7 +27,7 @@
   "merges": {},
   "inputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "pick0",
           "pinId": "b"
@@ -37,11 +37,10 @@
           "pinId": "a"
         }
       },
-      "functional": true,
-      "type": "<A>"
+      "functional": true
     },
     "c": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "pick0",
           "pinId": "c"
@@ -51,11 +50,10 @@
           "pinId": "c"
         }
       },
-      "functional": true,
-      "type": "boolean"
+      "functional": true
     },
     "b": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "pick0",
           "pinId": "a"
@@ -65,40 +63,32 @@
           "pinId": "b"
         }
       },
-      "functional": true,
-      "type": "<A>"
+      "functional": true
     }
   },
   "outputs": {
     "b": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "pick",
           "pinId": "a"
         }
-      },
-      "type": "<A>"
+      }
     },
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "pick0",
           "pinId": "a"
         }
-      },
-      "type": "<A>"
+      }
     }
   },
   "metadata": {
     "icon": "pointer",
     "description": "if `c` output `a` as `b`",
-    "complexity": 4,
-    "tags": [
-      "core",
-      "control"
-    ]
+    "tags": ["core", "control"]
   },
   "id": "f55ab180-3fd5-44c4-915f-f40e6bbcc481",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

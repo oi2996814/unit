@@ -2,21 +2,23 @@ import * as assert from 'assert'
 import { Graph } from '../../Class/Graph'
 import { SELF } from '../../constant/SELF'
 import { watchGraphAndLog, watchUnitAndLog } from '../../debug'
-import { ID_CATCH, ID_THROW } from '../spec/id'
+import { ID_CATCH, ID_THROW } from '../../system/_ids'
 import { system } from '../util/system'
 
-const graph = new Graph({}, {}, system)
+const spec = system.emptySpec()
+
+const graph = new Graph(spec, {}, system)
 
 0 && watchUnitAndLog(graph)
 0 && watchGraphAndLog(graph)
 
 graph.play()
 
-graph.addUnit({ id: ID_THROW }, 'throw')
-graph.addUnit({ id: ID_CATCH }, 'catch')
+graph.addUnitSpec('throw', { unit: { id: ID_THROW } })
+graph.addUnitSpec('catch', { unit: { id: ID_CATCH } })
 
-const catchy = graph.refUnit('catch')
-const throwy = graph.refUnit('throw')
+const catchy = graph.getUnit('catch')
+const throwy = graph.getUnit('throw')
 
 throwy.pushInput('message', 'booom!')
 

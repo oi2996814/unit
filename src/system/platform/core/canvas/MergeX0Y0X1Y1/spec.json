@@ -94,67 +94,56 @@
   "metadata": {
     "icon": "brackets-curly",
     "description": "{ x0, y0, x1, y1 }",
-    "complexity": 7,
-    "tags": [
-      "platform",
-      "core",
-      "canvas"
-    ]
+    "tags": ["platform", "core", "canvas"]
   },
   "inputs": {
     "x0": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "tag",
           "pinId": "v"
         }
       },
-      "type": "number"
+      "functional": true
     },
     "x1": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "tag0",
           "pinId": "v"
         }
       },
-      "type": "number"
+      "functional": true
     },
     "y0": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "tag1",
           "pinId": "v"
         }
       },
-      "type": "number"
+      "functional": true
     },
     "y1": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "tag2",
           "pinId": "v"
         }
       },
-      "type": "number"
+      "functional": true
     }
   },
   "outputs": {
     "{x0,y0,x1,y1}": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "merge4",
           "pinId": "abcd"
         }
-      },
-      "type": "object"
+      }
     }
   },
   "id": "2bd0d83a-bd19-425b-aa75-84a47c73fc81",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

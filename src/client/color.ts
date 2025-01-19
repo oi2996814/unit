@@ -1,3 +1,5 @@
+export type RGBA = [number, number, number, number]
+
 export const _nameToColor = {
   aliceblue: '#f0f8ff',
   antiquewhite: '#faebd7',
@@ -150,39 +152,81 @@ export function nameToColor(name: string): string {
   return _nameToColor[name]
 }
 
-export function isHEX(name: string): boolean {
-  return /^\#[a-fA-F0-9]+$/g.test(name)
+export function isHex(name: string): boolean {
+  return /^#[a-fA-F0-9]+$/g.test(name)
 }
 
-// const assert = require('assert')
-// assert(isHEX('#ff0011'))
-// assert(isHEX('#334455'))
+const rgbaRegex =
+  /^(rgb|rgba)\((\d{1,3}),\s*(\d{1,3}),\s*(\d{1,3})(?:,\s*\d{1,3})?\)|(255)$/
 
-export function RGBToHEX(r: number, g: number, b: number) {
+export function isRgbaString(color: string): boolean {
+  return rgbaRegex.test(color)
+}
+
+export function rgbaStringToHex(color: string): string {
+  const [_, __, r, g, b, a = '255'] = color.match(rgbaRegex)
+
+  return rgbaToHex_(
+    Number.parseInt(r),
+    Number.parseInt(g),
+    Number.parseInt(b),
+    Number.parseInt(a)
+  )
+}
+
+export function colorToHex(color: string): string {
+  let hex: string
+
+  if (isHex(color)) {
+    hex = color
+  } else if (isRgbaString(color)) {
+    hex = rgbaStringToHex(color)
+  } else {
+    hex = nameToColor(color) ?? color
+  }
+
+  return hex
+}
+
+export function rgbaToHex_(r: number, g: number, b: number, a: number) {
   const hex =
     '#' + (0x1000000 + r * 0x10000 + g * 0x100 + b).toString(16).slice(1)
   return hex
 }
 
-export function HEXToRGB(hex: string): number[] {
+export function rgbaToHex(rgba: RGBA): string {
+  const [r, g, b, a] = rgba
+
+  return rgbaToHex_(r, g, b, a)
+}
+
+export function hexToRgba(hex: string): RGBA {
+  hex = hex.padEnd(9, 'f')
+
   hex = hex.slice(1)
+
   const r = Number.parseInt(hex.slice(0, 2), 16)
   const g = Number.parseInt(hex.slice(2, 4), 16)
   const b = Number.parseInt(hex.slice(4, 6), 16)
-  return [r, g, b]
+  const a = Number.parseInt(hex.slice(6, 8), 16)
+
+  return [r, g, b, a]
 }
 
-export function HEXToHSV(hex: string): number[] {
-  const [r, g, b] = HEXToRGB(hex)
+export function hexToHsv(hex: string): number[] {
+  const [r, g, b] = hexToRgba(hex)
   const hsv = RGBToHSV(r, g, b)
   return hsv
 }
 
-export function hueToColor(h: number): string {
+export function hueToHex(h: number): string {
   h = h % 360
+
   let r
   let g
   let b
+  let a = 255
+
   if (h >= 0 && h < 60) {
     r = 255
     g = Math.floor(((h - 0) / 60) * 255)
@@ -209,7 +253,7 @@ export function hueToColor(h: number): string {
     b = Math.round(((360 - h) / 60) * 255)
   }
 
-  return RGBToHEX(r, g, b)
+  return rgbaToHex_(r, g, b, a)
 }
 
 // https://stackoverflow.com/questions/8022885/rgb-to-hsv-color-in-javascript
@@ -245,11 +289,13 @@ function RGBToHSV(r: number, g: number, b: number): number[] {
   return [Math.round(h * 360), percentRoundFn(s * 100), percentRoundFn(v * 100)]
 }
 
-function HSLToHEX(h: number, s: number, l: number): string {
+export function hslToHex(h: number, s: number, l: number): string {
   l = 1 - l
-  // Must be fractions of 1
+
   s /= 100
   l /= 100
+
+  let a = 255
 
   let c = (1 - Math.abs(2 * l - 1)) * s,
     x = c * (1 - Math.abs(((h / 60) % 2) - 1)),
@@ -287,10 +333,10 @@ function HSLToHEX(h: number, s: number, l: number): string {
   g = Math.round((g + m) * 255)
   b = Math.round((b + m) * 255)
 
-  return RGBToHEX(r, g, b)
+  return rgbaToHex_(r, g, b, a)
 }
 
-export function HSVToRGB(h: number, s: number, v: number): number[] {
+export function hsvToRgba(h: number, s: number, v: number): number[] {
   h = h / 360
   s = s / 100
   v = v / 100
@@ -346,8 +392,117 @@ export function HSVToRGB(h: number, s: number, v: number): number[] {
   return [r * 255, g * 255, b * 255].map(Math.round)
 }
 
-export function HSVToHEX(h: number, s: number, v: number): string {
-  const [r, g, b] = HSVToRGB(h, s, v)
-  const hex = RGBToHEX(r, g, b)
+export function hsvToHex(h: number, s: number, v: number): string {
+  const [r, g, b, a] = hsvToRgba(h, s, v)
+  const hex = rgbaToHex_(r, g, b, a)
   return hex
+}
+
+// https://stackoverflow.com/questions/35969656/how-can-i-generate-the-opposite-color-according-to-current-color
+
+export function padZero(str: string, len: number = 2) {
+  return pad('0', str, len)
+}
+
+export function padF(str: string, len: number = 2) {
+  return pad('f', str, len)
+}
+
+export function pad(char: string, str: string, len: number = 2) {
+  const zeros = new Array(len).join(char)
+
+  return (zeros + str).slice(-len)
+}
+
+export function invertColor(hex: string, bw: boolean = true): string {
+  hex = hex.slice(1)
+
+  if (hex.length === 3) {
+    hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2]
+  }
+
+  if (hex.length !== 6) {
+    throw new Error('invalid hex color')
+  }
+
+  const r = (255 - parseInt(hex.slice(0, 2), 16)).toString(16)
+  const g = (255 - parseInt(hex.slice(2, 4), 16)).toString(16)
+  const b = (255 - parseInt(hex.slice(4, 6), 16)).toString(16)
+
+  return '#' + padZero(r) + padZero(g) + padZero(b)
+}
+
+export const randomColorString = (): string => {
+  const letters = '0123456789ABCDEF'
+  let color = '#'
+  for (let i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)]
+  }
+  return color
+}
+
+export function randomColorArray(n: number): string[] {
+  const array: string[] = []
+  for (let i = 0; i < n; i++) {
+    array.push(randomColorString())
+  }
+  return array
+}
+
+export function RGBtoHSL(
+  r: number,
+  g: number,
+  b: number
+): [number, number, number] {
+  r /= 255
+  g /= 255
+  b /= 255
+  const max = Math.max(r, g, b)
+  const min = Math.min(r, g, b)
+
+  let h
+  let s
+  let l = (max + min) / 2
+
+  if (max === min) {
+    h = s = 0 // achromatic
+  } else {
+    const d = max - min
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min)
+    switch (max) {
+      case r:
+        h = (g - b) / d + (g < b ? 6 : 0)
+        break
+      case g:
+        h = (b - r) / d + 2
+        break
+      case b:
+        h = (r - g) / d + 4
+        break
+      default:
+    }
+    h /= 6
+  }
+
+  return [Math.floor(h * 360), Math.floor(s * 100), Math.floor(l * 100)]
+}
+
+export function setAlpha(color: string, alpha: number): string {
+  const h = Math.floor(alpha * 16 * 16)
+  const A0 = Math.floor(h / 16)
+  const A1 = Math.floor(h % 16)
+  const AS0 = A0.toString(16)
+  const AS1 = A1.toString(16)
+  const A = AS0 + AS1
+  return color.substring(0, 7) + A
+}
+
+export function lightenColor(color: string, percent: number): string {
+  const base = percent > 0 ? 'white' : 'black'
+
+  return `color-mix(in srgb, ${color}, ${base} ${Math.abs(percent)}%)`
+}
+
+export function darkenColor(color: string, percent: number): string {
+  return lightenColor(color, -percent)
 }

@@ -1,4 +1,7 @@
 import { Primitive } from '../../../../Primitive'
+import { System } from '../../../../system'
+import { Dict } from '../../../../types/Dict'
+import { ID_ITERATE } from '../../../_ids'
 
 export interface I<T> {
   init: T
@@ -7,17 +10,23 @@ export interface I<T> {
 
 export interface O<T> {
   current: T
+  local: T
 }
 
 export default class Iterate<T> extends Primitive<I<T>, O<T>> {
   private _current: T | undefined = undefined
   private _next: boolean = undefined
 
-  constructor() {
-    super({
-      i: ['init', 'next'],
-      o: ['local', 'current'],
-    })
+  constructor(system: System) {
+    super(
+      {
+        i: ['init', 'next'],
+        o: ['local', 'current'],
+      },
+      {},
+      system,
+      ID_ITERATE
+    )
 
     this.addListener('reset', this._reset)
   }
@@ -74,5 +83,22 @@ export default class Iterate<T> extends Primitive<I<T>, O<T>> {
       this._output.local.invalidate()
     }
     this._output.current.invalidate()
+  }
+
+  public snapshotSelf(): Dict<any> {
+    return {
+      ...super.snapshotSelf(),
+      ...(this._current !== undefined ? { _current: this._current } : {}),
+      ...(this._next !== undefined ? { _next: this._next } : {}),
+    }
+  }
+
+  public restoreSelf(state: Dict<any>): void {
+    const { _current, _next, ...rest } = state
+
+    super.restoreSelf(rest)
+
+    this._current = _current
+    this._next = _next
   }
 }

@@ -1,0 +1,257 @@
+{
+  "name": "editor | editor",
+  "inputs": {
+    "graph": {
+      "plug": {
+        "0": {
+          "unitId": "default",
+          "pinId": "a"
+        }
+      },
+      "metadata": {
+        "position": {
+          "0": {
+            "x": 59,
+            "y": -245
+          }
+        }
+      }
+    }
+  },
+  "outputs": {},
+  "units": {
+    "graph": {
+      "id": "e80c912e-7508-11ea-966b-436805345ff0",
+      "input": {
+        "style": {
+          "constant": true,
+          "data": "{position:'relative'}",
+          "metadata": {
+            "position": {
+              "x": 87,
+              "y": 55
+            }
+          }
+        },
+        "graph": {},
+        "disabled": {
+          "metadata": {
+            "position": {
+              "x": 86,
+              "y": 24
+            }
+          }
+        },
+        "fullwindow": {
+          "ignored": true,
+          "metadata": {
+            "position": {
+              "x": 92,
+              "y": -28
+            }
+          }
+        },
+        "frame": {
+          "metadata": {
+            "position": {
+              "x": 87,
+              "y": -6
+            }
+          }
+        }
+      },
+      "output": {},
+      "metadata": {
+        "position": {
+          "x": 238,
+          "y": 6
+        },
+        "component": {
+          "width": 300,
+          "height": 300
+        }
+      }
+    },
+    "new": {
+      "id": "324b9c5e-5810-11eb-bf7c-634b3bb07f8c",
+      "input": {
+        "graph": {}
+      },
+      "output": {
+        "graph": {
+          "metadata": {
+            "position": {
+              "x": 68,
+              "y": -53
+            }
+          }
+        }
+      },
+      "metadata": {
+        "position": {
+          "x": 70,
+          "y": -111
+        }
+      }
+    },
+    "default": {
+      "id": "329920ae-7e91-11ea-988e-1b12488c8b89",
+      "input": {
+        "a": {
+          "metadata": {
+            "position": {
+              "x": 72,
+              "y": -221
+            }
+          }
+        },
+        "d": {
+          "constant": true,
+          "data": "${unit:{id:'e33e7dcd-9715-461c-a474-15ed2bda899e'}}",
+          "metadata": {
+            "position": {
+              "x": 162,
+              "y": -209
+            }
+          }
+        }
+      },
+      "output": {
+        "a": {}
+      },
+      "metadata": {
+        "position": {
+          "x": 115,
+          "y": -200
+        }
+      }
+    },
+    "graph0": {
+      "id": "e80c912e-7508-11ea-966b-436805345ff0",
+      "input": {
+        "style": {
+          "constant": true,
+          "data": "{position:'relative'}",
+          "metadata": {
+            "position": {
+              "x": -249,
+              "y": -13
+            }
+          }
+        },
+        "graph": {},
+        "disabled": {
+          "metadata": {
+            "position": {
+              "x": -251,
+              "y": -46
+            }
+          }
+        },
+        "fullwindow": {
+          "ignored": true,
+          "metadata": {
+            "position": {
+              "x": -248,
+              "y": -103
+            }
+          }
+        },
+        "frame": {
+          "metadata": {
+            "position": {
+              "x": -249,
+              "y": -79
+            }
+          }
+        }
+      },
+      "output": {},
+      "metadata": {
+        "component": {
+          "width": 236.420654296875,
+          "height": 240.87225341796875
+        },
+        "position": {
+          "x": -100,
+          "y": -46
+        }
+      }
+    },
+    "verticalsplit": {
+      "id": "01791e01-bfeb-47d0-952a-8dd32a72d1fb"
+    }
+  },
+  "merges": {
+    "0": {
+      "default": {
+        "output": {
+          "a": true
+        }
+      },
+      "new": {
+        "input": {
+          "graph": true
+        }
+      }
+    },
+    "1": {
+      "new": {
+        "output": {
+          "graph": true
+        }
+      },
+      "graph0": {
+        "input": {
+          "graph": true
+        }
+      },
+      "graph": {
+        "input": {
+          "graph": true
+        }
+      }
+    }
+  },
+  "component": {
+    "slots": [
+      ["graph", "default"],
+      ["graph0", "default"]
+    ],
+    "subComponents": {
+      "verticalsplit": {
+        "children": ["graph", "graph0"],
+        "childSlot": {
+          "graph": "default",
+          "graph0": "1"
+        },
+        "width": 600,
+        "height": 300
+      },
+      "graph": {
+        "children": []
+      },
+      "graph0": {
+        "children": []
+      }
+    },
+    "children": ["verticalsplit"],
+    "defaultWidth": 600,
+    "defaultHeight": 420
+  },
+  "metadata": {
+    "icon": "atom-alt",
+    "description": "two editor side by side, connected to the same graph",
+    "tags": ["platform", "core", "graph"],
+    "position": {
+      "merge": {
+        "0": {
+          "x": 89,
+          "y": -158
+        }
+      }
+    }
+  },
+  "id": "fc9cd968-7e0d-4540-9f0e-d16afeb0d3b3",
+  "render": true
+}

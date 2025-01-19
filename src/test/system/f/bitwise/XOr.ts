@@ -1,7 +1,8 @@
 import * as assert from 'assert'
 import XOr from '../../../../system/f/bitwise/XOr'
+import { system } from '../../../util/system'
 
-const xor = new XOr()
+const xor = new XOr(system)
 
 xor.play()
 

@@ -90,118 +90,102 @@
   "metadata": {
     "icon": "undo",
     "description": "iterate over `a` and `b`",
-    "complexity": 8,
-    "tags": [
-      "core",
-      "loop"
-    ]
+    "tags": ["core", "loop"]
   },
   "inputs": {
     "next a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "mergeab1",
           "pinId": "a"
         }
-      },
-      "type": "any"
+      }
     },
     "next b": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "mergeab1",
           "pinId": "b"
         }
-      },
-      "type": "any"
+      }
     },
     "inita": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "mergeab0",
           "pinId": "a"
         }
-      },
-      "type": "any"
+      }
     },
     "initb": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "mergeab0",
           "pinId": "b"
         }
-      },
-      "type": "any"
+      }
     },
     "test": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "for",
           "pinId": "test"
         }
-      },
-      "type": "boolean"
+      }
     }
   },
   "outputs": {
     "localb": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "splitab0",
           "pinId": "b"
         }
-      },
-      "type": "any"
+      }
     },
     "locala": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "splitab0",
           "pinId": "a"
         }
-      },
-      "type": "any"
+      }
     },
     "finalb": {
-      "defaultIgnored": true,
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "splitab1",
           "pinId": "b"
         }
       },
-      "type": "any"
+      "defaultIgnored": true
     },
     "finala": {
-      "defaultIgnored": true,
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "splitab1",
           "pinId": "a"
         }
       },
-      "type": "any"
+      "defaultIgnored": true
     },
     "currenta": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "splitab2",
           "pinId": "a"
         }
-      },
-      "type": "any"
+      }
     },
     "currentb": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "splitab2",
           "pinId": "b"
         }
-      },
-      "type": "any"
+      }
     }
   },
   "id": "eee90e0f-522d-4ac4-a0f1-abf5d69a4e26",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

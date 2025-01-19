@@ -1,25 +1,43 @@
-import { Element } from '../../../../../Class/Element/Element'
+import { Field } from '../../../../../Class/Field'
+import { System } from '../../../../../system'
+import { ID_SLIDER } from '../../../../_ids'
 
 export interface I {
   value: number
   style: object
   min: number
   max: number
+  attr: object
 }
 
-export interface O {}
+export interface O {
+  value: number
+}
 
-export default class Slider extends Element<I, O> {
-  constructor() {
-    super({
-      i: ['value', 'style', 'min', 'max'],
-      o: [],
-    })
+export default class Slider extends Field<'value', I, O> {
+  constructor(system: System) {
+    super(
+      {
+        i: ['value', 'style', 'min', 'max', 'attr'],
+        o: ['value'],
+      },
+      {},
+      system,
+      ID_SLIDER,
+      'value'
+    )
 
     this._defaultState = {
       value: 0,
       min: 0,
       max: 100,
     }
+  }
+
+  initialValue() {
+    const { value = 0, min = 0, max = 100 } = this._i
+
+    // @ts-ignore
+    return this._input?.value?.peak() ? value : min
   }
 }

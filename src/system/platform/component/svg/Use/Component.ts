@@ -1,6 +1,5 @@
-import applyStyle from '../../../../../client/applyStyle'
-import namespaceURI from '../../../../../client/component/namespaceURI'
-import { Element } from '../../../../../client/element'
+import { namespaceURI } from '../../../../../client/component/namespaceURI'
+import { SVGElement_ } from '../../../../../client/svg'
 import { System } from '../../../../../system'
 import { Dict } from '../../../../../types/Dict'
 
@@ -10,40 +9,35 @@ export interface Props {
   style?: Dict<string>
 }
 
-export default class SVGUse extends Element<SVGGElement, Props> {
-  private _use_el: SVGGElement
-
+export default class SVGUse extends SVGElement_<SVGGElement, Props> {
   constructor($props: Props, $system: System) {
-    super($props, $system)
+    super(
+      $props,
+      $system,
+      $system.api.document.createElementNS(namespaceURI, 'use'),
+      $system.style['use'],
+      {},
+      {
+        href: (href: string | undefined) => {
+          if (href) {
+            this.$element.setAttributeNS(namespaceURI, 'xlink:href', href)
+            this.$element.setAttribute('href', href)
+          } else {
+            this.$element.removeAttributeNS(namespaceURI, 'xlink:href')
+            this.$element.removeAttribute('href')
+          }
+        },
+      }
+    )
 
-    const { className, style = {}, href } = this.$props
+    const { className, href } = this.$props
 
-    const use_el = document.createElementNS(namespaceURI, 'use')
     if (className !== undefined) {
-      use_el.classList.value = className
+      this.$element.classList.value = className
     }
     if (href !== undefined) {
-      use_el.setAttributeNS(namespaceURI, 'xlink:href', href)
-      use_el.setAttribute('href', href)
-    }
-    applyStyle(use_el, style)
-
-    this._use_el = use_el
-
-    this.$element = use_el
-  }
-
-  onPropChanged(prop: string, current: any): void {
-    if (prop === 'style') {
-      applyStyle(this._use_el, current)
-    } else if (prop === 'href') {
-      if (current) {
-        this._use_el.setAttributeNS(namespaceURI, 'xlink:href', current)
-        this._use_el.setAttribute('href', current)
-      } else {
-        this._use_el.removeAttributeNS(namespaceURI, 'xlink:href')
-        this._use_el.removeAttribute('href')
-      }
+      this.$element.setAttributeNS(namespaceURI, 'xlink:href', href)
+      this.$element.setAttribute('href', href)
     }
   }
 }

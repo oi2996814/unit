@@ -51,44 +51,36 @@
   },
   "inputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "mergeId": "2"
         }
-      },
-      "type": "<A>[]"
+      }
     },
     "b": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "equals",
           "pinId": "b"
         }
-      },
-      "type": "number"
+      }
     }
   },
   "outputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "ifnot",
           "pinId": "a if not b"
         }
-      },
-      "type": "<A>[]"
+      }
     }
   },
   "metadata": {
     "icon": "ruler",
     "description": "output list if size is equal to `n`?",
-    "complexity": 5,
-    "tags": [
-      "core",
-      "common"
-    ]
+    "tags": ["core", "common"]
   },
   "id": "5abe471c-c615-46ce-8a8c-158fcc8c1e5e",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

@@ -1,105 +1,50 @@
-import { Size } from '../../client/util/geometry'
-import isEqual from '../../system/f/comparisson/Equals/f'
+import { Size } from '../../client/util/geometry/types'
+import { last } from '../array'
+import { getTextLines } from './getTextLines'
 
 export const getDivTextSize = (
-  str: string,
+  text: string,
   fontSize: number,
   maxLineLength: number
 ): Size => {
-  const segments = str.split(' ')
-  let max_line_char_count = Number.MIN_SAFE_INTEGER
+  const lines = getTextLines(text, maxLineLength)
 
-  let line_count = 1
-  let line_char_count = 0
-  let line_segment_count = 0
+  if (!lines.length) {
+    return { width: 0, height: fontSize }
+  }
 
-  for (let i = 0; i < segments.length; i++) {
-    const segment = segments[i]
-    const segment_length = segment.length
+  const lastLine = last(lines)
 
-    const space_between = line_segment_count && 1
+  if (lastLine.trim() === '') {
+    lines.splice(lines.length - 1, 1)
+  }
 
-    if (line_char_count + segment_length + space_between >= maxLineLength) {
-      if (space_between) {
-        line_count +=
-          1 + Math.floor((segment_length - space_between) / maxLineLength)
+  const newText = lines.join('')
 
-        line_char_count = segment_length
-      } else {
-        line_count += Math.ceil(segment_length / maxLineLength) - 1
+  const lineCount = lines.length
 
-        line_char_count = line_count && maxLineLength
-      }
+  let maxLineCharCount = Number.MIN_SAFE_INTEGER
+  let maxLineCharIndex = Number.MIN_SAFE_INTEGER
 
-      max_line_char_count = Math.max(max_line_char_count, line_char_count)
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]
 
-      line_segment_count = 1
-    } else {
-      line_char_count += space_between + segment_length
+    const lineLength = line.trim().length
 
-      max_line_char_count = Math.max(max_line_char_count, line_char_count)
-
-      line_segment_count += 1
+    if (lineLength > maxLineCharCount) {
+      maxLineCharIndex = i
+      maxLineCharCount = lineLength
     }
   }
 
-  let width: number = (max_line_char_count * fontSize) / 2
-  let height: number = line_count * fontSize
+  const emptySpaceAround = newText.length - newText.trim().length
+
+  const isLastLine = maxLineCharIndex === lineCount - 1
+
+  const emptySpaceToAdd = isLastLine ? emptySpaceAround : 0
+
+  const width: number = ((maxLineCharCount + emptySpaceToAdd) * fontSize) / 2
+  const height: number = lineCount * fontSize
 
   return { width, height }
 }
-
-const example0 = getDivTextSize('identity', 12, 12)
-
-console.assert(
-  isEqual(example0, {
-    width: 48,
-    height: 12,
-  }),
-  example0,
-  '{ width: 48, height: 12 }'
-)
-
-const example1 = getDivTextSize('find last index from or default', 12, 12)
-
-console.assert(
-  isEqual(example1, {
-    width: 60,
-    height: 36,
-  }),
-  example1,
-  '{ width: 60, height: 36 }'
-)
-
-const example2 = getDivTextSize('012345678900012345678900', 12, 12)
-
-console.assert(
-  isEqual(example2, {
-    width: 72,
-    height: 24,
-  }),
-  example2,
-  '{ width: 72, height: 24 }'
-)
-
-const example3 = getDivTextSize('012345678901234567890123456789', 12, 12)
-
-console.assert(
-  isEqual(example3, {
-    width: 72,
-    height: 36,
-  }),
-  example3,
-  '{ width: 72, height: 36 }'
-)
-
-const example4 = getDivTextSize('not logged in', 12, 18)
-
-console.assert(
-  isEqual(example4, {
-    width: 78,
-    height: 12,
-  }),
-  example0,
-  '{ width: 78, height: 12 }'
-)

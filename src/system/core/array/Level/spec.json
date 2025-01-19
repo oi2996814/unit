@@ -4,42 +4,42 @@
     "maxlength": {
       "id": "85343b1d-93db-4fc0-8fcf-655739dbd494"
     },
-    "tjrsgp": {
+    "fillbothend": {
       "id": "b94fd858-9fa6-4487-bc2e-87801d3dfcc3"
     }
   },
   "merges": {
-    "cmywa": {
+    "0": {
       "maxlength": {
         "output": {
           "max": true
         }
       },
-      "tjrsgp": {
+      "fillbothend": {
         "input": {
           "n": true
         }
       }
     },
-    "oirwnkg": {
+    "1": {
       "maxlength": {
         "input": {
           "a": true
         }
       },
-      "tjrsgp": {
+      "fillbothend": {
         "input": {
           "a[]": true
         }
       }
     },
-    "wsguc": {
+    "2": {
       "maxlength": {
         "input": {
           "b": true
         }
       },
-      "tjrsgp": {
+      "fillbothend": {
         "input": {
           "b[]": true
         }
@@ -48,72 +48,61 @@
   },
   "inputs": {
     "with": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
-          "unitId": "tjrsgp",
+          "unitId": "fillbothend",
           "pinId": "with"
         }
       },
-      "type": "<A>"
+      "functional": true
     },
     "a[]": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
-          "mergeId": "oirwnkg"
+          "mergeId": "1"
         }
       },
-      "type": "<A>[]"
+      "functional": true
     },
     "b[]": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
-          "mergeId": "wsguc"
+          "mergeId": "2"
         }
       },
-      "type": "<A>[]"
+      "functional": true
     }
   },
   "outputs": {
     "length": {
-      "pin": {
+      "plug": {
         "0": {
-          "mergeId": "cmywa"
+          "mergeId": "0"
         }
-      },
-      "type": "number"
+      }
     },
     "b[]": {
-      "pin": {
+      "plug": {
         "0": {
-          "unitId": "tjrsgp",
+          "unitId": "fillbothend",
           "pinId": "b[]"
         }
-      },
-      "type": "<A>[]"
+      }
     },
     "a[]": {
-      "pin": {
+      "plug": {
         "0": {
-          "unitId": "tjrsgp",
+          "unitId": "fillbothend",
           "pinId": "a[]"
         }
-      },
-      "type": "<A>[]"
+      }
     }
   },
   "metadata": {
     "icon": "brackets",
     "description": "match arrays' length",
-    "complexity": 12.655226729425717,
-    "tags": [
-      "core",
-      "array"
-    ]
+    "tags": ["core", "array"]
   },
   "id": "358fa592-55e4-49f5-be28-b66e5114b266",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

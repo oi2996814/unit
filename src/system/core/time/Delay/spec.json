@@ -24,47 +24,42 @@
   },
   "inputs": {
     "ms": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "timer",
           "pinId": "ms"
         }
       },
-      "type": "number"
+      "metadata": {
+        "examples": ["500", "1000"]
+      },
+      "functional": true
     },
     "a": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "wait",
           "pinId": "a"
         }
       },
-      "type": "<A>"
+      "functional": true
     }
   },
   "outputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "wait",
           "pinId": "a"
         }
-      },
-      "type": "<A>"
+      }
     }
   },
   "metadata": {
     "icon": "alarm-clock",
-    "description": "...",
-    "complexity": 4,
-    "tags": [
-      "core",
-      "time"
-    ]
+    "description": "output after `ms` milliseconds",
+    "tags": ["core", "time"]
   },
   "id": "586fb5b8-4129-4ca1-b0c4-1009485bed95",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

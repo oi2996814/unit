@@ -9,7 +9,7 @@
     }
   },
   "merges": {
-    "merge0": {
+    "0": {
       "length": {
         "output": {
           "length": true
@@ -24,45 +24,37 @@
   },
   "inputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "length",
           "pinId": "a"
         }
-      },
-      "type": "<A>[]"
+      }
     },
     "b": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "greaterthan",
           "pinId": "b"
         }
-      },
-      "type": "number"
+      }
     }
   },
   "outputs": {
-    "true": {
-      "pin": {
+    "test": {
+      "plug": {
         "0": {
           "unitId": "greaterthan",
           "pinId": "a > b"
         }
-      },
-      "type": "boolean"
+      }
     }
   },
   "metadata": {
     "icon": "ruler",
-    "description": "is the size of `a` greater than `b`?",
-    "complexity": 4,
-    "tags": [
-      "core",
-      "common"
-    ]
+    "description": "check whether the length of `a` greater than `b`",
+    "tags": ["core", "common"]
   },
   "id": "603ebe2e-5329-446d-b422-78f3201ddd7a",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

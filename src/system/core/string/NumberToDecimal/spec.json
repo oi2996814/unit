@@ -18,36 +18,29 @@
   "merges": {},
   "inputs": {
     "n": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "numbertostring",
           "pinId": "n"
         }
-      },
-      "type": "number"
+      }
     }
   },
   "outputs": {
     "str": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "numbertostring",
           "pinId": "str"
         }
-      },
-      "type": "string"
+      }
     }
   },
   "metadata": {
     "icon": "tilde",
     "description": "convert a number to its decimal string",
-    "complexity": 4.666419583788892,
-    "tags": [
-      "core",
-      "string"
-    ]
+    "tags": ["core", "string"]
   },
   "id": "a6ab9464-303a-48a4-8b5f-0cd515ab7b8f",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

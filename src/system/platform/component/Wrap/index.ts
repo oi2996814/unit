@@ -1,36 +1,45 @@
-import { Element } from '../../../../Class/Element/Element'
-import { C } from '../../../../interface/C'
-import { C_U } from '../../../../interface/C_U'
-import { W } from '../../../../interface/W'
+import { Element_ } from '../../../../Class/Element'
+import { Unit } from '../../../../Class/Unit'
+import { bundleClass } from '../../../../spec/bundleClass'
 import { System } from '../../../../system'
-import { Dict } from '../../../../types/Dict'
-import { UnitClass } from '../../../../types/UnitClass'
+import { C } from '../../../../types/interface/C'
+import { Component_ } from '../../../../types/interface/Component'
+import { WP } from '../../../../types/interface/WP'
+import { UnitBundle } from '../../../../types/UnitBundle'
+import { ID_PARENT, ID_WRAP } from '../../../_ids'
+import _specs from '../../../_specs'
 import Parent from '../Parent'
 
 export type I = {
-  component: UnitClass
-  style: Dict<string>
+  component: UnitBundle
 }
 
 export type O = {
   parent: C
 }
 
-export default class Wrap extends Element<I, O> implements W {
-  private _Container: UnitClass<C_U> = Parent
+export default class Wrap extends Element_<I, O> implements WP {
+  private _Container: UnitBundle = bundleClass(
+    Parent,
+    {
+      unit: { id: ID_PARENT },
+    },
+    _specs
+  )
 
-  private _child_container: C_U[] = []
-  private _parent_container: C[] = []
-  private _parent_child_container: C[] = []
+  private _child_container: Component_[] = []
+  private _parent_container: Component_[] = []
+  private _parent_child_container: Component_[] = []
 
   constructor(system: System) {
     super(
-      { i: ['component', 'style'], o: ['parent'] },
+      { i: ['component'], o: ['parent'] },
       { output: { parent: { ref: true } } },
-      system
+      system,
+      ID_WRAP
     )
 
-    this.prependListener('set', ({ name, data }) => {
+    this.prependListener('set', (name, data) => {
       if (name === 'component') {
         this._Container = data
 
@@ -69,7 +78,7 @@ export default class Wrap extends Element<I, O> implements W {
 
       container.destroy()
 
-      const new_container = new this._Container()
+      const new_container = new this._Container(this.__system)
 
       new_container.play()
 
@@ -77,8 +86,8 @@ export default class Wrap extends Element<I, O> implements W {
     }
   }
 
-  appendChild(Class: UnitClass): number {
-    const container = new this._Container()
+  appendChild(Class: UnitBundle<Component_>): number {
+    const container = new this._Container(this.__system)
 
     container.play()
 
@@ -87,16 +96,16 @@ export default class Wrap extends Element<I, O> implements W {
     return super.appendChild(Class)
   }
 
-  removeChild(at: number): UnitClass {
+  removeChild(at: number): Component_ {
     this._child_container.splice(at, 1)
 
     return super.removeChild(at)
   }
 
-  registerParentRoot(component: C, slotName: string): void {
+  registerParentRoot(component: Component_, slotName: string): void {
     // console.log('Wrap', 'registerParentRoot')
 
-    const container = new this._Container()
+    const container = new this._Container(this.__system)
 
     container.play()
 
@@ -105,7 +114,7 @@ export default class Wrap extends Element<I, O> implements W {
     return super.registerParentRoot(component, slotName)
   }
 
-  unregisterParentRoot(component: C): void {
+  unregisterParentRoot(component: Unit & C): void {
     const at = this._parent_container.indexOf(component)
 
     this._parent_container.splice(at, 1)
@@ -113,7 +122,7 @@ export default class Wrap extends Element<I, O> implements W {
     return super.unregisterParentRoot(component)
   }
 
-  appendParentChild(component: C, slotName: string): void {
+  appendParentChild(component: Component_, slotName: string): void {
     // console.log('Wrap', 'appendParentChild', component.constructor.name, slotName)
 
     const container = new this._Container(this.__system)
@@ -127,7 +136,7 @@ export default class Wrap extends Element<I, O> implements W {
     super.appendParentChild(container, slotName)
   }
 
-  removeParentChild(component: C): void {
+  removeParentChild(component: Component_): void {
     const at = this._parent_children.indexOf(component)
 
     if (at > -1) {
@@ -137,19 +146,19 @@ export default class Wrap extends Element<I, O> implements W {
 
       super.removeParentChild(container)
     } else {
-      throw new Error('Parent Child not found')
+      throw new Error('parent child not found')
     }
   }
 
-  refParentRootContainer(at: number): C<any, any> {
+  refParentRootContainer(at: number): Component_ {
     return this._parent_container[at]
   }
 
-  refChildContainer(at: number): C {
+  refChildContainer(at: number): Component_ {
     return this._child_container[at]
   }
 
-  refParentChildContainer(at: number): C {
+  refParentChildContainer(at: number): Component_ {
     return this._parent_child_container[at]
   }
 }

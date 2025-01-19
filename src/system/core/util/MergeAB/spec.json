@@ -24,7 +24,7 @@
     }
   },
   "merges": {
-    "mpiooer": {
+    "0": {
       "deepmerge": {
         "input": {
           "b": true
@@ -36,7 +36,7 @@
         }
       }
     },
-    "wysaetky": {
+    "1": {
       "deepmerge": {
         "input": {
           "a": true
@@ -50,46 +50,38 @@
     }
   },
   "metadata": {
-    "icon": null,
-    "description": "no description",
-    "complexity": 5,
-    "tags": [
-      "core",
-      "util"
-    ]
+    "icon": "brackets-curly",
+    "description": "create object `ab` with values `a` and `b`",
+    "tags": ["core", "util"]
   },
   "inputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "tag1",
           "pinId": "v"
         }
-      },
-      "type": "any"
+      }
     },
     "b": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "tag0",
           "pinId": "v"
         }
-      },
-      "type": "any"
+      }
     }
   },
   "outputs": {
     "ab": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "deepmerge",
           "pinId": "ab"
         }
-      },
-      "type": "object"
+      }
     }
   },
   "id": "4e54703e-08bc-4537-ba5d-5e697a02be1f",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

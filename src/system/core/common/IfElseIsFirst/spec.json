@@ -2,42 +2,39 @@
   "name": "if else first",
   "inputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "mergeId": "1"
         }
-      },
-      "type": "<A>"
+      }
     }
   },
   "outputs": {
     "first": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "bpdlaymdf",
           "pinId": "if"
         }
-      },
-      "type": "<A>"
+      }
     },
     "!first": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "bpdlaymdf",
           "pinId": "else"
         }
-      },
-      "type": "<A>"
+      }
     }
   },
   "units": {
-    "xptoptcoq": {
+    "isfirst": {
       "id": "fb311fff-521b-4066-b830-81d3a50f0f01",
       "input": {
         "a": {}
       },
       "output": {
-        "first": {}
+        "test": {}
       },
       "metadata": {
         "position": {
@@ -71,9 +68,9 @@
           "b": true
         }
       },
-      "xptoptcoq": {
+      "isfirst": {
         "output": {
-          "first": true
+          "test": true
         }
       }
     },
@@ -83,7 +80,7 @@
           "a": true
         }
       },
-      "xptoptcoq": {
+      "isfirst": {
         "input": {
           "a": true
         }
@@ -92,14 +89,9 @@
   },
   "metadata": {
     "icon": "map-signs",
-    "description": "",
-    "complexity": 10,
-    "tags": [
-      "core",
-      "common"
-    ]
+    "description": "if else + is first",
+    "tags": ["core", "common"]
   },
   "id": "5fdf4aca-9bc3-11eb-9ae0-137ed72149df",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

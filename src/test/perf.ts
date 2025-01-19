@@ -1,10 +1,14 @@
-import { fromId } from '../spec/fromId'
-import Identity from '../system/f/control/Identity'
+import { Unit } from '../Class/Unit'
+import { bundleFromId } from '../spec/fromId'
 import _classes from '../system/_classes'
+import { ID_RANGE } from '../system/_ids'
 import _specs from '../system/_specs'
+import Identity from '../system/f/control/Identity'
+import { system } from './util/system'
 const now = require('performance-now')
 
 function log(...args) {
+  // eslint-disable-next-line no-console
   console.log(...args)
 }
 
@@ -12,13 +16,13 @@ let t0
 let t1
 
 t0 = now()
-new Identity()
+new Identity(system)
 t1 = now()
 log('new Identity()', (t1 - t0).toFixed(3))
 
 t0 = now()
-const Range = fromId<{ a: number; b: number }, { i: number }>(
-  '29e43ad7-be5e-437f-8f0f-2df996c8b89c',
+const Range = bundleFromId<Unit<{ a: number; b: number }, { i: number }>>(
+  ID_RANGE,
   _specs,
   _classes
 )
@@ -29,7 +33,7 @@ log(
 )
 
 t0 = now()
-const range = new Range()
+const range = new Range(system)
 t1 = now()
 log('const range = new Range()', (t1 - t0).toFixed(3))
 

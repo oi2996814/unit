@@ -51,52 +51,43 @@
   "metadata": {
     "icon": "info-square",
     "description": "array `a`'s first 3 elements",
-    "complexity": 5,
-    "tags": [
-      "core",
-      "array"
-    ]
+    "tags": ["core", "array"]
   },
   "inputs": {
-    "loijpa": {
-      "pin": {
+    "a": {
+      "plug": {
         "0": {
           "mergeId": "0"
         }
-      },
-      "type": "<A>[]"
+      }
     }
   },
   "outputs": {
     "0": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "at",
           "pinId": "a[i]"
         }
-      },
-      "type": "<A>"
+      }
     },
     "1": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "at0",
           "pinId": "a[i]"
         }
-      },
-      "type": "<A>"
+      }
     },
     "2": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "at1",
           "pinId": "a[i]"
         }
-      },
-      "type": "<A>"
+      }
     }
   },
   "id": "df8ed55c-5f3d-460a-a7d7-2fa5aebaac53",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

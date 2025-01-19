@@ -1,48 +1,52 @@
 import { Functional } from '../../../../../Class/Functional'
 import { Done } from '../../../../../Class/Functional/Done'
+import { System } from '../../../../../system'
+import { DeviceInfo } from '../../../../../types/global/DeviceInfo'
+import { ID_ENUMERATE_DEVICES } from '../../../../_ids'
 
 export type I = {
-  a: any
+  any: any
 }
 
 export type O = {
-  devices: {
-    deviceId: string
-    groupId: string
-    kind: string
-    label: string
-  }[]
+  devices: DeviceInfo[]
 }
 
 export default class EnumerateDevices extends Functional<I, O> {
-  constructor() {
-    super({
-      i: ['a'],
-      o: ['devices'],
-    })
+  constructor(system: System) {
+    super(
+      {
+        i: ['any'],
+        o: ['devices'],
+      },
+      {},
+      system,
+      ID_ENUMERATE_DEVICES
+    )
   }
 
-  f({ a }: I, done: Done<O>) {
-    if (!navigator.mediaDevices) {
-      return done(undefined, 'navigator.mediaDevices not supported.')
+  async f({}: I, done: Done<O>) {
+    const {
+      api: {
+        media: { enumerateDevices },
+      },
+    } = this.__system
+
+    let devices: DeviceInfo[]
+
+    try {
+      devices = (await enumerateDevices()).map((d) => ({
+        deviceId: d.deviceId,
+        kind: d.kind,
+        groupId: d.groupId,
+        label: d.label,
+      }))
+    } catch (err) {
+      done(undefined, err.message)
+
+      return
     }
 
-    if (!navigator.mediaDevices.enumerateDevices) {
-      return done(
-        undefined,
-        'navigator.mediaDevices.enumerateDevices not supported.'
-      )
-    }
-
-    navigator.mediaDevices.enumerateDevices().then((ds) => {
-      done({
-        devices: ds.map((d) => ({
-          deviceId: d.deviceId,
-          kind: d.kind,
-          groupId: d.groupId,
-          label: d.label,
-        })),
-      })
-    })
+    done({ devices })
   }
 }

@@ -1,92 +1,76 @@
-import { Callback } from '../../../../../Callback'
-import { $CS, CSOpt } from '../../../../../interface/async/$CS'
-import { ST } from '../../../../../interface/ST'
-import { ObjectSource } from '../../../../../ObjectSource'
-import { Primitive } from '../../../../../Primitive'
-import { Unlisten } from '../../../../../Unlisten'
+import { Done } from '../../../../../Class/Functional/Done'
+import { Holder } from '../../../../../Class/Holder'
+import { Source } from '../../../../../Source'
+import { System } from '../../../../../system'
+import { Callback } from '../../../../../types/Callback'
+import { CS } from '../../../../../types/interface/CS'
+import { MS } from '../../../../../types/interface/MS'
+import { Unlisten } from '../../../../../types/Unlisten'
+import { wrapMediaStream } from '../../../../../wrap/MediaStream'
+import { ID_CAPTURE_STREAM } from '../../../../_ids'
 
 export interface I {
-  source: $CS
-  opt: CSOpt
+  source: CS
+  opt: { frameRate: number }
+  stop: any
 }
 
-export interface O {}
+export interface O {
+  stream: MS
+}
 
-export default class CaptureStream extends Primitive<I, O> implements ST {
-  __ = ['U', 'ST']
+export default class CaptureStream extends Holder<I, O> {
+  __ = ['U']
 
-  private _stream: ObjectSource<MediaStream> = new ObjectSource()
+  private _stream: Source<MediaStream> = new Source()
 
-  constructor() {
+  constructor(system: System) {
     super(
       {
-        i: ['source', 'opt', 'stop'],
+        fi: ['source', 'opt'],
+        fo: ['stream'],
+        i: [],
         o: [],
       },
       {
         input: {
-          media: {
+          source: {
             ref: true,
           },
         },
-      }
+        output: {
+          stream: {
+            ref: true,
+          },
+        },
+      },
+      system,
+      ID_CAPTURE_STREAM,
+      'stop'
     )
   }
 
-  onRefInputData(name: string, data: any): void {
-    // if (name === 'source') {
-    this._setup()
-    // }
-  }
+  async f({ source, opt }: I, done: Done<O>): Promise<void> {
+    let _stream: MediaStream
 
-  onDataInputData(name: string): void {
-    if (name === 'opt') {
-      this._setup()
-    } else if (name === 'stop') {
-      this._plunk()
-      this._input.opt.pull()
-      this._input.stop.pull()
-    }
-  }
+    try {
+      _stream = await source.captureStream(opt)
+    } catch (err) {
+      done(undefined, err.message)
 
-  onRefInputDrop(name: string): void {
-    // if (name === 'name') {
-    this._plunk()
-    // }
-  }
-
-  onDataInputDrop(name: string): void {
-    if (name === 'opt') {
-      this._plunk()
-    }
-  }
-
-  private _unlisten: Unlisten
-
-  private _setup() {
-    const { source, opt } = this._i
-
-    if (source !== undefined && opt !== undefined) {
-      this._unlisten = source.$captureStream(opt, (stream: MediaStream) => {
-        this._stream.set(stream)
-      })
-    }
-  }
-
-  private _plunk() {
-    if (this._unlisten) {
-      this._unlisten()
-      this._unlisten = undefined
+      return
     }
 
+    const stream = wrapMediaStream(_stream, this.__system)
+
+    done({ stream })
+  }
+
+  d() {
     this._stream.set(null)
   }
 
-  stream(callback: Callback<MediaStream>): Unlisten {
+  mediaStream(callback: Callback<MediaStream>): Unlisten {
     return this._stream.connect(callback)
-  }
-
-  $stream({}: {}, callback: Callback<MediaStream>): Unlisten {
-    return this.stream(callback)
   }
 }

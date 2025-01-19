@@ -1,7 +1,7 @@
 {
   "name": "HTTP token auth",
   "units": {
-    "xdcafywx": {
+    "concat": {
       "id": "779e538c-b0b9-477e-a986-30ee3abe6fe6",
       "input": {
         "a": {
@@ -14,37 +14,29 @@
   "merges": {},
   "metadata": {
     "icon": "send",
-    "description": "no description",
-    "complexity": 3,
-    "tags": [
-      "platform",
-      "core",
-      "rest"
-    ]
+    "description": "build HTTP token auth value",
+    "tags": ["platform", "core", "rest"]
   },
   "inputs": {
-    "tpbfwhrq": {
-      "pin": {
+    "token": {
+      "plug": {
         "0": {
-          "unitId": "xdcafywx",
+          "unitId": "concat",
           "pinId": "b"
         }
-      },
-      "type": "string"
+      }
     }
   },
   "outputs": {
-    "shglvpnwm": {
-      "pin": {
+    "auth": {
+      "plug": {
         "0": {
-          "unitId": "xdcafywx",
+          "unitId": "concat",
           "pinId": "ab"
         }
-      },
-      "type": "string"
+      }
     }
   },
   "id": "522a9858-02c2-487a-ac04-27d2f5ebe7c3",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

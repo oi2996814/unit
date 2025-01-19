@@ -2,13 +2,12 @@
   "name": "text area to speech",
   "inputs": {
     "style": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "textarea",
           "pinId": "style"
         }
       },
-      "type": "object",
       "metadata": {
         "position": {
           "0": {
@@ -19,13 +18,12 @@
       }
     },
     "value": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "textarea",
           "pinId": "value"
         }
       },
-      "type": "string",
       "metadata": {
         "position": {
           "0": {
@@ -35,8 +33,8 @@
         }
       }
     },
-    "a": {
-      "pin": {
+    "voice": {
+      "plug": {
         "0": {
           "unitId": "default",
           "pinId": "a"
@@ -49,8 +47,7 @@
             "y": -53
           }
         }
-      },
-      "type": "number"
+      }
     }
   },
   "outputs": {},
@@ -61,7 +58,6 @@
         "message": {},
         "voice": {
           "constant": false,
-          "data": "14",
           "metadata": {
             "position": {
               "x": 200,
@@ -124,7 +120,7 @@
     "getvalue": {
       "id": "d74f12c2-1868-11eb-8136-238c1b1a727f",
       "input": {
-        "unit": {},
+        "obj": {},
         "any": {}
       },
       "output": {
@@ -184,7 +180,7 @@
       },
       "getvalue": {
         "input": {
-          "unit": true
+          "obj": true
         }
       }
     },
@@ -212,7 +208,7 @@
         }
       }
     },
-    "ntxmggphc": {
+    "3": {
       "default": {
         "output": {
           "a": true
@@ -231,21 +227,14 @@
         "children": []
       }
     },
-    "children": [
-      "textarea"
-    ],
+    "children": ["textarea"],
     "defaultWidth": 200,
     "defaultHeight": 150
   },
   "metadata": {
-    "complexity": 19.22287493282434,
     "icon": "align-left",
-    "description": "speech text on enter",
-    "tags": [
-      "platform",
-      "core",
-      "component"
-    ],
+    "description": "speak text on enter",
+    "tags": ["platform", "core", "component"],
     "position": {
       "merge": {
         "1": {
@@ -256,7 +245,7 @@
           "x": 22,
           "y": -2
         },
-        "ntxmggphc": {
+        "3": {
           "x": 130,
           "y": -14
         }
@@ -264,6 +253,6 @@
     }
   },
   "id": "360c691a-ac2d-11eb-95ec-b3053bd928da",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`C`&`G`",
+  "render": true
 }

@@ -1,6 +1,5 @@
-import applyStyle from '../../../../../client/applyStyle'
-import namespaceURI from '../../../../../client/component/namespaceURI'
-import { Element } from '../../../../../client/element'
+import { namespaceURI } from '../../../../../client/component/namespaceURI'
+import { SVGElement_ } from '../../../../../client/svg'
 import { System } from '../../../../../system'
 import { Dict } from '../../../../../types/Dict'
 
@@ -13,55 +12,77 @@ export interface Props {
   ry?: number
   width?: number
   height?: number
+  attr?: Dict<any>
 }
 
-export default class SVGRect extends Element<SVGRectElement, Props> {
-  private _rect_el: SVGRectElement
+export const DEFAULT_ATTR = {
+  width: 100,
+  height: 100,
+  x: 0,
+  y: 0,
+  rx: 0,
+  ry: 0,
+}
 
+export default class SVGRect extends SVGElement_<SVGRectElement, Props> {
   constructor($props: Props, $system: System) {
-    super($props, $system)
+    super(
+      $props,
+      $system,
+      $system.api.document.createElementNS(namespaceURI, 'rect'),
+      $system.style['rect'],
+      {},
+      {
+        x: (x: number | undefined = this.$props.attr.x ?? DEFAULT_ATTR.x) => {
+          this.$element.setAttribute('x', `${x}`)
+        },
+        y: (y: number | undefined = this.$props.attr.y ?? DEFAULT_ATTR.y) => {
+          this.$element.setAttribute('y', `${y}`)
+        },
+        width: (
+          width: number | undefined = this.$props.attr.width ??
+            DEFAULT_ATTR.width
+        ) => {
+          this.$element.setAttribute('width', `${width}`)
+        },
+        height: (
+          height: number | undefined = this.$props.attr.height ??
+            DEFAULT_ATTR.height
+        ) => {
+          this.$element.setAttribute('height', `${height}`)
+        },
+        rx: (
+          rx: number | undefined = this.$props.attr.rx ?? DEFAULT_ATTR.rx
+        ) => {
+          this.$element.setAttribute('rx', `${rx}`)
+        },
+        ry: (
+          ry: number | undefined = this.$props.attr.ry ?? DEFAULT_ATTR.ry
+        ) => {
+          this.$element.setAttribute('ry', `${ry}`)
+        },
+      }
+    )
 
     const {
       className,
-      style = {},
-      x = 0,
-      y = 0,
-      rx = 0,
-      ry = 0,
-      width = 0,
-      height = 0,
+      x = DEFAULT_ATTR.x,
+      y = DEFAULT_ATTR.y,
+      rx = DEFAULT_ATTR.rx,
+      ry = DEFAULT_ATTR.ry,
+      width = DEFAULT_ATTR.width,
+      height = DEFAULT_ATTR.height,
     } = $props
 
-    const rect_el = document.createElementNS(namespaceURI, 'rect')
     if (className !== undefined) {
-      rect_el.classList.value = className
+      this.$element.classList.value = className
     }
-    applyStyle(rect_el, style)
-    rect_el.setAttribute('x', `${x}`)
-    rect_el.setAttribute('y', `${y}`)
-    rect_el.setAttribute('rx', `${rx}`)
-    rect_el.setAttribute('ry', `${ry}`)
-    rect_el.setAttribute('width', `${width}`)
-    rect_el.setAttribute('height', `${height}`)
-    this._rect_el = rect_el
 
-    this.$element = rect_el
-  }
-
-  onPropChanged(prop: string, current: any): void {
-    if (prop === 'className') {
-      this._rect_el.className.value = current
-    } else if (prop === 'style') {
-      applyStyle(this._rect_el, current)
-    } else if (
-      prop === 'x' ||
-      prop === 'y' ||
-      prop === 'rx' ||
-      prop === 'ry' ||
-      prop === 'width' ||
-      prop === 'height'
-    ) {
-      this._rect_el.setAttribute(prop, `${current}`)
-    }
+    this.$element.setAttribute('x', `${x}`)
+    this.$element.setAttribute('y', `${y}`)
+    this.$element.setAttribute('rx', `${rx}`)
+    this.$element.setAttribute('ry', `${ry}`)
+    this.$element.setAttribute('width', `${width}`)
+    this.$element.setAttribute('height', `${height}`)
   }
 }

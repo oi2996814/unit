@@ -1,5 +1,3 @@
-import assert from '../assert'
-
 export function forEach<V>(
   array: V[],
   callback: (value: V, index: number) => void
@@ -29,24 +27,24 @@ export function at<T>(array: T[], index: number): T {
   return array[index]
 }
 
-export function removeAt<T>(array: T[], index: number): T[] {
-  return array.splice(index, 1)
+export function removeAt<T>(array: T[], index: number): void {
+  array.splice(index, 1)
 }
 
-export function remove<T>(array: T[], element: T): T[] {
+export function remove<T>(array: T[], element: T): void {
   const index = array.indexOf(element)
-  return removeAt(array, index)
+
+  removeAt(array, index)
 }
 
-export function pull<T>(array: T[], element: T): T[] {
+export function pull<T>(array: T[], element: T): void {
   const index = array.indexOf(element)
-  array = removeAt(array, index)
-  return array
+
+  removeAt(array, index)
 }
 
-export function push<T>(array: T[], element: T): T[] {
+export function push<T>(array: T[], element: T): void {
   array.push(element)
-  return array
 }
 
 export function insert<T>(array: T[], element: T, at: number): T[] {
@@ -63,10 +61,15 @@ export function lastIndex<T>(array: T[]): number {
   return _lastIndex
 }
 
-export function last<T>(array: T[]): T {
+export function last<T>(array: T[], offset: number = 0): T {
   const _lastIndex = lastIndex(array)
-  const _last = array[_lastIndex]
+  const _last = array[_lastIndex + offset]
   return _last
+}
+
+export function butLast<T>(array: T[]): T[] {
+  const _butLast = array.slice(0, -1)
+  return _butLast
 }
 
 export function pop<T>(array: T[]): [T, T[]] {
@@ -80,6 +83,14 @@ export function rangeArray(n): number[] {
   const array: number[] = []
   for (let i = 0; i < n; i++) {
     array.push(i)
+  }
+  return array
+}
+
+export function repeatArray<T>(n, value: T): T[] {
+  const array: T[] = []
+  for (let i = 0; i < n; i++) {
+    array.push(value)
   }
   return array
 }
@@ -147,61 +158,41 @@ export function _matchAllExc<T>(
   return all
 }
 
-assert.deepEqual(
-  matchAllExc([], [], () => true),
-  []
-)
-assert.deepEqual(
-  matchAllExc([0], [], () => true),
-  []
-)
-assert.deepEqual(
-  matchAllExc([0], [0], () => true),
-  [[[0, 0]]]
-)
-assert.deepEqual(
-  matchAllExc([0], [0, 1], () => true),
-  [[[0, 0]], [[0, 1]]]
-)
-assert.deepEqual(
-  matchAllExc([0, 1], [0, 1], () => true),
-  [
-    [
-      [0, 0],
-      [1, 1],
-    ],
-    [
-      [0, 1],
-      [1, 0],
-    ],
-    [
-      [1, 0],
-      [0, 1],
-    ],
-    [
-      [1, 1],
-      [0, 0],
-    ],
-  ]
-)
-assert.deepEqual(
-  matchAllExc([0, 1], [0, 1], (ai, bi) => ai > bi),
-  [[[1, 0]]]
-)
-assert.deepEqual(
-  matchAllExc([1, 0], [0, 1], (ai, bi) => ai > bi),
-  [[[0, 0]]]
-)
-assert.deepEqual(
-  matchAllExc([0, 1], [0, 1], (ai, bi) => ai * bi > 0),
-  [[[1, 1]]]
-)
-assert.deepEqual(
-  matchAllExc([0, 1], [0, 1], (ai, bi) => ai === 0),
-  [[[0, 0]], [[0, 1]]]
-)
+export function reorder<A>(array: A[], element: A, to: number): void {
+  remove(array, element)
+  insert(array, element, to)
+}
 
-assert.deepEqual(
-  matchAllExc([0, 1], [0, 1], (ai, bi) => ai === 0 && bi === 0),
-  [[[0, 0]]]
-)
+export function sum(array: number[]): number {
+  return array.reduce((acc, value) => acc + value, 0)
+}
+
+export function min(array: number[]): number {
+  return array.reduce((acc, value) => Math.min(acc, value), Infinity)
+}
+
+export function max(array: number[]): number {
+  return array.reduce((acc, value) => Math.max(acc, value), -Infinity)
+}
+
+export function shuffleInplace(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+
+    const temp = array[i]
+    array[i] = array[j]
+    array[j] = temp
+  }
+}
+
+export function shuffle(array) {
+  const shuffledArray = [...array]
+
+  for (let i = shuffledArray.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+
+    ;[shuffledArray[i], shuffledArray[j]] = [shuffledArray[j], shuffledArray[i]]
+  }
+
+  return shuffledArray
+}

@@ -1,15 +1,21 @@
+import { copy, writeFile } from 'fs-extra'
 import { build } from '../build'
 
-build({
-  minify: true,
-  sourcemap: false,
-  bundle: true,
-  logLevel: 'warning',
-  entryPoints: ['src/client/platform/web/index.ts'],
-  define: {
-    'globalThis.env': '{"NODE_ENV": "production"}',
-  },
-  outfile: 'public/index.js',
-})
+;(async () => {
+  const result = await build({
+    minify: true,
+    sourcemap: false,
+    bundle: true,
+    logLevel: 'warning',
+    entryPoints: ['src/client/platform/web/index.ts'],
+    define: {
+      'globalThis.env': '{"NODE_ENV": "production"}',
+    },
+    outfile: 'public/index.js',
+    metafile: true,
+  })
 
-export default null
+  await writeFile('public/build.json', JSON.stringify(result.metafile ?? {}))
+
+  await copy('public/index.js', 'build/web.js')
+})()

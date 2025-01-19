@@ -1,9 +1,25 @@
+import { Memory } from '../Class/Unit/Memory'
 import { System } from '../system'
-import { GraphSpec } from '../types'
-import { Component, componentClassFromSpec } from './component'
+import { Specs } from '../types'
+import { Dict } from '../types/Dict'
+import { GraphSpec } from '../types/GraphSpec'
+import { Component } from './component'
+import { componentClassFromSpec } from './componentClassFromSpec'
 
-export function componentFromSpec($system: System, spec: GraphSpec): Component {
-  const Class = componentClassFromSpec($system, spec)
-  const component = new Class({}, $system)
+export type ComponentState = {
+  data: Dict<any>
+  children: Dict<Component>
+}
+
+export function componentFromSpec(
+  system: System,
+  spec: GraphSpec,
+  specs: Specs,
+  memory?: Partial<Memory>
+): Component {
+  const Class = componentClassFromSpec(spec, specs, {}, memory)
+
+  const component = new Class({}, system)
+
   return component
 }

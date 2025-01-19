@@ -1,24 +1,24 @@
 {
   "name": "is not empty",
   "units": {
-    "qyykyqg": {
+    "isempty": {
       "id": "194683f4-5b90-4501-a8c9-b34f131d4f79",
       "input": {
-        "ftwnpzfjy": {}
+        "obj": {}
       }
     },
-    "qwicogom": {
+    "not": {
       "id": "7d02d638-a311-4ea8-a0c0-d45baf739e0d"
     }
   },
   "merges": {
     "0": {
-      "qyykyqg": {
+      "isempty": {
         "output": {
-          "unutqjyl": true
+          "test": true
         }
       },
-      "qwicogom": {
+      "not": {
         "input": {
           "a": true
         }
@@ -27,36 +27,29 @@
   },
   "metadata": {
     "icon": "question",
-    "description": "no description",
-    "complexity": 4,
-    "tags": [
-      "core",
-      "array"
-    ]
+    "description": "check whether array `a` is empty",
+    "tags": ["core", "array"]
   },
   "inputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
-          "unitId": "qyykyqg",
-          "pinId": "ftwnpzfjy"
+          "unitId": "isempty",
+          "pinId": "obj"
         }
-      },
-      "type": "<A>[]"
+      }
     }
   },
   "outputs": {
-    "!empty": {
-      "pin": {
+    "test": {
+      "plug": {
         "0": {
-          "unitId": "qwicogom",
+          "unitId": "not",
           "pinId": "!a"
         }
-      },
-      "type": "boolean"
+      }
     }
   },
   "id": "b74c6c04-8fe8-4009-9f61-b22f7a404342",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

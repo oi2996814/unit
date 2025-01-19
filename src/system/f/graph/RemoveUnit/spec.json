@@ -2,7 +2,7 @@
   "name": "remove unit",
   "inputs": {
     "graph": {
-      "type": "`U`",
+      "type": "`G`",
       "ref": true
     },
     "id": {
@@ -12,15 +12,10 @@
   "outputs": {},
   "metadata": {
     "icon": "circle",
-    "description": "add unit of `class` to `graph`",
-    "complexity": 2.6634916516872673,
-    "tags": [
-      "f",
-      "graph"
-    ]
+    "description": "remove unit `id` from `graph`",
+    "tags": ["f", "graph"]
   },
   "id": "c47d84b2-4207-11eb-a064-a3633d64f05d",
   "base": true,
-  "type": "`U`",
-  "system": true
+  "type": "`U`"
 }

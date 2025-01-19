@@ -1,0 +1,21 @@
+{
+  "name": "pause",
+  "inputs": {
+    "unit": {
+      "type": "`U`",
+      "ref": true
+    },
+    "opt": {
+      "type": "{}"
+    }
+  },
+  "outputs": {},
+  "metadata": {
+    "icon": "pause",
+    "description": "pause unit execution",
+    "tags": ["f", "unit"]
+  },
+  "id": "a85fd9ad-5aec-4ebc-9008-e22db851dfa8",
+  "base": true,
+  "type": "`U`"
+}

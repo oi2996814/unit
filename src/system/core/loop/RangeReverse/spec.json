@@ -128,44 +128,36 @@
   "metadata": {
     "icon": "sort-asc",
     "description": "regressive count from `b - 1` to `a`",
-    "complexity": 8,
-    "tags": [
-      "core",
-      "loop"
-    ]
+    "tags": ["core", "loop"]
   },
   "inputs": {
     "b": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "mergeId": "1"
         }
       },
-      "type": "number"
+      "functional": true
     },
     "a": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "mergeId": "2"
         }
       },
-      "type": "number"
+      "functional": true
     }
   },
   "outputs": {
     "i": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "subtract",
           "pinId": "a - b"
         }
-      },
-      "type": "number"
+      }
     }
   },
   "id": "7a09c38d-3866-46e3-a03e-112c4cf6d889",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

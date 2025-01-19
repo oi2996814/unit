@@ -1,4 +1,10 @@
-import { GraphSpec, Spec, Specs } from '../types'
+import { keys } from '../system/f/object/Keys/f'
+import { Classes, Spec, Specs } from '../types'
+import { GraphSpec } from '../types/GraphSpec'
+import { UnitBundleSpec } from '../types/UnitBundleSpec'
+import { deepGet } from '../util/object'
+import { weakMerge } from '../weakMerge'
+import { evaluateDataValue } from './evaluateDataValue'
 
 const HIRC = 1 // Human Information Retrieval Cost
 const GFC = 2 // Graph Fundamental Complexity
@@ -7,6 +13,7 @@ const GFC = 2 // Graph Fundamental Complexity
 
 export function treeComplexityById(
   specs: Specs,
+  classes: Classes,
   id: string,
   known: { [path: string]: boolean } = {}
 ): number {
@@ -18,11 +25,12 @@ export function treeComplexityById(
 
   const spec = specs[id]
 
-  return treeComplexity(specs, spec, known)
+  return treeComplexity(specs, classes, spec, known)
 }
 
 export function treeComplexity(
   specs: Specs,
+  classes: Classes,
   spec: Spec,
   known: { [path: string]: boolean } = {}
 ): number {
@@ -44,14 +52,27 @@ export function treeComplexity(
       const { id, input = {} } = unit
 
       for (const inputId in input) {
-        const _input = input[inputId]
+        const _input = input[inputId] ?? {}
 
-        if (_input.data !== undefined) {
-          const l = _input.data.length
+        const { data } = _input
+
+        if (data !== undefined) {
+          const dataRef = evaluateDataValue(data, specs, classes)
+
+          for (const path of dataRef.ref) {
+            const bundle = deepGet(dataRef.data, path) as UnitBundleSpec
+
+            c += treeComplexityById(
+              weakMerge(specs, bundle.specs ?? {}),
+              classes,
+              bundle.unit.id,
+              known
+            )
+          }
         }
       }
 
-      c += treeComplexityById(specs, id, known)
+      c += treeComplexityById(specs, classes, id, known)
     }
   }
 
@@ -78,7 +99,7 @@ export function graphComplexity(specs: Specs, graph: GraphSpec): number {
 export function graphMergeComplexity(graph: GraphSpec): number {
   const { merges = {} } = graph
 
-  return Object.keys(merges).length
+  return keys(merges).length
 }
 
 export function graphUnitComplexity(specs: Specs, graph: GraphSpec): number {
@@ -114,9 +135,5 @@ export function specComplexityById(specs: Specs, id: string): number {
 }
 
 export function specComplexity(spec: Spec): number {
-  return (
-    HIRC +
-    Object.keys(spec.inputs || {}).length +
-    Object.keys(spec.outputs || {}).length
-  )
+  return HIRC + keys(spec.inputs || {}).length + keys(spec.outputs || {}).length
 }

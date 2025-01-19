@@ -1,5 +1,3 @@
-import { boot } from '../../boot'
-import _classes from '../../system/_classes'
-import _specs from '../../system/_specs'
+import { boot } from '../../client/platform/node/boot'
 
-export const system = boot({ specs: _specs, classes: _classes })
+export const [system] = boot()

@@ -1,33 +1,34 @@
 import { Functional } from '../../../../Class/Functional'
 import { Done } from '../../../../Class/Functional/Done'
-import { fromId } from '../../../../spec/fromId'
-import { UnitClass } from '../../../../types/UnitClass'
+import { bundleFromId } from '../../../../spec/fromId'
+import { System } from '../../../../system'
+import { UnitBundle } from '../../../../types/UnitBundle'
+import { ID_ID_TO_CLASS } from '../../../_ids'
 
 export interface I<T> {
   id: string
 }
 
 export interface O<T> {
-  Class: UnitClass<any>
+  class: UnitBundle<any>
 }
 
 export default class IdToClass<T> extends Functional<I<T>, O<T>> {
-  constructor() {
-    super({
-      i: ['id'],
-      o: ['Class'],
-    })
+  constructor(system: System) {
+    super(
+      {
+        i: ['id'],
+        o: ['class'],
+      },
+      {},
+      system,
+      ID_ID_TO_CLASS
+    )
   }
 
   f({ id }: I<T>, done: Done<O<T>>): void {
-    if (!this.__system) {
-      done(undefined, 'unplugged')
-      return
-    }
+    const Class = bundleFromId(id, this.__system.specs, this.__system.classes)
 
-    const { specs, classes } = this.__system
-
-    const Class = fromId(id, specs, classes)
-    done({ Class })
+    done({ class: Class })
   }
 }

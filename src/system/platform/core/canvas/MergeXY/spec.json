@@ -52,17 +52,11 @@
   "metadata": {
     "icon": "brackets",
     "description": "{ x, y }",
-    "complexity": 5,
-    "tags": [
-      "platform",
-      "core",
-      "canvas"
-    ]
+    "tags": ["platform", "core", "canvas"]
   },
   "inputs": {
     "y": {
-      "type": "number",
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "tagy",
           "pinId": "y"
@@ -70,8 +64,7 @@
       }
     },
     "x": {
-      "type": "number",
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "tagx",
           "pinId": "x"
@@ -81,8 +74,7 @@
   },
   "outputs": {
     "{x,y}": {
-      "type": "{x:number,y:number}",
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "merge",
           "pinId": "ab"
@@ -91,6 +83,5 @@
     }
   },
   "id": "2737cd82-d80b-4d3f-b33d-f00f68361e24",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

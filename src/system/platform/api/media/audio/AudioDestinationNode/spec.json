@@ -1,0 +1,19 @@
+{
+  "name": "audio destination node",
+  "inputs": {
+    "node": {
+      "type": "`AN`",
+      "ref": true
+    }
+  },
+  "outputs": {},
+  "metadata": {
+    "icon": "speaker",
+    "description": "end destination of an audio graph in a given context",
+    "tags": ["platform", "api", "media", "audio"],
+    "globals": ["AudioDestinationNode"]
+  },
+  "id": "71ff4fda-5878-4d4c-b55b-c2c79d8dc546",
+  "base": true,
+  "type": "`U`"
+}

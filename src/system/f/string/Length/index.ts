@@ -1,4 +1,6 @@
 import { Functional } from '../../../../Class/Functional'
+import { System } from '../../../../system'
+import { ID_LENGTH } from '../../../_ids'
 
 export interface I {
   a: string
@@ -9,11 +11,16 @@ export interface O {
 }
 
 export default class Length extends Functional<I, O> {
-  constructor() {
-    super({
-      i: ['a'],
-      o: ['length'],
-    })
+  constructor(system: System) {
+    super(
+      {
+        i: ['a'],
+        o: ['length'],
+      },
+      {},
+      system,
+      ID_LENGTH
+    )
   }
 
   f({ a }: I, done): void {

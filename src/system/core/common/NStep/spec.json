@@ -2,13 +2,12 @@
   "name": "steps",
   "inputs": {
     "n": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "mergeId": "4"
         }
       },
-      "type": "number",
+      "functional": true,
       "metadata": {
         "position": {
           "0": {
@@ -21,12 +20,11 @@
   },
   "outputs": {
     "test": {
-      "pin": {
+      "plug": {
         "0": {
           "mergeId": "1"
         }
       },
-      "type": "boolean",
       "metadata": {
         "position": {
           "0": {
@@ -234,11 +232,7 @@
   "metadata": {
     "icon": "skip-forward",
     "description": "output true `n` times then false",
-    "complexity": 6,
-    "tags": [
-      "core",
-      "common"
-    ],
+    "tags": ["core", "common"],
     "position": {
       "merge": {
         "0": {
@@ -265,6 +259,5 @@
     }
   },
   "id": "85b8586a-0295-44fd-b3d2-24a048552700",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

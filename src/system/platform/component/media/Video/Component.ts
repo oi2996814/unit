@@ -1,103 +1,80 @@
-import applyStyle from '../../../../../client/applyStyle'
-import { Element } from '../../../../../client/element'
-import { PropHandler, htmlPropHandler } from '../../../../../client/propHandler'
-import { $ST } from '../../../../../interface/async/$ST'
+import HTMLElement_ from '../../../../../client/html'
+import { APINotSupportedError } from '../../../../../exception/APINotImplementedError'
 import { System } from '../../../../../system'
 import { Dict } from '../../../../../types/Dict'
+import { CS } from '../../../../../types/interface/CS'
+import { $MS } from '../../../../../types/interface/async/$MS'
 
 export interface Props {
   className?: string
   style?: Dict<string>
   src?: string
-  stream?: $ST
-  autoplay?: boolean
+  stream?: $MS
   controls?: boolean
+  attr?: Dict<string>
 }
 
-export const DEFAULT_STYLE = {
-  height: '100%',
-  width: '100%',
-  boxSizing: 'border-box',
-  display: 'flex',
-  // outline: 'none',
-}
-
-declare global {
-  interface HTMLVideoElement {
-    captureStream(frameRate?: number): MediaStream
-    requestPictureInPicture: () => Promise<PictureInPictureWindow>
+export default class Video_
+  extends HTMLElement_<HTMLVideoElement, Props>
+  implements CS
+{
+  public $input: Dict<string[]> = {
+    stream: ['MS'],
   }
-}
-
-export default class Video extends Element<HTMLVideoElement, Props> {
-  private _video_el: HTMLVideoElement
-
-  private prop_handler: PropHandler
 
   constructor($props: Props, $system: System) {
-    super($props, $system)
+    super(
+      $props,
+      $system,
+      $system.api.document.createElement('video'),
+      $system.style['video'],
+      {
+        autoplay: true,
+        controls: true,
+      },
+      {
+        src: (src: string | undefined) => {
+          if (src === undefined) {
+            this.$element.pause()
+            this.$element.removeAttribute('src') // empty source
+            this.$element.load()
+          } else {
+            this.$element.src = src
+          }
+        },
+        stream: (stream: $MS | undefined): void => {
+          if (stream === undefined) {
+            this.$element.srcObject = null
+          } else {
+            stream.$mediaStream({}, (_stream: MediaStream) => {
+              this.$element.srcObject = _stream
+            })
+          }
+        },
+        controls: (controls: boolean | undefined): void => {
+          if (controls === undefined) {
+            this.$element.removeAttribute('controls')
+          } else {
+            this.$element.controls = controls
+          }
+        },
+        currentTime: (t: number | undefined): void => {
+          if (t === undefined) {
+            //
+          } else {
+            this.$element.currentTime = t
+          }
+        },
+      }
+    )
 
-    const {
-      className,
-      style = {},
-      src,
-      autoplay = true,
-      controls = true,
-    } = this.$props
+    const { src, controls = true } = this.$props
 
-    const video_el = document.createElement('video')
-
-    video_el.controls = controls
-
-    if (className) {
-      video_el.className = className
-    }
+    this.$element.controls = controls
 
     if (src) {
-      video_el.src = src
+      this.$element.src = src
     }
-
-    video_el.autoplay = autoplay
-
-    applyStyle(video_el, { ...DEFAULT_STYLE, ...style })
-
-    this._video_el = video_el
-
-    this.prop_handler = {
-      ...htmlPropHandler(this._video_el, DEFAULT_STYLE),
-
-      src: (src: string | undefined) => {
-        if (src === undefined) {
-          this._video_el.pause()
-          this._video_el.removeAttribute('src') // empty source
-          this._video_el.load()
-        } else {
-          this._video_el.src = src
-        }
-      },
-      stream: (stream: $ST | undefined): void => {
-        if (stream === undefined) {
-          this._video_el.srcObject = null
-        } else {
-          stream.$stream({}, (_stream: MediaStream) => {
-            this._video_el.srcObject = _stream
-          })
-        }
-      },
-      controls: (controls: boolean | undefined): void => {
-        if (controls === undefined) {
-          this._video_el.removeAttribute('controls')
-        } else {
-          this._video_el.controls = controls
-        }
-      },
-    }
-
-    this.$element = video_el
-  }
-
-  onPropChanged(prop: string, current: any): void {
-    this.prop_handler[prop](current)
   }
 
   async captureStream({
@@ -105,17 +82,19 @@ export default class Video extends Element<HTMLVideoElement, Props> {
   }: {
     frameRate: number
   }): Promise<MediaStream> {
-    if (this._video_el.captureStream) {
-      return this._video_el.captureStream(frameRate)
+    // @ts-ignore
+    if (this.$element.captureStream) {
+      // @ts-ignore
+      return this.$element.captureStream(frameRate)
     } else {
-      throw new Error('Capture Stream API not supported')
+      throw new APINotSupportedError('Capture Stream')
     }
   }
 
-  async requestPictureInPicture(): Promise<any> {
-    if (this._video_el.requestPictureInPicture) {
+  async requestPictureInPicture(): Promise<HTMLVideoElement> {
+    if (this.$element.requestPictureInPicture) {
       try {
-        return await this._video_el.requestPictureInPicture()
+        return this.$element
       } catch (err) {
         switch (err.name) {
           case 'InvalidStateError':
@@ -129,7 +108,22 @@ export default class Video extends Element<HTMLVideoElement, Props> {
         }
       }
     } else {
-      throw new Error('Picture-in-Picture API not supported')
+      throw new APINotSupportedError('Picture-in-Picture')
     }
+  }
+
+  play(): void {
+    this.$element.play()
+  }
+
+  pause(): void {
+    this.$element.pause()
+  }
+
+  reset(): void {
+    super.reset()
+
+    this.$element.pause()
+    this.$element.currentTime = 0
   }
 }

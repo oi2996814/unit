@@ -25,66 +25,56 @@
   "merges": {},
   "inputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "foreachfrom",
           "pinId": "a"
         }
-      },
-      "type": "<A>[]"
+      }
     }
   },
   "outputs": {
     "a[i]": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "foreachfrom",
           "pinId": "a[i]"
         }
-      },
-      "type": "<A>"
+      }
     },
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "foreachfrom",
           "pinId": "a"
         }
       },
-      "defaultIgnored": true,
-      "type": "<A>[]"
+      "defaultIgnored": true
     },
     "i": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "foreachfrom",
           "pinId": "i"
         }
       },
-      "defaultIgnored": true,
-      "type": "number"
+      "defaultIgnored": true
     },
     "test": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "foreachfrom",
           "pinId": "test"
         }
       },
-      "defaultIgnored": true,
-      "type": "boolean"
+      "defaultIgnored": true
     }
   },
   "metadata": {
     "icon": "array",
     "description": "output every element of array `a`",
-    "complexity": 3,
-    "tags": [
-      "core",
-      "array"
-    ]
+    "tags": ["core", "array"]
   },
   "id": "e2da2ac1-26bd-4c91-b8ad-a0395d9c8857",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

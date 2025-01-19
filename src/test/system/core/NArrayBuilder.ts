@@ -3,22 +3,25 @@ import { Graph } from '../../../Class/Graph'
 import { watchGraphAndLog, watchUnitAndLog } from '../../../debug'
 import { fromSpec } from '../../../spec/fromSpec'
 import _specs from '../../../system/_specs'
+// import NArrayBuilder from '../../../system/core/common/NArrayBuilder/Class'
+import { system } from '../../util/system'
 
 const spec = require('../../../system/core/common/NArrayBuilder/spec.json')
 const NArrayBuilder = fromSpec(spec, _specs)
-
-// import NArrayBuilder from '../../../system/core/common/NArrayBuilder/Class'
-import { system } from '../../util/system'
 
 const nArrayBuilder = new NArrayBuilder(system)
 
 false && watchGraphAndLog(nArrayBuilder)
 false && watchUnitAndLog(nArrayBuilder)
-false && watchGraphAndLog(nArrayBuilder.refUnit('buildarrayfrom') as Graph)
+false && watchGraphAndLog(nArrayBuilder.getUnit('buildarrayfrom') as Graph)
 
 nArrayBuilder.play()
 
 nArrayBuilder.push('n', 0)
+
+nArrayBuilder.setOutputIgnored('test', true)
+nArrayBuilder.setOutputIgnored('acc', true)
+
 assert.deepEqual(nArrayBuilder.take('a[]'), [])
 assert.equal(nArrayBuilder.take('a[]'), undefined)
 assert.equal(nArrayBuilder.peakInput('n'), undefined)

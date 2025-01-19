@@ -33,7 +33,7 @@
     }
   },
   "merges": {
-    "merge0": {
+    "0": {
       "id0": {
         "input": {
           "a": true
@@ -45,7 +45,7 @@
         }
       }
     },
-    "merge1": {
+    "1": {
       "wait": {
         "output": {
           "a": true
@@ -72,7 +72,7 @@
         }
       }
     },
-    "merge2": {
+    "2": {
       "id0": {
         "output": {
           "a": true
@@ -94,7 +94,7 @@
         }
       }
     },
-    "merge3": {
+    "3": {
       "lengthequals": {
         "output": {
           "equals": true
@@ -116,7 +116,7 @@
         }
       }
     },
-    "merge4": {
+    "4": {
       "ifnot1": {
         "output": {
           "a if not b": true
@@ -143,44 +143,36 @@
   },
   "inputs": {
     "n": {
-      "pin": {
+      "plug": {
         "0": {
-          "mergeId": "merge0"
+          "mergeId": "0"
         }
-      },
-      "type": "number"
+      }
     },
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "append",
           "pinId": "b"
         }
-      },
-      "type": "<A>"
+      }
     }
   },
   "outputs": {
     "a[]": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "if",
           "pinId": "a if b"
         }
-      },
-      "type": "<A>[]"
+      }
     }
   },
   "metadata": {
     "icon": "array",
     "description": "build a list of size n",
-    "complexity": 10,
-    "tags": [
-      "core",
-      "common"
-    ]
+    "tags": ["core", "common"]
   },
   "id": "625b208c-80e8-49bc-981c-dc69cfbc429d",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

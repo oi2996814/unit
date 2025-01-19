@@ -1,69 +1,91 @@
-import { Callback } from '../Callback'
+import { Graph } from '../Class/Graph'
 import Merge from '../Class/Merge'
-import { Unit } from '../Class/Unit'
-import { Component } from '../client/component'
-import { GraphState } from '../GraphState'
-import { C } from '../interface/C'
-import { G } from '../interface/G'
-import { U } from '../interface/U'
+import { Unit, UnitEvents } from '../Class/Unit'
 import { Pin } from '../Pin'
-import { State } from '../State'
+import { isComponentSpec } from '../client/spec'
 import { System } from '../system'
-import forEachKeyValue from '../system/core/object/ForEachKeyValue/f'
-import {
-  GraphExposedPinSpec,
-  GraphExposedPinsSpec,
-  GraphExposedSubPinSpec,
-  GraphMergeSpec,
-  GraphMergesSpec,
-  GraphSpec,
-  GraphUnitSpec,
-  GraphUnitsSpec,
-  Specs,
-} from '../types'
+import forEachValueKey from '../system/core/object/ForEachKeyValue/f'
+import { keys } from '../system/f/object/Keys/f'
+import { Classes, GraphPinsSpec, GraphSubPinSpec, Specs } from '../types'
+import { Action } from '../types/Action'
+import { BundleSpec } from '../types/BundleSpec'
 import { Dict } from '../types/Dict'
-import { GraphClass } from '../types/GraphClass'
+import { GraphBundle } from '../types/GraphClass'
+import { GraphMergeSpec } from '../types/GraphMergeSpec'
+import { GraphMergesSpec } from '../types/GraphMergesSpec'
+import { GraphPinSpec } from '../types/GraphPinSpec'
+import { GraphSpec } from '../types/GraphSpec'
+import { GraphUnitSpec } from '../types/GraphUnitSpec'
+import { GraphUnitsSpec } from '../types/GraphUnitsSpec'
+import { IO } from '../types/IO'
+import { IOOf } from '../types/IOOf'
+import { UnitBundle } from '../types/UnitBundle'
+import { UnitBundleSpec } from '../types/UnitBundleSpec'
 import { UnitClass } from '../types/UnitClass'
-import { Units } from '../Units'
-import { Unlisten } from '../Unlisten'
-import { fromSpec } from './fromSpec'
+import { Unlisten } from '../types/Unlisten'
+import { AnimationSpec, C, ComponentSetup } from '../types/interface/C'
+import { ComponentEvents, Component_ } from '../types/interface/Component'
+import { G, G_MoveSubgraphIntoArgs } from '../types/interface/G'
 
 export function lazyFromSpec(
   spec: GraphSpec,
   specs: Specs,
-  branch: Dict<true> = {}
-): GraphClass {
-  const { inputs, outputs, id } = spec
+  branch: Dict<true> = {},
+  fromSpec: (
+    spec: GraphSpec,
+    specs: Specs,
+    classes: Classes,
+    branch: Dict<true>
+  ) => GraphBundle
+): UnitClass {
+  const { inputs = {}, outputs = {}, id } = spec
 
-  class Lazy<I, O> extends Unit implements G, C {
-    static __ = ['U', 'G']
-    static __id: string = id
-    static __unit = {}
-    static __spec: {}
+  class Lazy<
+      I extends Dict<any> = Dict<any>,
+      O extends Dict<any> = Dict<any>,
+      _EE extends UnitEvents<_EE> = UnitEvents<{}>,
+    >
+    extends Unit<I, O, _EE>
+    implements G, C
+  {
+    lazy = true
 
-    public stateful: boolean = false // RETURN __stateful
-    public element: boolean = false // RETURN __element
+    static __bundle: UnitBundleSpec = {
+      unit: {
+        id,
+      },
+      specs: {},
+    }
 
-    private __graph: U & C & G
+    public __ = ['U', 'G']
 
-    private _merge: { input: Dict<Merge<any>>; output: Dict<Merge<any>> } = {
+    public __element: boolean = false
+
+    private __graph: Graph<I, O>
+
+    private _merge: {
+      input: Partial<Record<keyof I, Merge<any, I, I>>>
+      output: Partial<Record<keyof O, Merge<any, O, O>>>
+    } = {
       input: {},
       output: {},
     }
 
-    constructor(system?: System) {
+    constructor(system: System) {
       super(
         {
-          i: Object.keys(inputs),
-          o: Object.keys(outputs),
+          i: keys(inputs),
+          o: keys(outputs),
         },
         branch,
-        system
+        system,
+        spec.id
       )
 
       for (const name in this._input) {
         const i = this._input[name]
-        i.addListener('_data', (data) => {
+
+        i.addListener('data', (data) => {
           this._ensure()
         })
       }
@@ -91,13 +113,231 @@ export function lazyFromSpec(
       })
     }
 
-    memAddMerge(
-      mergeId: string,
-      mergeSpec: GraphMergesSpec,
-      merge: U<any, any>
+    setName(name: string, ...extra: any[]): void {
+      this._ensure()
+      this.__graph.setName(name, ...extra)
+    }
+
+    cloneUnit(unitId: string, newUnitId: string, ...extra: any[]): void {
+      this._ensure()
+      this.__graph.cloneUnit(unitId, newUnitId, ...extra)
+    }
+
+    stopPropagation(name: string): Unlisten {
+      this._ensure()
+      return this.__graph.stopPropagation(name)
+    }
+
+    getSetup(): ComponentSetup {
+      this._ensure()
+      return this.__graph.getSetup()
+    }
+
+    setUnitPinSetId(
+      unitId: string,
+      type: IO,
+      pinId: string,
+      newPinId: string,
+      ...extra: any[]
     ): void {
       this._ensure()
-      return this.__graph.memAddMerge(mergeId, mergeSpec, merge)
+      return this.__graph.setUnitPinSetId(
+        unitId,
+        type,
+        pinId,
+        newPinId,
+        ...extra
+      )
+    }
+
+    fork(): void {
+      this._ensure()
+      return this.__graph.fork()
+    }
+
+    startTransaction(): void {
+      this._ensure()
+      return this.__graph.startTransaction()
+    }
+
+    endTransaction(): void {
+      this._ensure()
+      return this.__graph.endTransaction()
+    }
+
+    getMergeData(mergeId: string) {
+      this._ensure()
+      return this.__graph.getPlugSpecs()
+    }
+
+    getPlugSpecs(): IOOf<Dict<Dict<GraphSubPinSpec>>> {
+      this._ensure()
+      return this.__graph.getPlugSpecs()
+    }
+
+    hasMergePin(
+      mergeId: string,
+      unitId: string,
+      type: IO,
+      pinId: string
+    ): boolean {
+      this._ensure()
+      return this.__graph.hasMergePin(mergeId, unitId, type, pinId)
+    }
+
+    getMergesSpec(): GraphMergesSpec {
+      this._ensure()
+      return this.__graph.getMergesSpec()
+    }
+
+    getUnitPinData(unitId: string, type: IO, pinId: string): void {
+      this._ensure()
+      return this.__graph.getUnitPinData(unitId, type, pinId)
+    }
+
+    isUnitPinConstant(unitId: string, type: IO, pinId: string): boolean {
+      this._ensure()
+      return this.__graph.isUnitPinConstant(unitId, type, pinId)
+    }
+
+    isUnitPinRef(unitId: string, type: IO, pinId: string): boolean {
+      this._ensure()
+      return this.__graph.isUnitPinRef(unitId, type, pinId)
+    }
+
+    getExposedPinSpecs(): IOOf<GraphPinsSpec> {
+      this._ensure()
+      return this.__graph.getExposedPinSpecs()
+    }
+
+    getPinPlugCount(type: IO, pinId: string): number {
+      this._ensure()
+      return this.__graph.getPinPlugCount(type, pinId)
+    }
+
+    moveRoot(
+      parentId: string,
+      childId: string,
+      to: number,
+      slotName: string
+    ): void {
+      this._ensure()
+      return this.__graph.moveRoot(parentId, childId, to, slotName)
+    }
+
+    hasPlug(type: IO, pinId: string, subPinId: string): boolean {
+      this._ensure()
+      return this.__graph.hasPlug(type, pinId, subPinId)
+    }
+
+    removePinOrMerge(
+      mergeId: string,
+      unitId: string,
+      type: IO,
+      pinId: string,
+      ...extra: any[]
+    ): void {
+      this._ensure()
+      return this.__graph.removePinOrMerge(
+        mergeId,
+        unitId,
+        type,
+        pinId,
+        ...extra
+      )
+    }
+
+    removeMergeData(mergeId: string) {
+      this._ensure()
+      return this.__graph.removeMergeData(mergeId)
+    }
+
+    setUnitSize(unitId: string, width: number, height: number): void {
+      this._ensure()
+      return this.__graph.setUnitSize(unitId, width, height)
+    }
+
+    setSubComponentSize(unitId: string, width: number, height: number): void {
+      this._ensure()
+      return this.__graph.setSubComponentSize(unitId, width, height)
+    }
+
+    setComponentSize(unitId: string, width: number, height: number): void {
+      this._ensure()
+      return this.__graph.setComponentSize(unitId, width, height)
+    }
+
+    moveSubgraphOutOf(
+      ...[
+        graphId,
+        graphBundle,
+        graphSpec,
+        nextSpecId,
+        nodeIds,
+        nextIdMap,
+        nextPinIdMap,
+        nextMergePinId,
+        nextPlugSpec,
+        nextSubComponentParentMap,
+        nextSubComponentChildrenMap,
+        nextSubComponentIndexMap,
+        nextUnitPinMergeMap,
+        nextSubComponentSlot,
+        nextSubComponentParentSlot,
+      ]: G_MoveSubgraphIntoArgs
+    ): void {
+      this._ensure()
+      return this.__graph.moveSubgraphOutOf(
+        graphId,
+        graphBundle,
+        graphSpec,
+        nextSpecId,
+        nodeIds,
+        nextIdMap,
+        nextPinIdMap,
+        nextMergePinId,
+        nextPlugSpec,
+        nextSubComponentParentMap,
+        nextSubComponentChildrenMap,
+        nextSubComponentIndexMap,
+        nextUnitPinMergeMap,
+        nextSubComponentSlot,
+        nextSubComponentParentSlot
+      )
+    }
+
+    removeUnitPinData(unitId: string, type: IO, pinId: string) {
+      this._ensure()
+      return this.__graph.removeUnitPinData(unitId, type, pinId)
+    }
+
+    addUnitSpecs(units: GraphUnitsSpec): void {
+      this._ensure()
+      return this.__graph.addUnitSpecs(units)
+    }
+
+    addUnitSpec(
+      unitId: string,
+      unit: UnitBundleSpec,
+      parentId?: string | null,
+      emit?: boolean
+    ): Unit {
+      this._ensure()
+      return this.__graph.addUnitSpec(unitId, unit, parentId, emit)
+    }
+
+    bulkEdit(actions: Action[]): void {
+      this._ensure()
+      return this.__graph.bulkEdit(actions)
+    }
+
+    setUnitId(unitId: string, newUnitId: string, name: string): void {
+      this._ensure()
+      return this.__graph.setUnitId(unitId, newUnitId, name)
+    }
+
+    isElement(): boolean {
+      return isComponentSpec(spec)
     }
 
     getMergeSpec(mergeId: string): GraphMergeSpec {
@@ -105,51 +345,45 @@ export function lazyFromSpec(
       return this.__graph.getMergeSpec(mergeId)
     }
 
-    memRemoveUnit(unitId: string): void {
+    reorderRoot(component: Component_<ComponentEvents>, to: number): void {
       this._ensure()
-      return this.__graph.memRemoveUnit(unitId)
+      return this.__graph.reorderRoot(component, to)
     }
 
-    memRemoveMerge(mergeId: string): void {
-      this._ensure()
-      return this.__graph.memRemoveMerge(mergeId)
-    }
-
-    appendParentRoot(
-      subComponentId: string,
-      childId: string,
-      slotName: string
+    reorderParentRoot(
+      component: Component_<ComponentEvents>,
+      to: number
     ): void {
       this._ensure()
-      return this.__graph.appendParentRoot(subComponentId, childId, slotName)
+      return this.__graph.reorderParentRoot(component, to)
     }
 
-    appendParentRootChildren(
+    reorderSubComponent(parentId: string, childId: string, to: number): void {
+      this._ensure()
+      return this.__graph.reorderSubComponent(parentId, childId, to)
+    }
+
+    moveSubComponentRoot(
       subComponentId: string,
       children: string[],
       slotMap: Dict<string>
     ): void {
       this._ensure()
-      return this.__graph.appendParentRootChildren(
+      return this.__graph.moveSubComponentRoot(
         subComponentId,
         children,
         slotMap
       )
     }
 
-    appendParentChild(component: C<any, any>, slotName: string): void {
+    appendParentChild(component: Component_, slotName: string): void {
       this._ensure()
       return this.__graph.appendParentChild(component, slotName)
     }
 
-    removeParentChild(component: C<any, any>): void {
+    removeParentChild(component: Component_): void {
       this._ensure()
       return this.__graph.removeParentChild(component)
-    }
-
-    appendRoot(subComponentId: any): void {
-      this._ensure()
-      return this.__graph.appendRoot(subComponentId)
     }
 
     removeRoot(subComponentId: string): void {
@@ -158,85 +392,93 @@ export function lazyFromSpec(
     }
 
     moveSubgraphInto(
-      graphId: string,
-      nodeIds: {
-        merge: string[]
-        linkPin: {
-          unitId: string
-          type: 'input' | 'output'
-          pinId: string
-          mergeId: string
-          oppositePinId: string
-        }[]
-        unit: string[]
-      },
-      nextIdMap: {
-        merge: Dict<string>
-        linkPin: Dict<string>
-        unit: Dict<string>
-      },
-      nextPinMap: Dict<{
-        input: Dict<{ pinId: string; subPinId: string }>
-        output: Dict<{ pinId: string; subPinId: string }>
-      }>,
-      nextSubComponentParent: Dict<string | null>,
-      nextSubComponentChildrenMap: Dict<string[]>
+      ...[
+        graphId,
+        graphBundle,
+        graphSpec,
+        nextSpecId,
+        nodeIds,
+        nextIdMap,
+        nextPinIdMap,
+        nextMergePinId,
+        nextPlugSpec,
+        nextSubComponentParentMap,
+        nextSubComponentChildrenMap,
+        nextSubComponentIndexMap,
+        nextUnitPinMergeMap,
+        nextSubComponentSlot,
+        nextSubComponentParentSlot,
+      ]: G_MoveSubgraphIntoArgs
     ): void {
       this._ensure()
       return this.__graph.moveSubgraphInto(
         graphId,
+        graphBundle,
+        graphSpec,
+        nextSpecId,
         nodeIds,
         nextIdMap,
-        nextPinMap,
-        nextSubComponentParent,
-        nextSubComponentChildrenMap
+        nextPinIdMap,
+        nextMergePinId,
+        nextPlugSpec,
+        nextSubComponentParentMap,
+        nextSubComponentChildrenMap,
+        nextSubComponentIndexMap,
+        nextUnitPinMergeMap,
+        nextSubComponentSlot,
+        nextSubComponentParentSlot
       )
     }
 
-    registerRoot(component: C<any, any>): void {
+    public registerRoot(component: Component_, emit?: boolean): void {
       this._ensure()
-      return this.__graph.registerRoot(component)
+      return this.__graph.registerRoot(component, emit)
     }
 
-    unregisterRoot(component: C<any, any>): void {
+    public unregisterRoot(component: Component_, emit?: boolean): void {
       this._ensure()
-      return this.__graph.unregisterRoot(component)
+      return this.__graph.unregisterRoot(component, emit)
     }
 
-    registerParentRoot(component: C<any, any>, slotName: string): void {
+    public registerParentRoot(component: Component_, slotName: string): void {
       this._ensure()
       return this.__graph.registerParentRoot(component, slotName)
     }
 
-    unregisterParentRoot(component: C<any, any>): void {
+    public unregisterParentRoot(component: Component_): void {
       this._ensure()
       return this.__graph.unregisterParentRoot(component)
     }
 
     private _load(): void {
-      // console.log('Lazy', '_load')
-      const Class = fromSpec(spec, specs, branch)
+      // console.log('Lazy', '_load', spec.name)
+
+      const Class = fromSpec(spec, specs, this.__system.classes, branch)
+
       this.__graph = new Class(this.__system)
+
       this.__graph.addListener('err', (err) => {
         this.err(err)
       })
       this.__graph.addListener('take_err', () => {
         this.takeErr()
       })
-      forEachKeyValue(this.__graph.getOutputs(), (output, name) => {
-        const merge = new Merge(this.__system)
+
+      forEachValueKey(this.__graph.getOutputs(), (output, name) => {
+        const merge = new Merge<any, O, O>(this.__system)
         merge.play()
         this._merge.output[name] = merge
         merge.setInput(name, output)
         merge.setOutput(name, this._output[name])
       })
-      forEachKeyValue(this.__graph.getInputs(), (input, name) => {
-        const merge = new Merge(this.__system)
+      forEachValueKey(this.__graph.getInputs(), (input, name) => {
+        const merge = new Merge<any, I, I>(this.__system)
         merge.play()
         this._merge.input[name] = merge
         merge.setInput(name, this._input[name])
         merge.setOutput(name, input)
       })
+
       this.__graph.play()
     }
 
@@ -252,19 +494,9 @@ export function lazyFromSpec(
       return this.__graph.getSpec()
     }
 
-    public getSpecs(): Specs {
+    public getBundleSpec(): BundleSpec {
       this._ensure()
-      return this.__graph.getSpecs()
-    }
-
-    public async getUnitState(unitId: string): Promise<State> {
-      this._ensure()
-      return this.__graph.getUnitState(unitId)
-    }
-
-    public async getGraphState(): Promise<GraphState> {
-      this._ensure()
-      return this.__graph.getGraphState()
+      return this.__graph.getBundleSpec()
     }
 
     public getGraphChildren(): Dict<any> {
@@ -272,22 +504,32 @@ export function lazyFromSpec(
       return this.__graph.getGraphChildren()
     }
 
-    public pushChild(Class: UnitClass): number {
+    public pushChild(Bundle: UnitBundle): number {
       this._ensure()
-      return this.__graph.pushChild(Class)
+      return this.__graph.pushChild(Bundle)
     }
 
-    public appendChild(Class: UnitClass): number {
+    public appendChild(Bundle: UnitBundle): number {
       this._ensure()
-      return this.__graph.appendChild(Class)
+      return this.__graph.appendChild(Bundle)
     }
 
-    public pullChild(at: number): UnitClass {
+    public appendChildren(Classes: UnitBundle[]): number {
+      this._ensure()
+      return this.__graph.appendChildren(Classes)
+    }
+
+    public insertChild(Bundle: UnitBundle, at: number): void {
+      this._ensure()
+      return this.__graph.insertChild(Bundle, at)
+    }
+
+    public pullChild(at: number): Component_ {
       this._ensure()
       return this.__graph.pullChild(at)
     }
 
-    public removeChild(at: number): UnitClass {
+    public removeChild(at: number): Component_ {
       this._ensure()
       return this.__graph.removeChild(at)
     }
@@ -297,47 +539,69 @@ export function lazyFromSpec(
       return this.__graph.hasChild(at)
     }
 
-    public refChild(at: number): C<any, any> {
+    public refRoot(at: number): Component_ {
+      this._ensure()
+      return this.__graph.refRoot(at)
+    }
+
+    public refChild(at: number): Component_ {
       this._ensure()
       return this.__graph.refChild(at)
     }
 
-    public refChildren(): C[] {
+    public refChildren(): Component_[] {
       this._ensure()
       return this.__graph.refChildren()
     }
 
-    public refSlot(slotName: string): C<any, any> {
+    public refSlot(slotName: string): Component_ {
       this._ensure()
       return this.__graph.refSlot(slotName)
     }
 
-    public refUnits = (): Units => {
+    public setSlot(slotName: string, subComponentId: string): void {
       this._ensure()
-      return this.__graph.refUnits()
+      return this.__graph.setSlot(slotName, subComponentId)
     }
 
-    public refMergePin = (
-      mergeId: string,
-      type: 'input' | 'output'
-    ): Pin<any> => {
+    public getSlot(slotName: string): string {
       this._ensure()
-      return this.__graph.refMergePin(mergeId, type)
+      return this.__graph.getSlot(slotName)
     }
 
-    public exposeOutputSets = (outputs: GraphExposedPinsSpec): void => {
+    public animate(keyframes: Keyframe[], opt: KeyframeAnimationOptions): void {
+      this._ensure()
+      return this.__graph.animate(keyframes, opt)
+    }
+
+    public cancelAnimation(id: string): void {
+      this._ensure()
+      return this.__graph.cancelAnimation(id)
+    }
+
+    public getAnimations(): AnimationSpec[] {
+      this._ensure()
+      return this.__graph.getAnimations()
+    }
+
+    public getUnits = (): Dict<Unit> => {
+      this._ensure()
+      return this.__graph.getUnits()
+    }
+
+    public exposeOutputSets = (outputs: GraphPinsSpec): void => {
       this._ensure()
       return this.__graph.exposeOutputSets(outputs)
     }
 
-    public exposeOutputSet = (input: GraphExposedPinSpec, id: string): void => {
+    public exposeOutputSet = (input: GraphPinSpec, id: string): void => {
       this._ensure()
       return this.__graph.exposePinSet('output', id, input)
     }
 
     public exposeOutput = (
       subPinId: string,
-      pinSpec: GraphExposedSubPinSpec,
+      pinSpec: GraphSubPinSpec,
       id: string
     ): void => {
       this._ensure()
@@ -356,7 +620,7 @@ export function lazyFromSpec(
 
     public plugOutput = (
       subPinId: string,
-      subPin: GraphExposedSubPinSpec,
+      subPin: GraphSubPinSpec,
       id: string
     ): void => {
       this._ensure()
@@ -368,60 +632,37 @@ export function lazyFromSpec(
       return this.__graph.unplugOutput(subPinId, id)
     }
 
-    public isExposedOutput(pin: GraphExposedSubPinSpec): boolean {
+    public isExposedOutput(pin: GraphSubPinSpec): boolean {
       this._ensure()
       return this.__graph.isExposedOutput(pin)
     }
 
-    public exposeInputSets = (inputs: GraphExposedPinsSpec): void => {
+    public exposeInputSets = (inputs: GraphPinsSpec): void => {
       this._ensure()
       return this.__graph.exposeInputSets(inputs)
     }
 
-    public exposeInputSet = (
-      input: GraphExposedPinSpec,
-      pinId: string
-    ): void => {
+    public exposeInputSet = (input: GraphPinSpec, pinId: string): void => {
       this._ensure()
       return this.__graph.exposeInputSet(input, pinId)
     }
 
     public exposePinSet = (
-      type: 'input' | 'output',
+      type: IO,
       pinId: string,
-      pinSpec: GraphExposedPinSpec
+      pinSpec: GraphPinSpec
     ): void => {
       this._ensure()
       return this.__graph.exposePinSet(type, pinId, pinSpec)
     }
 
-    public memExposePinSet(
-      type: 'input' | 'output',
-      pinId: string,
-      pinSpec: GraphExposedPinSpec,
-      exposedPin: Pin<any>,
-      exposedMerge: Merge<any>
-    ) {
+    public setPinSetId(type: IO, pinId: string, nextPinId: string): void {
       this._ensure()
-      this.__graph.memExposePinSet(
-        type,
-        pinId,
-        pinSpec,
-        exposedPin,
-        exposedMerge
-      )
-    }
-    memExposePin(
-      type: 'input' | 'output',
-      pinId: string,
-      subPinId: string,
-      subPinSpec: GraphExposedSubPinSpec
-    ): void {
-      throw new Error('Method not implemented.')
+      return this.__graph.setPinSetId(type, pinId, nextPinId)
     }
 
     public setPinSetFunctional(
-      type: 'input' | 'output',
+      type: IO,
       name: string,
       functional: boolean
     ): void {
@@ -429,11 +670,16 @@ export function lazyFromSpec(
       return this.__graph.setPinSetFunctional(type, name, functional)
     }
 
+    setPinSetDefaultIgnored(type: IO, name: string, ignored: boolean): void {
+      this._ensure()
+      return this.__graph.setPinSetDefaultIgnored(type, name, ignored)
+    }
+
     public exposePin = (
-      type: 'input' | 'output',
+      type: IO,
       pinId: string,
       subPinId: string,
-      subPinSpec: GraphExposedSubPinSpec
+      subPinSpec: GraphSubPinSpec
     ): void => {
       this._ensure()
       return this.__graph.exposePin(type, pinId, subPinId, subPinSpec)
@@ -441,7 +687,7 @@ export function lazyFromSpec(
 
     public exposeInput = (
       subPinId: string,
-      pinSpec: GraphExposedSubPinSpec,
+      pinSpec: GraphSubPinSpec,
       pinId: string
     ): void => {
       this._ensure()
@@ -458,21 +704,17 @@ export function lazyFromSpec(
       return this.__graph.coverInput(subPinId, id)
     }
 
-    public coverPinSet = (
-      type: 'input' | 'output',
-      id: string,
-      emit: boolean = true
-    ): void => {
+    public coverPinSet = (type: IO, id: string, emit: boolean = true): void => {
       this._ensure()
 
       return this.__graph.coverPinSet(type, id, emit)
     }
 
     public plugPin = (
-      type: 'input' | 'output',
+      type: IO,
       pinId: string,
       subPinId: string,
-      subPinSpec: GraphExposedSubPinSpec
+      subPinSpec: GraphSubPinSpec
     ): void => {
       this._ensure()
       return this.plugPin(type, pinId, subPinId, subPinSpec)
@@ -480,7 +722,7 @@ export function lazyFromSpec(
 
     public plugInput = (
       subPinId: string,
-      subPin: GraphExposedSubPinSpec,
+      subPin: GraphSubPinSpec,
       id: string
     ): void => {
       this._ensure()
@@ -492,40 +734,33 @@ export function lazyFromSpec(
       return this.unplugInput(subPinId, id)
     }
 
-    public coverPin = (
-      type: 'input' | 'output',
-      id: string,
-      subPinId: string
-    ): void => {
+    public coverPin = (type: IO, id: string, subPinId: string): void => {
       this._ensure()
       return this.__graph.coverPin(type, id, subPinId)
     }
 
     public getSubPinSpec = (
-      type: 'input' | 'output',
+      type: IO,
       pinId: string,
       subPinId: string
-    ): GraphExposedSubPinSpec => {
+    ): GraphSubPinSpec => {
       this._ensure()
       return this.__graph.getSubPinSpec(type, pinId, subPinId)
     }
 
-    public unplugPin = (
-      type: 'input' | 'output',
-      pinId: string,
-      subPinId: string
-    ): void => {
+    public unplugPin = (type: IO, pinId: string, subPinId: string): void => {
       this._ensure()
       return this.__graph.unplugPin(type, pinId, subPinId)
     }
 
-    public isExposedInput(pin: GraphExposedSubPinSpec): boolean {
+    public isExposedInput(pin: GraphSubPinSpec): boolean {
       this._ensure()
       return this.__graph.isExposedInput(pin)
     }
 
-    public getExposedInputPin = (id: string): Pin<I[keyof I]> => {
+    public getExposedInputPin = <K extends keyof I>(id: K): Pin<I[K]> => {
       this._ensure()
+
       return this.__graph.getExposedInputPin(id)
     }
 
@@ -534,10 +769,7 @@ export function lazyFromSpec(
       return this.__graph.getExposedOutputPin(id)
     }
 
-    public getExposedPinSpec(
-      pinId: string,
-      type: 'input' | 'output'
-    ): GraphExposedPinSpec {
+    public getExposedPinSpec(pinId: string, type: IO): GraphPinSpec {
       this._ensure()
       return this.__graph.getExposedPinSpec(type, pinId)
     }
@@ -552,12 +784,12 @@ export function lazyFromSpec(
       return this.__graph.isExposedOutputPinId(pinId)
     }
 
-    public getExposedInputSpec(pinId: string): GraphExposedPinSpec {
+    public getExposedInputSpec(pinId: string): GraphPinSpec {
       this._ensure()
       return this.__graph.getExposedInputSpec(pinId)
     }
 
-    public getExposedOutputSpec(pinId: string): GraphExposedPinSpec {
+    public getExposedOutputSpec(pinId: string): GraphPinSpec {
       this._ensure()
       return this.__graph.getExposedOutputSpec(pinId)
     }
@@ -567,37 +799,34 @@ export function lazyFromSpec(
       return this.__graph.hasUnit(id)
     }
 
-    public getUnitSpec(unitId: string): GraphUnitSpec {
+    public hasMerge(id: string): boolean {
       this._ensure()
-      return this.__graph.getUnitSpec(unitId)
+      return this.__graph.hasMerge(id)
     }
 
-    public refUnit(id: string): U<any, any> {
+    public getGraphUnitSpec(unitId: string): GraphUnitSpec {
       this._ensure()
-      return this.__graph.refUnit(id)
+      return this.__graph.getGraphUnitSpec(unitId)
     }
 
-    public getUnitByPath(path: string[]): U<any, any> {
+    public getUnit(id: string): Unit<any, any> {
+      this._ensure()
+      return this.__graph.getUnit(id)
+    }
+
+    public getUnitByPath(path: string[]): Unit<any, any> {
       this._ensure()
       return this.__graph.getUnitByPath(path)
     }
 
-    public getUnitPin(
-      id: string,
-      type: 'input' | 'output',
-      pinId: string
-    ): Pin<any> {
+    public getUnitPin(id: string, type: IO, pinId: string): Pin<any> {
       this._ensure()
       return this.__graph.getUnitPin(id, type, pinId)
     }
 
-    public getUnitPinData(
-      id: string,
-      type: 'input' | 'output',
-      pinId: string
-    ): any {
+    public getUnitData(id: string, type: IO, pinId: string): any {
       this._ensure()
-      return this.__graph.getUnitPinData(id, type, pinId)
+      return this.__graph.getUnitData(id, type, pinId)
     }
 
     public getUnitInput(id: string, pinId: string): Pin<any> {
@@ -635,14 +864,14 @@ export function lazyFromSpec(
       return this.__graph.getUnitInputData(unitId)
     }
 
-    public refMerges(): { [id: string]: U<any> } {
+    public getMerges(): { [id: string]: Unit<any> } {
       this._ensure()
-      return this.__graph.refMerges()
+      return this.__graph.getMerges()
     }
 
-    public refMerge(mergeId: string): U<any> {
+    public getMerge(mergeId: string): Unit {
       this._ensure()
-      return this.__graph.refMerge(mergeId)
+      return this.__graph.getMerge(mergeId)
     }
 
     public getMergeCount(): number {
@@ -662,72 +891,41 @@ export function lazyFromSpec(
 
     public addUnits = (units: GraphUnitsSpec): void => {
       this._ensure()
-      return this.__graph.addUnits(units)
+      return this.__graph.addUnitSpecs(units)
     }
 
-    public addUnit = (unit: GraphUnitSpec, unitId: string): U => {
+    public addUnit = (unitId: string, unit: Unit, ...extra: any[]): void => {
       this._ensure()
-      return this.__graph.addUnit(unit, unitId)
+      return this.__graph.addUnit(unitId, unit, ...extra)
     }
 
-    memAddUnit(
+    public removeUnit(unitId: string, ...extra: any[]) {
+      this._ensure()
+      return this.__graph.removeUnit(unitId, ...extra)
+    }
+
+    public addUnitGhost(
       unitId: string,
-      unitSpec: GraphUnitSpec,
-      unit: U<any, any>
+      nextUnitId: string,
+      nextUnitBundle: UnitBundleSpec,
+      nextUnitPinMap: IOOf<Dict<string>>
     ): void {
       this._ensure()
-      return this.__graph.memAddUnit(unitId, unitSpec, unit)
+      return this.__graph.addUnitGhost(
+        unitId,
+        nextUnitId,
+        nextUnitBundle,
+        nextUnitPinMap
+      )
     }
 
-    public moveUnit(id: string, unitId: string, inputId: string): void {
-      this._ensure()
-      return this.__graph.moveUnit(id, unitId, inputId)
-    }
-
-    public moveUnitInto(
-      graphId: string,
+    public removeUnitGhost(
       unitId: string,
-      nextUnitId: string
-    ): void {
-      throw new Error('Method not implemented.')
-    }
-
-    public moveLinkPinInto(
-      graphId: string,
-      unitId: string,
-      type: 'input' | 'output',
-      pinId: string
-    ): void {
+      nextUnitId: string,
+      nextUnitSpec: GraphSpec
+    ): { specId: string; bundle: UnitBundleSpec } {
       this._ensure()
-      return this.__graph.moveLinkPinInto(graphId, unitId, type, pinId)
-    }
-
-    public moveMergeInto(
-      graphId: string,
-      mergeId: string,
-      nextMergeId: string
-    ): void {
-      this._ensure()
-      return this.__graph.moveMergeInto(graphId, mergeId, nextMergeId)
-    }
-
-    public removeUnit(unitId: string) {
-      this._ensure()
-      return this.__graph.removeUnit(unitId)
-    }
-
-    public explodeUnit(
-      unitId: string,
-      mapUnitId: Dict<string>,
-      mapMergeId: Dict<string>
-    ): void {
-      this._ensure()
-      return this.__graph.explodeUnit(unitId, mapUnitId, mapMergeId)
-    }
-
-    public addMerges = (merges: GraphMergesSpec): void => {
-      this._ensure()
-      return this.__graph.addMerges(merges)
+      return this.__graph.removeUnitGhost(unitId, nextUnitId, nextUnitSpec)
     }
 
     public addMerge = (mergeSpec: GraphMergeSpec, mergeId: string): void => {
@@ -738,7 +936,7 @@ export function lazyFromSpec(
     public addPinToMerge = (
       mergeId: string,
       unitId: string,
-      type: 'input' | 'output',
+      type: IO,
       pinId: string
     ): void => {
       this._ensure()
@@ -753,41 +951,26 @@ export function lazyFromSpec(
     public removePinFromMerge(
       mergeId: string,
       unitId: string,
-      type: 'input' | 'output',
+      type: IO,
       pinId: string
     ) {
       this._ensure()
       return this.__graph.removePinFromMerge(mergeId, unitId, type, pinId)
     }
 
-    public mergeMerges(mergeIds: string[]) {
-      this._ensure()
-      return this.__graph.mergeMerges(mergeIds)
-    }
-
     public isPinMergedTo(
       mergeId: string,
       unitId: string,
-      type: 'input' | 'output',
+      type: IO,
       pinId: string
     ) {
       this._ensure()
       return this.__graph.isPinMergedTo(mergeId, unitId, type, pinId)
     }
 
-    public togglePinMerge(
-      mergeId: string,
-      unitId: string,
-      type: 'input' | 'output',
-      pinId: string
-    ) {
-      this._ensure()
-      return this.__graph.togglePinMerge(mergeId, unitId, type, pinId)
-    }
-
     public setUnitPinConstant(
       unitId: string,
-      type: 'input' | 'output',
+      type: IO,
       pinId: string,
       constant: boolean
     ) {
@@ -833,7 +1016,7 @@ export function lazyFromSpec(
 
     public setUnitPinIgnored(
       unitId: string,
-      type: 'input' | 'output',
+      type: IO,
       pinId: string,
       ignored: boolean
     ): void {
@@ -841,12 +1024,7 @@ export function lazyFromSpec(
       return this.__graph.setUnitPinIgnored(unitId, type, pinId, ignored)
     }
 
-    public setUnitPinData(
-      unitId: string,
-      type: 'input' | 'output',
-      pinId: string,
-      data: any
-    ) {
+    public setUnitPinData(unitId: string, type: IO, pinId: string, data: any) {
       this._ensure()
       return this.__graph.setUnitPinData(unitId, type, pinId, data)
     }
@@ -869,11 +1047,6 @@ export function lazyFromSpec(
     public setMetadata(path: string[], data: any): void {
       this._ensure()
       this.__graph.setMetadata(path, data)
-    }
-
-    public setGraphState(state: any): void {
-      this._ensure()
-      this.__graph.setGraphState(state)
     }
   }
 

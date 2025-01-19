@@ -1,8 +1,6 @@
-import applyStyle from '../../../../client/applyStyle'
-import namespaceURI from '../../../../client/component/namespaceURI'
-import { Element } from '../../../../client/element'
-import { ensureIcon } from '../../../../client/ensureIcon'
-import { userSelect } from '../../../../client/style/userSelect'
+import { namespaceURI } from '../../../../client/component/namespaceURI'
+import { icons } from '../../../../client/icons'
+import { SVGElement_ } from '../../../../client/svg'
 import { System } from '../../../../system'
 import { Dict } from '../../../../types/Dict'
 
@@ -11,89 +9,55 @@ export interface Props {
   icon?: string
   title?: string
   style?: Dict<string>
-  x?: number
-  y?: number
-  width?: number
-  height?: number
-  tabIndex?: number
-  active?: boolean
+  attr?: Dict<any>
 }
 
-const DEFAULT_STYLE = {
-  display: 'flex',
-  width: '100%',
-  height: '100%',
-  strokeWidth: '1.5px',
-  strokeLinecap: 'round',
-  strokeLinejoin: 'round',
-  stroke: 'currentColor',
-  fill: 'transparent',
-  ...userSelect('none'),
-}
+export const DEFAULT_ICON_VIEWBOX = '0 0 24 24'
 
-export default class Icon extends Element<SVGSVGElement, Props> {
-  private _icon_sprite_el: SVGUseElement
-  private _svg_el: SVGSVGElement
-
+export default class Icon extends SVGElement_<SVGSVGElement, Props> {
   constructor($props: Props, $system: System) {
-    super($props, $system)
+    super(
+      $props,
+      $system,
+      $system.api.document.createElementNS(namespaceURI, 'svg'),
+      $system.style['icon'],
+      {
+        viewBox: DEFAULT_ICON_VIEWBOX,
+      },
+      {
+        icon: (icon: string | undefined = '') => {
+          const d = icons[icon] ?? ''
 
-    let { className, icon, style = {}, x, y, width, height, tabIndex } = $props
+          path_el.setAttribute('d', d)
+        },
+        title: (title: string | undefined = '') => {
+          title_el.innerHTML = title
+        },
+      }
+    )
 
-    const { title } = this.$props
+    const { className, icon, title = '' } = $props
 
-    const $element = document.createElementNS(namespaceURI, 'svg')
     if (className) {
-      $element.classList.add(className)
+      this.$element.classList.add(className)
     }
-    applyStyle($element, {
-      ...DEFAULT_STYLE,
-      ...style,
-    })
-    if (x !== undefined) {
-      $element.setAttribute('x', `${x}`)
-    }
-    if (y !== undefined) {
-      $element.setAttribute('y', `${y}`)
-    }
-    if (width !== undefined) {
-      $element.setAttribute('width', `${width}`)
-    }
-    if (height !== undefined) {
-      $element.setAttribute('height', `${height}`)
-    }
-    if (tabIndex !== undefined) {
-      $element.tabIndex = tabIndex
-    }
-    if (title) {
-      const title_el = document.createElementNS(namespaceURI, 'title')
-      title_el.innerHTML = title
-      $element.appendChild(title_el)
-    }
-    this._svg_el = $element
 
-    const icon_sprite_el = document.createElementNS(namespaceURI, 'use')
-    icon_sprite_el.setAttribute('href', `#${icon}`)
-    this._icon_sprite_el = icon_sprite_el
+    const title_el = this.$system.api.document.createElementNS(
+      namespaceURI,
+      'title'
+    )
+    title_el.innerHTML = title
+    this.$element.appendChild(title_el)
 
-    $element.appendChild(icon_sprite_el)
+    const path_el = this.$system.api.document.createElementNS(
+      namespaceURI,
+      'path'
+    )
 
-    this.$element = $element
+    const d = icons[icon] ?? ''
 
-    if (icon !== undefined) {
-      ensureIcon(this.$system, icon)
-    }
-  }
+    path_el.setAttribute('d', d)
 
-  onPropChanged(prop: string, current: any): void {
-    if (prop === 'icon') {
-      ensureIcon(this.$system, current)
-      this._icon_sprite_el.setAttribute('href', `#${current}`)
-    } else if (prop === 'style') {
-      applyStyle(this._svg_el, {
-        ...DEFAULT_STYLE,
-        ...current,
-      })
-    }
+    this.$element.appendChild(path_el)
   }
 }

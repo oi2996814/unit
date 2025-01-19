@@ -1,0 +1,37 @@
+{
+  "name": "pin",
+  "inputs": {
+    "unit": {
+      "type": "`U`",
+      "ref": true
+    },
+    "name": {
+      "type": "string"
+    },
+    "type": {
+      "type": "'input'|'output'"
+    },
+    "done": {
+      "type": "any",
+      "defaultIgnored": true
+    }
+  },
+  "outputs": {
+    "pin": {
+      "type": "`V`",
+      "ref": true
+    },
+    "done": {
+      "type": "any",
+      "defaultIgnored": true
+    }
+  },
+  "metadata": {
+    "icon": "unit",
+    "description": "reference `unit` pin with `type` and `name`",
+    "tags": ["platform", "unit"]
+  },
+  "id": "fd4f28bb-9114-46b4-92d2-5dfcaaf7d65b",
+  "type": "`U`",
+  "base": true
+}

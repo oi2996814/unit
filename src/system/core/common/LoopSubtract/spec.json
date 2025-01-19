@@ -51,71 +51,60 @@
   "metadata": {
     "icon": "undo",
     "description": "loop subtract the value of `-` from the current value",
-    "complexity": 4,
-    "tags": [
-      "core",
-      "common"
-    ]
+    "tags": ["core", "common"]
   },
   "inputs": {
     "test": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "loop",
           "pinId": "test"
         }
-      },
-      "type": "boolean"
+      }
     },
     "init": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "loop",
           "pinId": "init"
         }
       },
-      "type": "number"
+      "functional": true
     },
     "-": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "subtract",
           "pinId": "b"
         }
-      },
-      "type": "number"
+      }
     }
   },
   "outputs": {
     "final": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "loop",
           "pinId": "final"
         }
-      },
-      "type": "number"
+      }
     },
     "local": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "loop",
           "pinId": "local"
         }
-      },
-      "type": "number"
+      }
     },
     "current": {
-      "pin": {
+      "plug": {
         "0": {
           "mergeId": "1"
         }
-      },
-      "type": "number"
+      }
     }
   },
   "id": "6a006c91-181c-48c4-826d-a6eaec21fea3",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

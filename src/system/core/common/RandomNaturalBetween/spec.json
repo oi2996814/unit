@@ -12,7 +12,7 @@
     }
   },
   "merges": {
-    "gttr": {
+    "0": {
       "add": {
         "input": {
           "a": true
@@ -24,7 +24,7 @@
         }
       }
     },
-    "zlxzv": {
+    "1": {
       "add": {
         "input": {
           "b": true
@@ -36,7 +36,7 @@
         }
       }
     },
-    "qcklqt": {
+    "2": {
       "randomnaturallt": {
         "input": {
           "max": true
@@ -51,46 +51,38 @@
   },
   "inputs": {
     "a": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
-          "mergeId": "gttr"
+          "mergeId": "0"
         }
       },
-      "type": "number"
+      "functional": true
     },
     "b": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "subtract",
           "pinId": "a"
         }
       },
-      "type": "number"
+      "functional": true
     }
   },
   "outputs": {
     "n": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "add",
           "pinId": "a + b"
         }
-      },
-      "type": "number"
+      }
     }
   },
   "metadata": {
     "icon": "random",
     "description": "output random natural `n` between `a` and `b`, not inclusive",
-    "complexity": 5,
-    "tags": [
-      "core",
-      "common"
-    ]
+    "tags": ["core", "common"]
   },
   "id": "9d2b69b2-c468-4fca-a7d5-d158033c0201",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

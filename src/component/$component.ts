@@ -1,34 +1,31 @@
-import { Callback } from '../Callback'
-import { Component } from '../client/component'
-import { $Component } from '../interface/async/$Component'
-import { Async } from '../interface/async/Async'
-import { C } from '../interface/C'
-import { C_U } from '../interface/C_U'
-import { W } from '../interface/W'
-import { proxyWrap } from '../proxyWrap'
-import { UnitClass } from '../types/UnitClass'
-import { Unlisten } from '../Unlisten'
-import { $Child } from './Child'
-import { $Children } from './Children'
+import { Callback } from '../types/Callback'
+import { $Component } from '../types/interface/async/$Component'
+import { Async } from '../types/interface/async/Async'
+import { AnimationSpec, C, ComponentSetup } from '../types/interface/C'
+import { Component_ } from '../types/interface/Component'
+import { UnitBundle } from '../types/UnitBundle'
+import { Child } from './Child'
+import { Children } from './Children'
 
 export function $appendChild(
-  component: C,
-  Class: UnitClass<C_U>,
+  component: Component_,
+  Class: UnitBundle<Component_>,
   callback: Callback<number>
 ): void {
   const i = component.appendChild(Class)
+
   callback(i)
 }
 
 export function $removeChild(
-  component: C,
+  component: Component_,
   { at }: { at: number },
   callback: Callback<{ specId: string }>
 ): void {
   try {
-    const Class = component.removeChild(at)
-    // @ts-ignore
-    const specId = Class.constructor.__id
+    const child = component.removeChild(at)
+    const bundle = child.getUnitBundleSpec()
+    const specId = bundle.unit.id
     callback({ specId })
   } catch (err) {
     callback(undefined, err.message)
@@ -36,7 +33,7 @@ export function $removeChild(
 }
 
 export function $hasChild(
-  component: C,
+  component: Component_,
   { at }: { at: number },
   callback: Callback<boolean>
 ): void {
@@ -45,9 +42,9 @@ export function $hasChild(
 }
 
 export function $child(
-  component: C,
+  component: Component_,
   { at }: { at: number },
-  callback: Callback<$Child>
+  callback: Callback<Child>
 ): void {
   const child = component.refChild(at)
   // @ts-ignore
@@ -56,52 +53,57 @@ export function $child(
 }
 
 export function $children(
-  component: C,
+  component: Component_,
   {},
-  callback: Callback<$Children>
+  callback: Callback<Children>
 ): void {
   const children = component.refChildren()
 
   const _children = children.map((c) => {
-    // @ts-ignore
-    return { id: c.constructor.__id } as $Child
+    return { bundle: c.getUnitBundleSpec() } as Child
   })
 
   callback(_children)
 }
 
+export function $refRoot(
+  component: Component_,
+  { at, _ }: { at: number; _: string[] }
+): $Component {
+  const root = component.refRoot(at)
+
+  const $root = Async(root, _, component.__system.async)
+
+  return $root
+}
+
 export function $refChild(
-  component: C,
+  component: Component_,
   { at, _ }: { at: number; _: string[] }
 ): $Component {
   const child = component.refChild(at)
-  const local_child = Async(child, _)
-  return proxyWrap(local_child, _)
+
+  const $child = Async(child, _, component.__system.async)
+
+  return $child
 }
 
-export function $refChildContainer(
-  component: W,
-  { at, _ }: { at: number; _: string[] }
-): $Component {
-  const container = component.refChildContainer(at)
-  const local_child = Async(container, _)
-  return proxyWrap(local_child, _)
+export function $getAnimations(
+  component: C,
+  data: {},
+  callback: Callback<AnimationSpec[]>
+): void {
+  const animations = component.getAnimations()
+
+  callback(animations)
 }
 
-export function $refParentRootContainer(
-  component: W,
-  { at, _ }: { at: number; _: string[] }
-): $Component {
-  const container = component.refParentRootContainer(at)
-  const local_child = Async(container, _)
-  return proxyWrap(local_child, _)
-}
+export function $getSetup(
+  component: C,
+  data: {},
+  callback: Callback<ComponentSetup>
+): void {
+  const setup = component.getSetup()
 
-export function $refParentChildContainer(
-  component: W,
-  { at, _ }: { at: number; _: string[] }
-): $Component {
-  const container = component.refParentChildContainer(at)
-  const local_child = Async(container, _)
-  return proxyWrap(local_child, _)
+  callback(setup)
 }

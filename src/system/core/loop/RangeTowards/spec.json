@@ -2,43 +2,39 @@
   "name": "range towards",
   "inputs": {
     "end": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "looprepeat",
           "pinId": "init"
         }
       },
-      "functional": true,
-      "type": "number"
+      "functional": true
     },
     "start": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "loopadd",
           "pinId": "init"
         }
       },
-      "functional": true,
-      "type": "number"
+      "functional": true
     }
   },
   "outputs": {
     "final": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "loopadd",
           "pinId": "final"
         }
-      },
-      "type": "number"
+      }
     },
     "current": {
-      "pin": {
+      "plug": {
         "0": {
           "mergeId": "2"
         }
-      },
-      "type": "number"
+      }
     }
   },
   "units": {
@@ -251,7 +247,6 @@
   "metadata": {
     "icon": "list-ordered",
     "description": "go from `a` to `b` step by step, not inclusive",
-    "complexity": 7,
     "position": {
       "merge": {
         "0": {
@@ -284,12 +279,8 @@
         }
       }
     },
-    "tags": [
-      "core",
-      "loop"
-    ]
+    "tags": ["core", "loop"]
   },
   "id": "06203a50-ace2-4c4e-9088-0951342c6b52",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

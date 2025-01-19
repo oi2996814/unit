@@ -12,8 +12,6 @@ export interface O {
   'a + b': number
 }
 
-const __id = ID_ADD
-
 export default class Add extends Functional<I, O> {
   constructor(system: System) {
     super(
@@ -22,7 +20,8 @@ export default class Add extends Functional<I, O> {
         o: ['a + b'],
       },
       {},
-      system
+      system,
+      ID_ADD
     )
   }
 

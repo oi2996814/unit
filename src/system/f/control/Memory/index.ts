@@ -1,4 +1,7 @@
 import { Primitive } from '../../../../Primitive'
+import { System } from '../../../../system'
+import { Dict } from '../../../../types/Dict'
+import { ID_MEMORY } from '../../../_ids'
 
 export interface I<T> {
   a: T
@@ -11,8 +14,8 @@ export interface O<T> {
 export default class Memory<T> extends Primitive<I<T>, O<T>> {
   private _current: T | undefined = undefined
 
-  constructor() {
-    super({ i: ['a'], o: ['a'] })
+  constructor(system: System) {
+    super({ i: ['a'], o: ['a'] }, {}, system, ID_MEMORY)
 
     this.addListener('reset', () => {
       this._current = undefined
@@ -42,5 +45,20 @@ export default class Memory<T> extends Primitive<I<T>, O<T>> {
 
   public onDataInputInvalid(name: string) {
     this._invalidate()
+  }
+
+  public snapshotSelf(): Dict<any> {
+    return {
+      ...super.snapshotSelf(),
+      ...(this._current !== undefined ? { _current: this._current } : {}),
+    }
+  }
+
+  public restoreSelf(state: Dict<any>): void {
+    const { _current, ...rest } = state
+
+    super.restoreSelf(rest)
+
+    this._current = _current
   }
 }

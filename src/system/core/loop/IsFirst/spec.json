@@ -61,36 +61,29 @@
     }
   },
   "metadata": {
-    "icon": null,
-    "description": "no description",
-    "complexity": 5,
-    "tags": [
-      "core",
-      "loop"
-    ]
+    "icon": "question",
+    "description": "check whether this is the first element of stream `a`",
+    "tags": ["core", "loop"]
   },
   "inputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "wait",
           "pinId": "b"
         }
-      },
-      "type": "any"
+      }
     }
   },
   "outputs": {
-    "first": {
-      "pin": {
+    "test": {
+      "plug": {
         "0": {
           "mergeId": "0"
         }
-      },
-      "type": "boolean"
+      }
     }
   },
   "id": "fb311fff-521b-4066-b830-81d3a50f0f01",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

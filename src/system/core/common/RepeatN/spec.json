@@ -25,7 +25,7 @@
     }
   },
   "merges": {
-    "ncrfjsgik": {
+    "0": {
       "looprepeat": {
         "input": {
           "test": true
@@ -42,7 +42,7 @@
         }
       }
     },
-    "yxlpxg": {
+    "1": {
       "loopdecrement": {
         "output": {
           "local": true
@@ -58,46 +58,38 @@
   "metadata": {
     "icon": "repeat-1",
     "description": "output `a` `n` times",
-    "complexity": 5,
-    "tags": [
-      "core",
-      "common"
-    ]
+    "tags": ["core", "common"]
   },
   "inputs": {
     "n": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "loopdecrement",
           "pinId": "init"
         }
       },
-      "type": "number"
+      "functional": true
     },
     "a": {
-      "functional": true,
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "looprepeat",
           "pinId": "init"
         }
       },
-      "type": "<A>"
+      "functional": true
     }
   },
   "outputs": {
     "a": {
-      "pin": {
+      "plug": {
         "0": {
           "unitId": "looprepeat",
           "pinId": "current"
         }
-      },
-      "type": "<A>"
+      }
     }
   },
   "id": "251ba609-a9c5-451b-8162-411c966bf919",
-  "type": "`U`&`G`",
-  "system": true
+  "type": "`U`&`G`"
 }

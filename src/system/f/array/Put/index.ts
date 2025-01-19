@@ -1,5 +1,7 @@
 import { Functional } from '../../../../Class/Functional'
 import { Done } from '../../../../Class/Functional/Done'
+import { System } from '../../../../system'
+import { ID_PUT } from '../../../_ids'
 
 export interface I<T> {
   a: T[]
@@ -12,11 +14,16 @@ export interface O<T> {
 }
 
 export default class Put<T> extends Functional<I<T>, O<T>> {
-  constructor() {
-    super({
-      i: ['a', 'v', 'i'],
-      o: ['a'],
-    })
+  constructor(system: System) {
+    super(
+      {
+        i: ['a', 'v', 'i'],
+        o: ['a'],
+      },
+      {},
+      system,
+      ID_PUT
+    )
   }
 
   f({ a, v, i }: I<T>, done: Done<O<T>>): void {

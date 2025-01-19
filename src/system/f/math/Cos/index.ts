@@ -1,4 +1,6 @@
 import { Functional } from '../../../../Class/Functional'
+import { System } from '../../../../system'
+import { ID_COS } from '../../../_ids'
 
 export interface I<T> {
   a: number
@@ -9,11 +11,16 @@ export interface O<T> {
 }
 
 export default class Cos<T> extends Functional<I<T>, O<T>> {
-  constructor() {
-    super({
-      i: ['a'],
-      o: ['cos(a)'],
-    })
+  constructor(system: System) {
+    super(
+      {
+        i: ['a'],
+        o: ['cos(a)'],
+      },
+      {},
+      system,
+      ID_COS
+    )
   }
 
   f({ a }: I<T>, done): void {

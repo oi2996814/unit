@@ -1,9 +1,11 @@
 import { Functional } from '../../../../../Class/Functional'
 import { Done } from '../../../../../Class/Functional/Done'
-import { J } from '../../../../../interface/J'
+import { System } from '../../../../../system'
+import { J } from '../../../../../types/interface/J'
+import { ID_SET_1 } from '../../../../_ids'
 
 export interface I<T> {
-  unit: J
+  obj: J
   name: string
   data: T
 }
@@ -13,28 +15,33 @@ export interface O<T> {
 }
 
 export default class Set<T> extends Functional<I<T>, O<T>> {
-  constructor() {
+  constructor(system: System) {
     super(
       {
-        i: ['unit', 'name', 'data'],
+        i: ['obj', 'name', 'data'],
         o: ['data'],
       },
       {
         input: {
-          unit: {
+          obj: {
             ref: true,
           },
         },
-      }
+      },
+      system,
+      ID_SET_1
     )
   }
 
-  async f({ unit, name, data }: I<T>, done: Done<O<T>>) {
+  async f({ obj, name, data }: I<T>, done: Done<O<T>>) {
     try {
-      await unit.set(name, data)
-      done({ data })
+      await obj.set(name, data)
     } catch (err) {
-      done(undefined, err)
+      done(undefined, err.message)
+
+      return
     }
+
+    done({ data })
   }
 }

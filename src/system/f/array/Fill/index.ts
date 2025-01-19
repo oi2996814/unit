@@ -1,5 +1,7 @@
 import { Functional } from '../../../../Class/Functional'
 import { Done } from '../../../../Class/Functional/Done'
+import { System } from '../../../../system'
+import { ID_FILL } from '../../../_ids'
 
 export interface I<T> {
   a: T[]
@@ -13,11 +15,16 @@ export interface O<T> {
 }
 
 export default class Fill<T> extends Functional<I<T>, O<T>> {
-  constructor() {
-    super({
-      i: ['a', 'value', 'start', 'end'],
-      o: ['a'],
-    })
+  constructor(system: System) {
+    super(
+      {
+        i: ['a', 'value', 'start', 'end'],
+        o: ['a'],
+      },
+      {},
+      system,
+      ID_FILL
+    )
   }
 
   f({ a, value, start, end }: I<T>, done: Done<O<T>>): void {

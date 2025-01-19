@@ -9,12 +9,7 @@
   "metadata": {
     "icon": "keyboard",
     "description": "virtual keyboard",
-    "complexity": 9.911494913181254,
-    "tags": [
-      "platform",
-      "component",
-      "app"
-    ]
+    "tags": ["platform", "component", "app"]
   },
   "id": "fcccb9a4-1a30-11eb-93b0-e7d511d031f2",
   "base": true,
@@ -22,7 +17,6 @@
     "defaultWidth": 302,
     "defaultHeight": 212
   },
-  "type": "`U`&`C`",
-  "system": true,
+  "type": "`U`&`C`&`V`&`J`",
   "render": true
 }

@@ -1,0 +1,24 @@
+{
+  "name": "add unit spec",
+  "inputs": {
+    "unit": {
+      "type": "object"
+    },
+    "graph": {
+      "type": "`G`",
+      "ref": true
+    },
+    "id": {
+      "type": "string"
+    }
+  },
+  "outputs": {},
+  "metadata": {
+    "icon": "circle",
+    "description": "add unit of `unit` spec to `graph`",
+    "tags": ["f", "graph"]
+  },
+  "id": "d36729c6-432f-46e9-8fa1-3fc88de022ff",
+  "base": true,
+  "type": "`U`"
+}
