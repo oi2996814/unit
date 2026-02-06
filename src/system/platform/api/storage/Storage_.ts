@@ -10,7 +10,6 @@ import {
   set,
   write,
 } from '../../../../client/util/storage'
-import { MethodNotImplementedError } from '../../../../exception/MethodNotImplementedError'
 import { ObjectPathTooDeepError } from '../../../../exception/ObjectPathTooDeep'
 import { System } from '../../../../system'
 import { Dict } from '../../../../types/Dict'
@@ -25,7 +24,7 @@ export type O = {
 }
 
 export default class Storage_ extends Primitive<I, O> {
-  constructor(system: System, id: string, prefix: string) {
+  constructor(system: System, id: string, prefix: string, storage: Storage) {
     super(
       {
         i: [],
@@ -46,14 +45,8 @@ export default class Storage_ extends Primitive<I, O> {
       new (class Storage__ extends $ implements V, J {
         private _prefix = prefix
 
-        protected _storage = (): Storage => {
-          throw new MethodNotImplementedError()
-        }
-
         read(): Dict<string> {
           const { path } = this.__system
-
-          const storage = this._storage()
 
           const data = read(storage, path)
 
@@ -63,23 +56,17 @@ export default class Storage_ extends Primitive<I, O> {
         write(data: any): void {
           const { path } = this.__system
 
-          const storage = this._storage()
-
           write(storage, path, data)
         }
 
         get(name: string): any {
           const { path } = this.__system
 
-          const storage = this._storage()
-
           return get(storage, path, name)
         }
 
         set(name: string, data: any): void {
           const { path, emitter } = this.__system
-
-          const storage = this._storage()
 
           set(storage, path, name, data)
 
@@ -89,8 +76,6 @@ export default class Storage_ extends Primitive<I, O> {
         delete(name: string): any {
           const { path, emitter } = this.__system
 
-          const storage = this._storage()
-
           delete_(storage, path, name)
 
           emitter.emit(`${this._prefix}_storage`, name, undefined)
@@ -98,8 +83,6 @@ export default class Storage_ extends Primitive<I, O> {
 
         deepSet(path_: string[], data: any): void {
           const { path } = this.__system
-
-          const storage = this._storage()
 
           if (path_.length > 0) {
             throw new ObjectPathTooDeepError()
@@ -111,8 +94,6 @@ export default class Storage_ extends Primitive<I, O> {
         deepGet(path_: string[]): any {
           const { path } = this.__system
 
-          const storage = this._storage()
-
           if (path_.length > 0) {
             throw new ObjectPathTooDeepError()
           }
@@ -122,8 +103,6 @@ export default class Storage_ extends Primitive<I, O> {
 
         deepDelete(path_: string[]): void {
           const { path } = this.__system
-
-          const storage = this._storage()
 
           if (path_.length > 1) {
             throw new ObjectPathTooDeepError()
@@ -175,15 +154,11 @@ export default class Storage_ extends Primitive<I, O> {
         keys(): string[] {
           const { path } = this.__system
 
-          const storage = this._storage()
-
           return keys(storage, path)
         }
 
         hasKey(name: string): boolean {
           const { path } = this.__system
-
-          const storage = this._storage()
 
           const has = hasKey(storage, path, name)
 
