@@ -11,12 +11,13 @@ export interface GraphSetPinSetIdMoment
   extends Moment<GraphSetPinSetIdMomentData> {}
 
 export function extractSetPinSetIdEventData(
-  ...[type, pinId, newPinId, path]: G_EE['set_pin_set_id']
+  ...[type, pinId, newPinId, pinSpec, path]: G_EE['set_pin_set_id']
 ): GraphSetPinSetIdMomentData {
   return {
     type,
     pinId,
     newPinId,
+    pinSpec,
     path,
   }
 }

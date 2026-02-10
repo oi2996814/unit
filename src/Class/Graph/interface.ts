@@ -179,6 +179,7 @@ export type GraphSetPinSetIdData = {
   type: IO
   pinId: string
   newPinId: string
+  pinSpec?: GraphPinSpec
 } & Flags
 
 export type GraphSetPinSetDefaultIgnoredData = {

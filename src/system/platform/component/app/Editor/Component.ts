@@ -60314,7 +60314,7 @@ export class Editor_ extends Element<HTMLDivElement, Props_> {
 
     const { parent, specs, setSpec } = this.$props
 
-    const { type, pinId, newPinId, path } = data
+    const { type, pinId, newPinId, pinSpec, path } = data
 
     const opposite_type = opposite(type)
 
@@ -60328,11 +60328,9 @@ export class Editor_ extends Element<HTMLDivElement, Props_> {
     if (this._is_spec_updater(path)) {
       const spec = clone(findSpecAtPath(specs, this._spec, path))
 
-      const pin_spec = this.__get_unit_pin_spec(
-        graphUnitId,
-        type,
-        pinId
-      ) as GraphPinSpec
+      const pin_spec =
+        pinSpec ??
+        (this.__get_unit_pin_spec(graphUnitId, type, pinId) as GraphPinSpec)
 
       let pin_position: Position
       let merge_node_id: string

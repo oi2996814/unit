@@ -306,7 +306,7 @@ export type G_EE = {
   set_unit_pin_metadata: [string, IO, string, string[], any, string[]]
   component_append: [string, GraphUnitSpec, string[]]
   component_remove: [string, string[]]
-  set_pin_set_id: [IO, string, string, string[]]
+  set_pin_set_id: [IO, string, string, GraphPinSpec, string[]]
   set_unit_id: [string, string, string, string, string[]]
   set_unit_size: [string, number, number, string[]]
   set_sub_component_size: [string, number, number, string[]]

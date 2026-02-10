@@ -1702,11 +1702,13 @@ export class Graph<I extends Dict<any> = any, O extends Dict<any> = any>
     fork: boolean = true,
     bubble: boolean = true
   ): void {
+    const pinSpec = this.getExposedPinSpec(type, pinId)
+
     this._setPinSetId(type, pinId, newPinId, fork, bubble)
 
     this.renamePin(type, pinId, newPinId)
 
-    emit && this.edit('set_pin_set_id', type, pinId, newPinId, [])
+    emit && this.edit('set_pin_set_id', type, pinId, newPinId, pinSpec, [])
   }
 
   public _setPinSetId(
