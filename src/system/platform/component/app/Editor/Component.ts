@@ -53398,7 +53398,11 @@ export class Editor_ extends Element<HTMLDivElement, Props_> {
         try {
           tree = getTree__cached(text)
         } catch (err) {
-          //
+          try {
+            tree = getTree__cached(`"${escape(text)}"`)
+          } catch (err) {
+            //
+          }
         }
 
         ;[tree] = _filterEmptyNodes(tree, getTree__cached)
