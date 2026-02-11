@@ -26754,8 +26754,7 @@ export class Editor_ extends Element<HTMLDivElement, Props_> {
           let layer_trait = extractTrait(this.$system, layer, measureText)
 
           for (const sub_component_id of sub_component_ids) {
-            const { base } =
-              this._get_sub_component_base_trait(sub_component_id)
+            const base = this._get_sub_component_internal_base(sub_component_id)
 
             const root_base =
               this._get_sub_component_root_base(sub_component_id)
@@ -32424,6 +32423,19 @@ export class Editor_ extends Element<HTMLDivElement, Props_> {
     ]) as LayoutBase
 
     return { base: _base, base_node }
+  }
+
+  private _get_sub_component_internal_base(
+    sub_component_id: string
+  ): LayoutBase {
+    const base = this._get_sub_component_root_base(sub_component_id)
+
+    const base_ = base.map(([path, comp]) => [
+      [sub_component_id, ...path],
+      comp,
+    ]) as LayoutBase
+
+    return base_
   }
 
   private _on_subgraph_leave = ({
