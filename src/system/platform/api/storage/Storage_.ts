@@ -16,6 +16,8 @@ import { Dict } from '../../../../types/Dict'
 import { Unlisten } from '../../../../types/Unlisten'
 import { J } from '../../../../types/interface/J'
 import { V } from '../../../../types/interface/V'
+import { identity } from '../../../../util/identity'
+import { mapObjKV } from '../../../../util/object'
 
 export type I = {}
 
@@ -24,7 +26,14 @@ export type O = {
 }
 
 export default class Storage_ extends Primitive<I, O> {
-  constructor(system: System, id: string, prefix: string, storage: Storage) {
+  constructor(
+    system: System,
+    id: string,
+    prefix: string,
+    storage: Storage,
+    write_: (value: any) => string = identity,
+    read_: (value: string) => any = identity
+  ) {
     super(
       {
         i: [],
@@ -41,6 +50,8 @@ export default class Storage_ extends Primitive<I, O> {
       id
     )
 
+    const self = this
+
     this._output.obj.push(
       new (class Storage__ extends $ implements V, J {
         private _prefix = prefix
@@ -50,7 +61,11 @@ export default class Storage_ extends Primitive<I, O> {
 
           const data = read(storage, path)
 
-          return data
+          const data_ = mapObjKV(data, (key, value) => {
+            return read_(value)
+          })
+
+          return data_
         }
 
         write(data: any): void {
@@ -62,13 +77,19 @@ export default class Storage_ extends Primitive<I, O> {
         get(name: string): any {
           const { path } = this.__system
 
-          return get(storage, path, name)
+          const data = get(storage, path, name)
+
+          const data_ = read_(data)
+
+          return data_
         }
 
         set(name: string, data: any): void {
           const { path, emitter } = this.__system
 
-          set(storage, path, name, data)
+          const data_ = write_(data)
+
+          set(storage, path, name, data_)
 
           emitter.emit(`${this._prefix}_storage`, name, data)
         }
@@ -88,7 +109,9 @@ export default class Storage_ extends Primitive<I, O> {
             throw new ObjectPathTooDeepError()
           }
 
-          return set(storage, path_[0], data, path)
+          const data_ = write_(data)
+
+          set(storage, path_[0], data_, path)
         }
 
         deepGet(path_: string[]): any {
@@ -98,7 +121,11 @@ export default class Storage_ extends Primitive<I, O> {
             throw new ObjectPathTooDeepError()
           }
 
-          return get(storage, path, path_[0])
+          const data = get(storage, path, path_[0])
+
+          const data_ = read_(data)
+
+          return data_
         }
 
         deepDelete(path_: string[]): void {
@@ -166,5 +193,9 @@ export default class Storage_ extends Primitive<I, O> {
         }
       })(this.__system)
     )
+  }
+
+  t(value: string) {
+    return value
   }
 }

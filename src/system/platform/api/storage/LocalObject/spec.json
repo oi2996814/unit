@@ -1,0 +1,19 @@
+{
+  "name": "local object",
+  "inputs": {},
+  "outputs": {
+    "obj": {
+      "type": "`J`",
+      "ref": true
+    }
+  },
+  "metadata": {
+    "icon": "table",
+    "description": "persist JSON data on local storage",
+    "tags": ["platform", "api", "storage"],
+    "globals": ["LocalStorage"]
+  },
+  "id": "32c6b01a-06af-4145-b02e-1b0276e05379",
+  "base": true,
+  "type": "`U`"
+}
