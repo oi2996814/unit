@@ -1418,14 +1418,17 @@ export function _getValueType(specs: Specs, tree: TreeNode): TreeNode {
           }
         })
 
-      const childType =
-        tree.children.length > 0
-          ? getTree(
-              childrenTypes.length > 1
-                ? `(${childrenTypes_.join('|')})`
-                : childrenTypes_[0]
-            )
-          : getTree('<T>')
+      let childType
+
+      if (tree.children.length > 0) {
+        if (childrenTypes_.length > 1) {
+          childType = getTree(`(${childrenTypes_.join('|')})`)
+        } else {
+          childType = getTree(childrenTypes_[0])
+        }
+      } else {
+        childType = getTree('<T>')
+      }
 
       return {
         value: `${childType.value}[]`,
