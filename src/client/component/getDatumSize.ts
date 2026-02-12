@@ -257,7 +257,9 @@ export function getDatumWidth(
     case TreeNodeType.Expression:
       width =
         getDatumWidth(data.children[0], fontSize, measureText) +
-        2 * DELIMITER_WIDTH
+        2 * DELIMITER_WIDTH +
+        CONTAINER_ROW_LEFT_MARGIN +
+        CONTAINER_ROW_RIGHT_MARGIN
       break
     case TreeNodeType.KeyValue:
       {
