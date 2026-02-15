@@ -44352,8 +44352,10 @@ export class Editor_ extends Element<HTMLDivElement, Props_> {
   ): void => {
     // console.log('Graph', '_unplug_exposed_pin')
 
+    const ref = this._is_pin_ref(type, pin_id)
+
     this._state_unplug_exposed_pin(type, pin_id, sub_pin_id)
-    this._pod_unplug_exposed_pin(type, pin_id, sub_pin_id)
+    this._pod_unplug_exposed_pin(type, pin_id, sub_pin_id, ref)
   }
 
   private _spec_unplug_sub_pin = (
@@ -44501,13 +44503,14 @@ export class Editor_ extends Element<HTMLDivElement, Props_> {
   private _pod_unplug_exposed_pin = (
     type: IO,
     pinId: string,
-    subPinId: string
+    subPinId: string,
+    ref: boolean
   ): void => {
     const { fork } = this.$props
 
     const config = this._config()
 
-    const take = config?.unlinkTake ? true : false
+    const take = (config?.unlinkTake ? true : false) || type === 'output' && ref
 
     this._pod.$unplugPin({
       type,

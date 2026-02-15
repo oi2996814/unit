@@ -724,11 +724,19 @@ export class Graph<I extends Dict<any> = any, O extends Dict<any> = any>
     //   propagate,
     // })
 
+    const { specs } = this.__system
+
     const mergePinNodeId = getMergePinNodeId(mergeId, type)
 
     this._ensureMergePin(type, mergeId, data, propagate)
 
     const subPin = this._pin[mergePinNodeId]
+
+    const ref = isMergeRef(specs, this._spec, mergeId)
+
+    subPin.ref(ref)
+
+    this.setPinRef(type, pinId, ref)
 
     return this._simSetExposedSubPin(
       type,
@@ -748,6 +756,10 @@ export class Graph<I extends Dict<any> = any, O extends Dict<any> = any>
     mergeId: string,
     propagate: boolean
   ): void {
+    const ref = this.isPinRef(type, name)
+
+    propagate = propagate && !ref
+
     this._simRemoveExposedSubPin(type, name, subPinId, propagate)
   }
 
@@ -1438,7 +1450,7 @@ export class Graph<I extends Dict<any> = any, O extends Dict<any> = any>
     //   bubble
     // )
 
-    const exposedPin = new Pin({ data }, this.__system)
+    const exposedPin = new Pin({ data, ref: pinSpec.ref }, this.__system)
 
     const exposeMerge = new Merge(this.__system)
 
@@ -2429,13 +2441,15 @@ export class Graph<I extends Dict<any> = any, O extends Dict<any> = any>
 
       this._simUnplugPinFromMerge(type, pinId, subPinId, _mergeId, propagate)
 
-      if (propagate) {
+      if (propagate && !(output && ref)) {
         const merge = this.getMergeSpec(_mergeId)
 
         forEachInputOnMerge(merge, (unitId, pinId) => {
           this._removeUnitPinData(unitId, 'input', pinId)
         })
+      }
 
+      if (propagate) {
         if (input && active) {
           const outputPlugs = findMergePlugOfType(
             this._spec,
@@ -2449,6 +2463,10 @@ export class Graph<I extends Dict<any> = any, O extends Dict<any> = any>
             this.removePinData('output', pinId)
           }
         }
+      }
+
+      if (ref) {
+        this.removePinData('output', pinId)
       }
     } else if (_unitId && _pinId) {
       const unit = this.getUnit(_unitId)
