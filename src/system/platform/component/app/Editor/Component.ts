@@ -51127,11 +51127,11 @@ export class Editor_ extends Element<HTMLDivElement, Props_> {
         if (this._collapse_init_node_id_set.has(pin_node_id)) {
           this._sim_remove_datum(datum_node_id)
         } else {
-          this._remove_datum(datum_node_id)
+          this._remove_datum(datum_node_id, false)
         }
       }
     } else {
-      this._remove_datum(datum_node_id)
+      this._remove_datum(datum_node_id, false)
     }
 
     const graph = this._ensure_subgraph(sub_graph_id)
