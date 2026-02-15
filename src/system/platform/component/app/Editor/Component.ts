@@ -48353,7 +48353,7 @@ export class Editor_ extends Element<HTMLDivElement, Props_> {
           let new_pin_sub_spec: GraphSubPinSpec
           let new_pin_datum_value: string
 
-          if (is_link_pin_node_id) {
+          const do_pin = (node_id: string) => {
             const { unitId, pinId } = segmentLinkPinNodeId(node_id)
 
             const pin_node_id = getPinNodeId(unitId, type, pinId)
@@ -48373,7 +48373,9 @@ export class Editor_ extends Element<HTMLDivElement, Props_> {
 
               new_pin_datum_value = pin_datum_value
             }
-          } else {
+          }
+
+          const do_merge = (node_id: string) => {
             const first_merge_pin = this._find_merge_pin(node_id, () => true)
 
             const first_merge_pin_of_type = this._find_merge_pin(
@@ -48403,6 +48405,18 @@ export class Editor_ extends Element<HTMLDivElement, Props_> {
 
               new_pin_datum_value = merge_datum_value
             }
+          }
+
+          if (is_link_pin_node_id) {
+            const merge_node_id = this._get_pin_merge_node_id(node_id)
+
+            if (merge_node_id) {
+              do_merge(merge_node_id)
+            } else {
+              do_pin(node_id)
+            }
+          } else {
+            do_merge(node_id)
           }
 
           const u = unitVector(x0, y0, x1, y1)
