@@ -44510,7 +44510,8 @@ export class Editor_ extends Element<HTMLDivElement, Props_> {
 
     const config = this._config()
 
-    const take = (config?.unlinkTake ? true : false) || type === 'output' && ref
+    const take =
+      (config?.unlinkTake ? true : false) || (type === 'output' && ref)
 
     this._pod.$unplugPin({
       type,
@@ -54799,9 +54800,16 @@ export class Editor_ extends Element<HTMLDivElement, Props_> {
             return
           }
 
+          const ref = this._is_pin_ref(data.type, data.pinId)
+
           this._state_unplug_exposed_pin(data.type, data.pinId, data.subPinId)
           emit &&
-            this._pod_unplug_exposed_pin(data.type, data.pinId, data.subPinId)
+            this._pod_unplug_exposed_pin(
+              data.type,
+              data.pinId,
+              data.subPinId,
+              ref
+            )
         }
         break
       case SET_UNIT_PIN_IGNORED:
