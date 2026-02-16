@@ -1,3 +1,7 @@
 export const isObjNotNull = (a: any): boolean => {
-  return typeof a === 'object' && a !== null
+  return (
+    typeof a === 'object' &&
+    a !== null &&
+    (!a.constructor || a.constructor.name === 'Object')
+  )
 }
