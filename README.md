@@ -258,7 +258,7 @@ Visit [Evolution](/src/docs/evolution/README.md) to learn more about where Unit 
 
 ## Community
 
-If you have a question or a suggestion related to Unit, or if you just want to talk about the future of Programming, or if you wish to join the Unit team, feel free to message me at [@io_sammt](https://x.com/io_sammt) or email me at sam@ioun.it.
+If you have a question or a suggestion related to Unit, or if you just want to talk about the future of Programming, or if you wish to join the Unit team, feel free to message me at [@io_sammt](https://x.com/io_sammt) or email me at admin@ioun.it.
 
 For updates about Unit's development, including thoughts about vision and roadmap, follow us on X [@io_unit](https://x.com/io_unit).
 
