@@ -1040,10 +1040,9 @@ export class Unit<
   private _catcherDone: boolean[] = []
 
   protected _catchErr: boolean = false
-  protected _caughtErr: string | null = null
 
   public caughtErr(): string | null {
-    return this._caughtErr
+    return this._err
   }
 
   public catch(callback: (err: string) => void): {
@@ -1058,8 +1057,6 @@ export class Unit<
     const err = this._err
 
     if (err) {
-      this._err = null
-      this._caughtErr = err
       this.emit('catch_err', err)
     }
 
@@ -1070,13 +1067,12 @@ export class Unit<
     }
 
     const _all_done = () => {
-      const caughtErr = this._caughtErr
+      const caughtErr = this._err
 
-      this._caughtErr = null
       this._catcherDoneCount = 0
       this._catcherDone.fill(false)
 
-      this.emit('take_caught_err', caughtErr)
+      this.takeErr()
     }
 
     const unlisten = () => {
@@ -1090,17 +1086,11 @@ export class Unit<
         removeAt(this._catcherDone, i)
 
         if (this._catcherCallback.length === 0) {
-          const err = this._caughtErr
+          const err = this._err
           this._catchErr = false
           if (err !== null) {
-            this._caughtErr = null
-            this.err(err)
-            this.emit('take_caught_err', err)
+            this.emit('err', err)
           }
-        }
-
-        if (!done) {
-          _check_all_done()
         }
       } else {
         throw new Error('unregistered Catcher cannot call unlisten')
@@ -1108,7 +1098,7 @@ export class Unit<
     }
 
     const done = () => {
-      if (this._caughtErr) {
+      if (this._err) {
         const i = this._catcherCallback.indexOf(callback)
         if (i > -1) {
           const done = this._catcherDone[i]
@@ -1178,7 +1168,7 @@ export class Unit<
         err = err.message
       }
       if (this._catchErr) {
-        this._caughtErr = err
+        this._err = err
         for (const callback of this._catcherCallback) {
           callback(err)
         }
@@ -1205,21 +1195,12 @@ export class Unit<
     const err = this._err
     if (err) {
       this._err = null
-      this.emit('take_err', err)
-    }
-    return err
-  }
-
-  public takeCaughtErr(): string | null {
-    const err = this._caughtErr
-    if (err) {
-      this._caughtErr = null
 
       for (const callback of this._catcherCallback) {
         callback(null)
       }
 
-      this.emit('take_caught_err', err)
+      this.emit('take_err', err)
     }
     return err
   }

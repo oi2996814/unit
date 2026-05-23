@@ -41,18 +41,20 @@ export default class Catch<T> extends Primitive<I<T>, O<T>> {
 
   onRefInputData(name: string, unit: Unit): void {
     // if (name === 'unit') {
-    const { unlisten, done } = unit.catch((err: string | null) => {
-      if (err === null) {
-        this._forward_all_empty()
-      } else {
-        this._output.err.push(err)
+    const { unlisten: unlisten_catch, done } = unit.catch(
+      (err: string | null) => {
+        if (err === null) {
+          this._forward_all_empty()
+        } else {
+          this._output.err.push(err)
+        }
       }
-    })
+    )
 
-    this._unlisten = unlisten
+    this._unlisten = unlisten_catch
     this._done = done
 
-    const err = unit.caughtErr()
+    const err = unit.err()
 
     if (err !== null) {
       this._output.err.push(err)

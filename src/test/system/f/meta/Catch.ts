@@ -19,21 +19,21 @@ assert.equal(_throw.getErr(), 'bafum!')
 
 _catch.push('unit', _throw)
 
-assert.equal(_throw.getErr(), null)
+assert.equal(_throw.getErr(), 'bafum!')
 
-assert.equal(_throw.caughtErr(), 'bafum!')
+assert.equal(_throw.err(), 'bafum!')
 
 assert.equal(_catch.peak('err'), 'bafum!')
 
 assert.equal(_catch.take('err'), 'bafum!')
 
-assert.equal(_throw.caughtErr(), null)
+assert.equal(_throw.err(), null)
 
 _throw.push('message', 'grrr!')
 
-assert.equal(_throw.getErr(), null)
+assert.equal(_throw.getErr(), 'grrr!')
 
-assert.equal(_throw.caughtErr(), 'grrr!')
+assert.equal(_throw.err(), 'grrr!')
 
 assert.equal(_catch.peak('err'), 'grrr!')
 
@@ -45,12 +45,12 @@ assert.equal(_throw.getErr(), 'grrr!')
 
 _catch.push('unit', _throw)
 
-assert.equal(_throw.getErr(), null)
+assert.equal(_throw.getErr(), 'grrr!')
 
-assert.equal(_throw.caughtErr(), 'grrr!')
+assert.equal(_throw.err(), 'grrr!')
 
 assert.equal(_catch.peak('err'), 'grrr!')
 
 assert.equal(_catch.take('err'), 'grrr!')
 
-assert.equal(_throw.caughtErr(), null)
+assert.equal(_throw.err(), null)

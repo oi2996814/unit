@@ -282,7 +282,6 @@ export class Graph<I extends Dict<any> = any, O extends Dict<any> = any>
     this.addListener('pause', this._pause)
     this.addListener('destroy', this._destroy)
     this.addListener('take_err', this._takeErr)
-    this.addListener('take_caught_err', this._takeErr)
 
     this._initUnits(units, push)
     this._initMerges(merges)

@@ -48,10 +48,6 @@ export default class RemoteGraph extends Holder<I, O> {
     this.addListener('take_err', () => {
       //
     })
-
-    this.addListener('take_caught_err', () => {
-      //
-    })
   }
 
   f({ opt }: I, done: Done<O>) {

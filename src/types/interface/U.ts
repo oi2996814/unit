@@ -27,7 +27,6 @@ export type U_EE<I extends Dict<any> = any, O extends Dict<any> = any> = {
   catch_err: [string]
   err: [string]
   take_err: [string]
-  take_caught_err: [string]
   reset: []
   play: []
   pause: []

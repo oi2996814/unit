@@ -168,10 +168,6 @@ export class Semifunctional<
       functional.takeErr()
     })
 
-    this.addListener('take_caught_err', () => {
-      functional.takeCaughtErr()
-    })
-
     this.addListener('pause', () => {
       functional.pause()
       primitive.pause()

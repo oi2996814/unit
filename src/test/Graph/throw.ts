@@ -43,9 +43,9 @@ composition0.push('message', 'xablèau')
 assert.equal(composition0.peakInput('message'), 'xablèau')
 assert.equal(composition0.takeErr(), 'xablèau')
 
-composition0.push('message', 'kpop')
-assert.equal(composition0.peakInput('message'), 'kpop')
-assert.equal(composition0.takeErr(), 'kpop')
+composition0.push('message', 'puff')
+assert.equal(composition0.peakInput('message'), 'puff')
+assert.equal(composition0.takeErr(), 'puff')
 assert.equal(composition0.takeErr(), null)
 
 const spec1 = system.newSpec({})

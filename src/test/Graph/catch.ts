@@ -47,14 +47,14 @@ assert.equal(throwy.peakInput('message'), 'booom!')
 assert.equal(catchy.takeOutput('err'), 'booom!')
 assert.equal(throwy.peakInput('message'), undefined)
 
-throwy.pushInput('message', 'kpop!')
+throwy.pushInput('message', 'puff!')
 
-assert.equal(catchy.peakOutput('err'), 'kpop!')
+assert.equal(catchy.peakOutput('err'), 'puff!')
 
 graph.removeMerge('0')
 
 assert.equal(catchy.peakOutput('err'), undefined)
-assert.equal(throwy.getErr(), 'kpop!')
+assert.equal(throwy.getErr(), 'puff!')
 
 graph.addMerge(
   {
@@ -72,22 +72,22 @@ graph.addMerge(
   '0'
 )
 
-assert.equal(catchy.peakOutput('err'), 'kpop!')
-assert.equal(throwy.peakInput('message'), 'kpop!')
-assert.equal(throwy.getErr(), null)
+assert.equal(catchy.peakOutput('err'), 'puff!')
+assert.equal(throwy.peakInput('message'), 'puff!')
+assert.equal(throwy.getErr(), 'puff!')
 assert.equal(graph.getErr(), null)
 
 throwy.setInputConstant('message', true)
 
-assert.equal(catchy.takeOutput('err'), 'kpop!')
-assert.equal(catchy.takeOutput('err'), 'kpop!')
-assert.equal(catchy.takeOutput('err'), 'kpop!')
-assert.equal(catchy.takeOutput('err'), 'kpop!')
-assert.equal(catchy.takeOutput('err'), 'kpop!')
+assert.equal(catchy.takeOutput('err'), 'puff!')
+assert.equal(catchy.takeOutput('err'), 'puff!')
+assert.equal(catchy.takeOutput('err'), 'puff!')
+assert.equal(catchy.takeOutput('err'), 'puff!')
+assert.equal(catchy.takeOutput('err'), 'puff!')
 
 throwy.setInputConstant('message', false)
 
-assert.equal(catchy.takeOutput('err'), 'kpop!')
+assert.equal(catchy.takeOutput('err'), 'puff!')
 assert.equal(catchy.takeOutput('err'), null)
 
 throwy.push('message', 'xxx')

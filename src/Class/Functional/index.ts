@@ -42,11 +42,6 @@ export class Functional<
         this._backward_if_ready()
       }
     })
-    this.addListener('take_caught_err', () => {
-      if (!this.hasErr()) {
-        this._backward_if_ready()
-      }
-    })
 
     this.addListener('reset', this._reset)
     this.addListener('destroy', this.d)
@@ -70,11 +65,7 @@ export class Functional<
     if (this._i_active.size === this._i_count - 1) {
       if (!this._backwarding && !this._forwarding_empty) {
         this._looping = false
-        if (this._catchErr) {
-          this.takeCaughtErr()
-        } else {
-          this.takeErr()
-        }
+        this.takeErr()
         this.d()
         this._forward_all_empty()
       }
@@ -161,7 +152,6 @@ export class Functional<
       !this._forwarding_empty &&
       !this._forwarding &&
       !this._err &&
-      !this._caughtErr &&
       this._i_count > 0 &&
       this._o_active.size === 0
     ) {
