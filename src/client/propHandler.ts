@@ -116,6 +116,12 @@ export function svgPropHandler<P extends Dict<any> = any>(
       ) => {
         element.setAttribute('href', `${href}`)
       },
+      surfaceScale: (
+        surfaceScale: number | undefined = component.$props.attr.surfaceScale ??
+          DEFAULT_ATTR.surfaceScale
+      ) => {
+        element.setAttribute('surfaceScale', `${surfaceScale}`)
+      },
     },
   }
 }

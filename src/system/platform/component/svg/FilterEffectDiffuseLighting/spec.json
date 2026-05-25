@@ -11,7 +11,7 @@
       "optional": true
     },
     "surfaceScale": {
-      "type": "string",
+      "type": "number",
       "optional": true
     }
   },
