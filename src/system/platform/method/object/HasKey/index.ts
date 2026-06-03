@@ -36,6 +36,6 @@ export default class HasKey<T> extends Getter<I<T>, O<T>> {
   }
 
   opt({ key }) {
-    return { key }
+    return { name: key }
   }
 }
