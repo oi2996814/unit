@@ -1,5 +1,6 @@
 import { Functional } from '../../../../../Class/Functional'
 import { Done } from '../../../../../Class/Functional/Done'
+import { Fail } from '../../../../../Class/Functional/Fail'
 import { System } from '../../../../../system'
 import { UnitBundle } from '../../../../../types/UnitBundle'
 import { domToUnit } from '../../../../../util/parser/domToUnit'
@@ -27,11 +28,19 @@ export default class DomToUnit extends Functional<I, O> {
     )
   }
 
-  f({ type, text }: I, done: Done<O>): void {
-    const unit = domToUnit(this.__system, type, text, {
-      width: 200,
-      height: 200,
-    })
+  f({ type, text }: I, done: Done<O>, fail: Fail): void {
+    let unit: UnitBundle
+
+    try {
+      unit = domToUnit(this.__system, type, text, {
+        width: 200,
+        height: 200,
+      })
+    } catch (err) {
+      fail(err.message)
+
+      return
+    }
 
     done({
       unit,

@@ -50,6 +50,10 @@ export function domToBundle(
     newSpec,
   } = system
 
+  if (!['image/svg+xml', 'text/html'].includes(type)) {
+    throw new Error(`DOM type not implemented`)
+  }
+
   const parser = new DOMParser()
 
   const isSvg = type === 'image/svg+xml'
