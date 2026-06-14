@@ -10,9 +10,9 @@ import {
 import { addUnit } from '../../spec/reducers/spec'
 import { emptySpec, newUnitId } from '../../spec/util'
 import { System } from '../../system'
-import { ID_DIV, ID_SVG } from '../../system/_ids'
 import { Dict } from '../../types/Dict'
 import { GraphUnitPinSpec } from '../../types/GraphUnitPinSpec'
+import { GraphUnitSpec } from '../../types/GraphUnitSpec'
 import { UnitBundle } from '../../types/UnitBundle'
 import { UnitBundleSpec } from '../../types/UnitBundleSpec'
 import { clone } from '../clone'
@@ -50,8 +50,25 @@ export function domToBundle(
     newSpec,
   } = system
 
-  if (!['image/svg+xml', 'text/html'].includes(type)) {
-    throw new Error(`DOM type not implemented`)
+  const VALID_TYPES: DOMParserSupportedType[] = [
+    'application/xhtml+xml',
+    'application/xml',
+    'image/svg+xml',
+    'text/html',
+    'text/xml',
+  ]
+
+  const SUPPORTED_TYPES: DOMParserSupportedType[] = [
+    'image/svg+xml',
+    'text/html',
+  ]
+
+  if (!VALID_TYPES.includes(type)) {
+    throw new Error(`invalid DOM type`)
+  }
+
+  if (!SUPPORTED_TYPES.includes(type)) {
+    throw new Error(`DOM type not supported`)
   }
 
   const parser = new DOMParser()
@@ -60,41 +77,60 @@ export function domToBundle(
 
   const dom = parser.parseFromString(text, type)
 
-  const html = dom.documentElement
+  const htmlOrSvg = dom.documentElement
 
-  let body: HTMLBodyElement
+  let main = (isSvg ? htmlOrSvg : htmlOrSvg.firstChild) as
+    | HTMLElement
+    | SVGElement
 
-  for (const child of html.childNodes) {
-    if (child.nodeName === 'BODY') {
-      body = child as HTMLBodyElement
+  if (isSvg) {
+    main = htmlOrSvg
+  } else {
+    const html = dom.documentElement
 
-      break
+    let body: HTMLBodyElement
+
+    for (const child of html.childNodes) {
+      if (child.nodeName === 'BODY') {
+        body = child as HTMLBodyElement
+
+        break
+      }
     }
+
+    main = body
   }
 
-  const tree = elementToJson(body)
+  const tree = elementToJson(main)
 
   const { width, height } = size
 
   let name = 'untitled'
 
-  const template_spec = {
+  const templateSpec = {
     name,
     render: true,
     units: {},
     component: { defaultWidth: width, defaultHeight: height },
   }
 
-  let total = 0
+  let childCount = 0
 
-  const addChild = (node: Tag, parent_id: string | null) => {
-    total++
+  const addChild = (node: Tag, parentId: string | null) => {
+    if (node.name === 'script') {
+      return
+    }
 
-    const fallbackSpecId = isSvg ? ID_SVG : ID_DIV
+    childCount++
 
-    const node_spec_id = TAG_TO_SPEC_ID[node.name] ?? fallbackSpecId
-    const node_unit_id = newUnitId(specs, template_spec, node_spec_id)
-    const node_spec = getSpec(node_spec_id)
+    const nodeSpecId = TAG_TO_SPEC_ID[node.name]
+
+    if (!nodeSpecId) {
+      throw new Error(`invalid tag name`)
+    }
+
+    const nodeUnitId = newUnitId(specs, templateSpec, nodeSpecId)
+    const nodeSpec = getSpec(nodeSpecId)
 
     const attr = clone(node.attr)
 
@@ -132,7 +168,7 @@ export function domToBundle(
     for (const name of SURFACE_PROPS) {
       const pinId = snakeToCamel(name)
 
-      if (attr[name] && node_spec.inputs?.[pinId]) {
+      if (attr[name] && nodeSpec.inputs?.[pinId]) {
         input[pinId] = {
           constant: true,
           ignored: false,
@@ -146,7 +182,7 @@ export function domToBundle(
       delete attr[name]
     }
 
-    if (node_spec.inputs?.['attr'] && !isEmptyObject(attr)) {
+    if (nodeSpec.inputs?.['attr'] && !isEmptyObject(attr)) {
       input.attr = {
         constant: true,
         ignored: false,
@@ -156,48 +192,67 @@ export function domToBundle(
 
     addUnit(
       {
-        unitId: node_unit_id,
+        unitId: nodeUnitId,
         unit: {
-          id: node_spec_id,
+          id: nodeSpecId,
           input,
         },
       },
-      template_spec
+      templateSpec
     )
 
     setSubComponent(
-      { unitId: node_unit_id, subComponent: {} },
-      template_spec.component
+      { unitId: nodeUnitId, subComponent: {} },
+      templateSpec.component
     )
 
-    if (parent_id) {
+    if (parentId) {
       appendSubComponentChild(
         {
-          parentId: parent_id,
-          childId: node_unit_id,
+          parentId: parentId,
+          childId: nodeUnitId,
           slotName: 'default',
         },
-        template_spec.component
+        templateSpec.component
       )
     } else {
-      appendRoot({ childId: node_unit_id }, template_spec.component)
+      appendRoot({ childId: nodeUnitId }, templateSpec.component)
     }
 
     for (const child of node.children) {
-      addChild(child, node_unit_id)
+      addChild(child, nodeUnitId)
     }
   }
 
   let bundle: UnitBundleSpec
 
-  for (const child of tree.children) {
-    addChild(child, null)
-  }
+  addChild(tree, null)
 
-  const new_spec = newSpec(emptySpec(template_spec))
+  const spec = newSpec(emptySpec(templateSpec))
 
-  if (total === 1) {
-    const unit = new_spec.units[getObjSingleKey(new_spec.units)]
+  if (childCount === 0) {
+    const id = TAG_TO_SPEC_ID[tree.name]
+
+    if (!id) {
+      throw new Error(`Unrecognized ${type} tag`)
+    }
+
+    const unit: GraphUnitSpec = {
+      id,
+    }
+
+    unit.metadata = {
+      component: {
+        width,
+        height,
+      },
+    }
+
+    bundle = {
+      unit,
+    }
+  } else if (childCount === 1) {
+    const unit = spec.units[getObjSingleKey(spec.units)]
 
     unit.metadata = {
       component: {
@@ -212,7 +267,7 @@ export function domToBundle(
   } else {
     bundle = {
       unit: {
-        id: new_spec.id,
+        id: spec.id,
         metadata: {
           component: {
             width,
@@ -221,7 +276,7 @@ export function domToBundle(
         },
       },
       specs: {
-        [new_spec.id]: new_spec,
+        [spec.id]: spec,
       },
     }
   }

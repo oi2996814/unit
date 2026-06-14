@@ -63,7 +63,7 @@ export type Tag = {
   textContent?: string
 }
 
-export function elementToJson(element: HTMLElement): Tag {
+export function elementToJson(element: HTMLElement | SVGElement): Tag {
   if (element instanceof Text) {
     return {
       name: '_text',
