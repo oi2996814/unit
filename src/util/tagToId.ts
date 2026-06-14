@@ -4,6 +4,7 @@ import {
   ID_ANIMATE_MOTION,
   ID_ANIMATE_TRANSFORM,
   ID_AUDIO,
+  ID_BODY,
   ID_BOLD,
   ID_BUTTON,
   ID_CANVAS,
@@ -76,6 +77,7 @@ import {
 
 export const TAG_TO_SPEC_ID = {
   _text: ID_TEXT_0,
+  body: ID_BODY,
   a: ID_ANCHOR,
   b: ID_BOLD,
   button: ID_BUTTON,

@@ -1,6 +1,7 @@
 import { userSelect } from '../client/util/style/userSelect'
 
 export const style = {
+  body: {},
   div: {},
   label: {
     color: 'currentColor',
