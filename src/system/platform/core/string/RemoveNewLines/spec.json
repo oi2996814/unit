@@ -1,6 +1,6 @@
 {
   "type": "`U`&`G`",
-  "name": "remove newline",
+  "name": "remove newlines",
   "units": {
     "replace": {
       "id": "af5469c4-a09e-4b22-8133-a21e721e7639",
